@@ -9,12 +9,14 @@ aplicativo original de TCC (`partograma.apk`), mantido aqui intacto como fonte d
 
 ## Conteúdo
 
-- **`partograma.apk`** — APK original, referência definitiva de aparência e comportamento.
 - **`REVERSE_ENGINEERING.md`** — análise completa de engenharia reversa: telas, fluxos,
   esquema de dados, regras de negócio e bugs identificados no APK original.
 - **`partograma-app/`** — projeto-fonte Android reconstruído a partir dessa análise,
   organizado e compilável (`./gradlew assembleDebug`). Ver `partograma-app/README.md` para
   detalhes de build e estrutura do código.
+
+O `partograma.apk` original (fonte de verdade usada na análise) não faz parte deste
+repositório — fica mantido apenas localmente como referência.
 
 ## Status
 
