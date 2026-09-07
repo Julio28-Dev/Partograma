@@ -1,0 +1,45 @@
+plugins {
+    id 'com.android.application'
+}
+
+android {
+    namespace 'com.jninfo.partograma.partograma'
+    compileSdk 33
+
+    defaultConfig {
+        applicationId "com.jninfo.partograma.partograma"
+        // minSdk original do APK era 16. Elevado para 21 apenas para compatibilidade com as
+        // ferramentas de build atuais (AndroidX/AGP modernos nao suportam mais 16 com folga).
+        // targetSdk mantido em 26, identico ao original, para preservar fielmente o
+        // comportamento observado (ex.: notificacoes sem NotificationChannel, armazenamento
+        // externo sem "scoped storage"). Ver REVERSE_ENGINEERING.md, secao 4.
+        minSdk 21
+        targetSdk 26
+        versionCode 1
+        versionName "1.0"
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+
+    lint {
+        abortOnError false
+    }
+}
+
+dependencies {
+    // Equivalentes AndroidX das bibliotecas originais com.android.support:*:26.1.0.
+    // Mesma API publica (AppCompatActivity, ConstraintLayout, ContextCompat, NotificationCompat),
+    // apenas o namespace de pacote mudou. Nenhum comportamento visual ou funcional é alterado.
+    implementation 'androidx.appcompat:appcompat:1.6.1'
+    implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
+}

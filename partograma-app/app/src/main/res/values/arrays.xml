@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="spnFreqContracao">
+        <item>LEVE</item>
+        <item>MODERADA</item>
+        <item>ALTA</item>
+    </string-array>
+    <string-array name="spnIntegridade">
+        <item>ROTA</item>
+        <item>ÍNTEGRA</item>
+    </string-array>
+    <string-array name="spnLee">
+        <item>- AM</item>
+        <item>-3</item>
+        <item>-2</item>
+        <item>-1</item>
+        <item>0</item>
+        <item>+1</item>
+        <item>+2</item>
+        <item>+3</item>
+        <item>+4</item>
+    </string-array>
+    <string-array name="spnLiquido">
+        <item>LC: Líquido Claro</item>
+        <item>LCCG: Líquido Claro com Grumos</item>
+        <item>LCSG: Líquido Claro sem Grumos</item>
+        <item>LM: Líquido Meconial</item>
+        <item>LS: Liquido Sanguinolento</item>
+    </string-array>
+</resources>

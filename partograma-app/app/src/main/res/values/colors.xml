@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="colorPrimary">#FFDFF4F3</color>
+    <color name="colorPrimaryDark">#FFDFF4F3</color>
+    <color name="colorAccent">#FFFF4081</color>
+
+    <!-- Cor de destaque usada nas telas de Detalhes/Relatório para sinalizar
+         alertas de regra de negocio (BCF fora da faixa, dilatacao estagnada,
+         posicao de Lee repetida). No APK original e literalmente a mesma cor
+         do colorAccent (#FFFF4081), aplicada via Color.parseColor em tempo de execucao. -->
+    <color name="colorAlerta">#FFFF4081</color>
+</resources>
