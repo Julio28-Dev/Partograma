@@ -1,0 +1,38 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="200dp"
+    android:height="200dp"
+    android:viewportWidth="200"
+    android:viewportHeight="200">
+    <!-- Coração-moldura -->
+    <path
+        android:pathData="M100,172 C46,128 14,92 14,58 C14,30 36,12 62,12 C82,12 96,26 100,44 C104,26 118,12 138,12 C164,12 186,30 186,58 C186,92 154,128 100,172 Z"
+        android:strokeColor="#B79ACB"
+        android:strokeWidth="3.2"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round"
+        android:fillColor="#00000000" />
+    <!-- Busto da mae (cabeca + ombros) -->
+    <path
+        android:pathData="M115,58 A15,15 0 1,1 85,58 A15,15 0 1,1 115,58"
+        android:strokeColor="#B79ACB"
+        android:strokeWidth="3.4"
+        android:fillColor="#00000000" />
+    <path
+        android:pathData="M70,126 C70,96 82,78 100,78 C118,78 130,96 130,126"
+        android:strokeColor="#B79ACB"
+        android:strokeWidth="3.4"
+        android:strokeLineCap="round"
+        android:fillColor="#00000000" />
+    <!-- Busto do bebe, aninhado no colo -->
+    <path
+        android:pathData="M109.5,112 A9.5,9.5 0 1,1 90.5,112 A9.5,9.5 0 1,1 109.5,112"
+        android:strokeColor="#7FB9AE"
+        android:strokeWidth="3.2"
+        android:fillColor="#00000000" />
+    <path
+        android:pathData="M84,144 C84,128 91,120 100,120 C109,120 116,128 116,144"
+        android:strokeColor="#7FB9AE"
+        android:strokeWidth="3.2"
+        android:strokeLineCap="round"
+        android:fillColor="#00000000" />
+</vector>

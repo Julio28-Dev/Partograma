@@ -1,0 +1,92 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="300dp"
+    android:height="240dp"
+    android:viewportWidth="300"
+    android:viewportHeight="240">
+    <!-- Cabeca -->
+    <path
+        android:pathData="M163,40 A13,13 0 1,1 137,40 A13,13 0 1,1 163,40"
+        android:strokeColor="#B79ACB"
+        android:strokeWidth="2.6"
+        android:fillColor="#00000000" />
+    <path
+        android:pathData="M158,29 C170,26 178,34 175,46"
+        android:strokeColor="#B79ACB"
+        android:strokeWidth="2.2"
+        android:strokeLineCap="round"
+        android:fillColor="#00000000" />
+    <!-- Contorno das costas -->
+    <path
+        android:pathData="M164,48 C176,58 182,72 184,90 C190,116 198,132 196,150 C194,172 186,192 176,208"
+        android:strokeColor="#B79ACB"
+        android:strokeWidth="2.6"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round"
+        android:fillColor="#00000000" />
+    <!-- Contorno frontal com a barriga -->
+    <path
+        android:pathData="M138,52 C126,62 121,70 127,78 C110,100 96,128 104,150 C110,172 122,188 140,196 C152,202 162,206 168,210"
+        android:strokeColor="#B79ACB"
+        android:strokeWidth="2.6"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round"
+        android:fillColor="#00000000" />
+    <!-- Braco apoiado na barriga -->
+    <path
+        android:pathData="M172,92 C182,116 176,140 150,156 C138,163 126,161 115,152"
+        android:strokeColor="#B79ACB"
+        android:strokeWidth="2.3"
+        android:strokeLineCap="round"
+        android:fillColor="#00000000" />
+    <!-- Coracao decorativo -->
+    <path
+        android:pathData="M228,58 C226,54 220,54 220,59 C220,63 228,68 228,68 C228,68 236,63 236,59 C236,54 230,54 228,58 Z"
+        android:strokeColor="#7FB9AE"
+        android:strokeWidth="2.2"
+        android:strokeLineJoin="round"
+        android:fillColor="#00000000" />
+    <!-- Folhas a esquerda -->
+    <path
+        android:pathData="M70,150 C55,140 50,120 58,102 C72,112 78,132 70,150 Z"
+        android:strokeColor="#C9A9E0"
+        android:strokeWidth="2.2"
+        android:strokeLineCap="round"
+        android:fillColor="#00000000" />
+    <path
+        android:pathData="M60,170 C42,166 30,150 32,130 C50,134 62,150 60,170 Z"
+        android:strokeColor="#C9A9E0"
+        android:strokeWidth="2.2"
+        android:strokeLineCap="round"
+        android:fillColor="#00000000" />
+    <path
+        android:pathData="M78,190 C60,192 44,182 40,164 C58,162 74,174 78,190 Z"
+        android:strokeColor="#C9A9E0"
+        android:strokeWidth="2.2"
+        android:strokeLineCap="round"
+        android:fillColor="#00000000" />
+    <!-- Petalas a direita -->
+    <path
+        android:pathData="M210,150 C226,142 244,146 254,162 C238,168 220,164 210,150 Z"
+        android:strokeColor="#F2A6C6"
+        android:strokeWidth="2.2"
+        android:strokeLineCap="round"
+        android:fillColor="#00000000" />
+    <path
+        android:pathData="M214,172 C230,168 246,176 252,192 C236,194 220,186 214,172 Z"
+        android:strokeColor="#F2A6C6"
+        android:strokeWidth="2.2"
+        android:strokeLineCap="round"
+        android:fillColor="#00000000" />
+    <path
+        android:pathData="M198,190 C212,182 230,184 240,198 C226,204 210,202 198,190 Z"
+        android:strokeColor="#F2A6C6"
+        android:strokeWidth="2.2"
+        android:strokeLineCap="round"
+        android:fillColor="#00000000" />
+    <!-- Linha do chao -->
+    <path
+        android:pathData="M40,206 C120,214 180,214 260,206"
+        android:strokeColor="#EDE6F0"
+        android:strokeWidth="2"
+        android:fillColor="#00000000" />
+</vector>

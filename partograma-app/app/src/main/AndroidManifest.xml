@@ -15,15 +15,29 @@
         android:theme="@style/AppTheme">
 
         <activity
-            android:name=".TelaInicial"
+            android:name=".SplashActivity"
             android:configChanges="orientation"
             android:screenOrientation="portrait"
+            android:theme="@style/AppTheme.NoActionBar"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <activity
+            android:name=".HomeActivity"
+            android:configChanges="orientation"
+            android:screenOrientation="portrait"
+            android:theme="@style/AppTheme.NoActionBar"
+            android:exported="false" />
+
+        <activity
+            android:name=".TelaInicial"
+            android:configChanges="orientation"
+            android:screenOrientation="portrait"
+            android:exported="false" />
 
         <activity
             android:name=".Menu"

@@ -9,4 +9,30 @@
          posicao de Lee repetida). No APK original e literalmente a mesma cor
          do colorAccent (#FFFF4081), aplicada via Color.parseColor em tempo de execucao. -->
     <color name="colorAlerta">#FFFF4081</color>
+
+    <!-- ===================================================================
+         Identidade visual "Partograma Digital" (Splash / Home / componentes
+         reutilizaveis). Paleta pastel: rosa, lilas/roxo suave e teal, sobre
+         fundo off-white. Centralizada aqui para evitar valores de cor
+         espalhados pelo projeto (ver referencia visual em /refe.jpg).
+         =================================================================== -->
+    <color name="primaryPink">#E8608F</color>
+    <color name="secondaryPink">#F2A6C6</color>
+    <color name="softPurple">#9B7FC7</color>
+    <color name="softLilac">#C9A9E0</color>
+    <color name="softTeal">#5FB8AE</color>
+    <color name="softTealLight">#A9DAD3</color>
+
+    <color name="background">#FFFBFA</color>
+    <color name="surface">#FFFFFF</color>
+    <color name="textPrimary">#3A3149</color>
+    <color name="textSecondary">#7A7488</color>
+    <color name="border">#EDE6F0</color>
+    <color name="shadow">#1F2A2340</color>
+
+    <!-- Tons de apoio para ilustracoes/decoracoes de fundo -->
+    <color name="blobPinkSoft">#F6C9DA</color>
+    <color name="blobTealSoft">#BFE6DF</color>
+    <color name="illustrationStroke">#B79ACB</color>
+    <color name="illustrationStrokeAlt">#7FB9AE</color>
 </resources>

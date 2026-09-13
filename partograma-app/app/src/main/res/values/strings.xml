@@ -2,4 +2,26 @@
 <resources>
     <string name="app_name">Partograma</string>
     <string name="title_activity_menu">Menu</string>
+
+    <!-- Splash -->
+    <string name="splash_signature">Partograma Digital</string>
+
+    <!-- Home -->
+    <string name="home_brand_maternidade">MATERNIDADE</string>
+    <string name="home_brand_tagline">Cuidar é nossa missão</string>
+    <string name="home_title_partograma">Partograma</string>
+    <string name="home_title_digital">DIGITAL</string>
+    <string name="home_divider_heart">♥</string>
+    <string name="home_description">O apoio que o enfermeiro precisa\npara um parto seguro e humanizado.</string>
+
+    <string name="home_feature_registro">Registro\nem tempo real</string>
+    <string name="home_feature_avaliacao">Avaliação fetal\ne materna</string>
+    <string name="home_feature_dilatacao">Acompanhamento\nda dilatação</string>
+    <string name="home_feature_rotatividade">Rotatividade\ne posição fetal</string>
+    <string name="home_feature_graficos">Gráficos e\nevolução</string>
+
+    <string name="home_cta_iniciar">INICIAR</string>
+
+    <string name="home_footer_values">Segurança • Confiabilidade • Humanização</string>
+    <string name="home_footer_credit">Desenvolvido para enfermeiros\nque fazem a diferença ♥</string>
 </resources>

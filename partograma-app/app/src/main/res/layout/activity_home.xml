@@ -1,0 +1,251 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/homeRoot"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <com.jninfo.partograma.partograma.ui.LightRaysView
+        android:id="@+id/lightRaysView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
+    <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:scaleType="fitXY"
+        android:importantForAccessibility="no"
+        android:src="@drawable/bg_blob_top_left" />
+
+    <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:scaleType="fitXY"
+        android:importantForAccessibility="no"
+        android:src="@drawable/bg_blob_bottom_right" />
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:clipToPadding="false"
+        android:fillViewport="true">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:gravity="center_horizontal"
+            android:paddingStart="24dp"
+            android:paddingEnd="24dp"
+            android:paddingTop="28dp"
+            android:paddingBottom="28dp">
+
+            <ImageView
+                android:id="@+id/logoMaternidade"
+                android:layout_width="112dp"
+                android:layout_height="112dp"
+                android:importantForAccessibility="no"
+                android:src="@drawable/ic_logo_maternidade" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:text="@string/home_brand_maternidade"
+                android:textColor="@color/primaryPink"
+                android:textSize="15sp"
+                android:letterSpacing="0.22"
+                android:textStyle="bold" />
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="6dp"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <View
+                    android:layout_width="20dp"
+                    android:layout_height="1dp"
+                    android:background="@color/softLilac" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="6dp"
+                    android:layout_marginEnd="6dp"
+                    android:text="@string/home_divider_heart"
+                    android:textColor="@color/softTeal"
+                    android:textSize="11sp" />
+
+                <View
+                    android:layout_width="20dp"
+                    android:layout_height="1dp"
+                    android:background="@color/softLilac" />
+            </LinearLayout>
+
+            <TextView
+                android:id="@+id/taglineText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="6dp"
+                android:text="@string/home_brand_tagline"
+                android:textColor="@color/softPurple"
+                android:textSize="16sp"
+                android:textStyle="italic" />
+
+            <com.jninfo.partograma.partograma.ui.GradientTextView
+                android:id="@+id/titlePartograma"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="14dp"
+                android:fontFamily="serif"
+                android:text="@string/home_title_partograma"
+                android:textSize="46sp"
+                android:textStyle="bold" />
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="2dp"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <View
+                    android:layout_width="32dp"
+                    android:layout_height="1dp"
+                    android:background="@color/softTealLight" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="10dp"
+                    android:layout_marginEnd="10dp"
+                    android:text="@string/home_title_digital"
+                    android:textColor="@color/softTeal"
+                    android:textSize="18sp"
+                    android:letterSpacing="0.3"
+                    android:textStyle="bold" />
+
+                <View
+                    android:layout_width="32dp"
+                    android:layout_height="1dp"
+                    android:background="@color/softTealLight" />
+            </LinearLayout>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:gravity="center"
+                android:text="@string/home_description"
+                android:textColor="@color/textSecondary"
+                android:textSize="14.5sp"
+                android:lineSpacingMultiplier="1.25" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="24dp"
+                android:background="@drawable/bg_card_surface"
+                android:elevation="6dp"
+                android:orientation="horizontal"
+                android:paddingStart="6dp"
+                android:paddingEnd="6dp"
+                android:paddingTop="16dp"
+                android:paddingBottom="16dp">
+
+                <include
+                    android:id="@+id/feature1"
+                    layout="@layout/item_feature_card"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1" />
+
+                <View
+                    android:layout_width="1dp"
+                    android:layout_height="34dp"
+                    android:layout_gravity="center_vertical"
+                    android:background="@color/border" />
+
+                <include
+                    android:id="@+id/feature2"
+                    layout="@layout/item_feature_card"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1" />
+
+                <View
+                    android:layout_width="1dp"
+                    android:layout_height="34dp"
+                    android:layout_gravity="center_vertical"
+                    android:background="@color/border" />
+
+                <include
+                    android:id="@+id/feature3"
+                    layout="@layout/item_feature_card"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1" />
+
+                <View
+                    android:layout_width="1dp"
+                    android:layout_height="34dp"
+                    android:layout_gravity="center_vertical"
+                    android:background="@color/border" />
+
+                <include
+                    android:id="@+id/feature4"
+                    layout="@layout/item_feature_card"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1" />
+
+                <View
+                    android:layout_width="1dp"
+                    android:layout_height="34dp"
+                    android:layout_gravity="center_vertical"
+                    android:background="@color/border" />
+
+                <include
+                    android:id="@+id/feature5"
+                    layout="@layout/item_feature_card"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1" />
+            </LinearLayout>
+
+            <ImageView
+                android:layout_width="230dp"
+                android:layout_height="184dp"
+                android:layout_marginTop="18dp"
+                android:importantForAccessibility="no"
+                android:scaleType="fitCenter"
+                android:src="@drawable/ic_illustration_gestante" />
+
+            <com.jninfo.partograma.partograma.ui.BlobButton
+                android:id="@+id/btnIniciar"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
+                android:text="@string/home_footer_values"
+                android:textColor="@color/softTeal"
+                android:textSize="12sp" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:gravity="center"
+                android:text="@string/home_footer_credit"
+                android:textColor="@color/textSecondary"
+                android:textSize="12sp"
+                android:lineSpacingMultiplier="1.2" />
+
+        </LinearLayout>
+    </ScrollView>
+</FrameLayout>
