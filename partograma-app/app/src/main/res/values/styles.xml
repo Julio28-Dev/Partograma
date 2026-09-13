@@ -8,10 +8,20 @@
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">@color/colorAccent</item>
+        <item name="android:windowBackground">@color/background</item>
+        <item name="android:textColorHint">@color/textSecondary</item>
+        <item name="buttonStyle">@style/AppTheme.Button</item>
     </style>
 
     <style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
     <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
+
+    <!-- Botao padrao das telas existentes (Menu/Detalhes/relatorio/TelaInicial): mesma
+         identidade da Home (cor de destaque = colorAccent, ja realinhado a paleta nova),
+         sem alterar nenhum id, texto ou comportamento de clique. -->
+    <style name="AppTheme.Button" parent="Widget.AppCompat.Button.Colored">
+        <item name="android:textColor">@android:color/white</item>
+    </style>
 
     <!-- Usado apenas pelas novas telas Splash/Home: layout full-bleed, sem ActionBar,
          para reproduzir a composicao da referencia visual (ver /refe.jpg). As demais

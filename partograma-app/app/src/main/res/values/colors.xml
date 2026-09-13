@@ -1,8 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="colorPrimary">#FFDFF4F3</color>
-    <color name="colorPrimaryDark">#FFDFF4F3</color>
-    <color name="colorAccent">#FFFF4081</color>
+    <!-- Realinhados a identidade "Partograma Digital" (mesma paleta da Home/Splash),
+         mantendo os NOMES originais para nao quebrar referencias existentes (ex.:
+         android:background="@color/colorPrimary" em activity_detalhes.xml). -->
+    <color name="colorPrimary">#FFF8DCE8</color>
+    <color name="colorPrimaryDark">#FFEFC0D8</color>
+    <color name="colorAccent">#FFE8608F</color>
 
     <!-- Cor de destaque usada nas telas de Detalhes/Relatório para sinalizar
          alertas de regra de negocio (BCF fora da faixa, dilatacao estagnada,
