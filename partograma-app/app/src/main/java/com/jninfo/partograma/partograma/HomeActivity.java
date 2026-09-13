@@ -4,6 +4,8 @@ import android.content.Intent;
 import android.graphics.Typeface;
 import android.os.Bundle;
 import android.view.View;
+import android.view.ViewGroup;
+import android.view.animation.PathInterpolator;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -21,6 +23,13 @@ import com.jninfo.partograma.partograma.ui.LightRaysView;
  * direto para o {@link Menu} -- nenhuma logica existente foi alterada.
  */
 public class HomeActivity extends AppCompatActivity {
+
+    /** Mesma curva de easing do efeito de entrada da Splash, para os dois momentos
+     *  do aplicativo parecerem parte de um unico sistema de movimento. */
+    private static final PathInterpolator ENTRANCE_EASING = new PathInterpolator(0.625f, 0.05f, 0f, 1f);
+    private static final long ENTRANCE_DURATION_MS = 420L;
+    private static final long ENTRANCE_STAGGER_MS = 55L;
+    private static final float ENTRANCE_RISE_DP = 22f;
 
     private LightRaysView lightRaysView;
 
@@ -48,6 +57,29 @@ public class HomeActivity extends AppCompatActivity {
             startActivity(new Intent(HomeActivity.this, TelaInicial.class));
             finish();
         });
+
+        playEntranceAnimation();
+    }
+
+    /** Fade + leve deslocamento vertical, em cascata por secao, ao abrir a Home. */
+    private void playEntranceAnimation() {
+        ViewGroup content = findViewById(R.id.homeContent);
+        float density = getResources().getDisplayMetrics().density;
+        float risePx = ENTRANCE_RISE_DP * density;
+
+        int childCount = content.getChildCount();
+        for (int i = 0; i < childCount; i++) {
+            View child = content.getChildAt(i);
+            child.setAlpha(0f);
+            child.setTranslationY(risePx);
+            child.animate()
+                    .alpha(1f)
+                    .translationY(0f)
+                    .setStartDelay(i * ENTRANCE_STAGGER_MS)
+                    .setDuration(ENTRANCE_DURATION_MS)
+                    .setInterpolator(ENTRANCE_EASING)
+                    .start();
+        }
     }
 
     private void bindFeature(int includeId, int iconRes, int labelRes) {

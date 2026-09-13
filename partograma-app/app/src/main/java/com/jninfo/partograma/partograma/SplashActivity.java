@@ -8,24 +8,23 @@ import android.view.View;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.res.ResourcesCompat;
 
-import com.jninfo.partograma.partograma.ui.SignatureTextView;
+import com.jninfo.partograma.partograma.ui.SlideUpTextView;
 
 /**
- * Nova tela de abertura do aplicativo, exibida antes da Home. Mostra a assinatura
- * "Partograma Digital" sendo desenhada (ver {@link SignatureTextView}) com a fonte
- * Lastoria Bold e, ao concluir, navega para {@link HomeActivity}.
+ * Nova tela de abertura do aplicativo, exibida antes da Home. Mostra "Partograma Digital"
+ * surgindo com o efeito "slide up" (ver {@link SlideUpTextView}) com a fonte Lastoria Bold
+ * e, ao concluir, navega para {@link HomeActivity}.
  *
  * Fluxo: SPLASH -> HOME -> (INICIAR) -> restante do aplicativo (TelaInicial/Menu),
  * sem alterar nenhuma tela ou logica de negocio existente.
  */
 public class SplashActivity extends AppCompatActivity {
 
-    private static final long INITIAL_DELAY_MS = 300L;
-    private static final long STROKE_DURATION_MS = 1600L;
-    private static final long HOLD_DURATION_MS = 450L;
+    private static final long INITIAL_DELAY_MS = 250L;
+    private static final long HOLD_DURATION_MS = 500L;
 
     private View root;
-    private SignatureTextView signatureView;
+    private SlideUpTextView signatureView;
     private boolean navigated = false;
 
     @Override
@@ -45,7 +44,7 @@ public class SplashActivity extends AppCompatActivity {
         root.animate().alpha(1f).setDuration(400).start();
 
         signatureView.postDelayed(
-                () -> signatureView.start(STROKE_DURATION_MS, HOLD_DURATION_MS),
+                () -> signatureView.start(HOLD_DURATION_MS),
                 INITIAL_DELAY_MS);
     }
 
