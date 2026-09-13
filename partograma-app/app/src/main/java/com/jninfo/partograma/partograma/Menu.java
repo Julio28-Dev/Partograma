@@ -50,7 +50,7 @@ public class Menu extends AppCompatActivity {
         listaPaciente = findViewById(R.id.listViewID);
 
         arrayList = new ArrayList<>(repositorio.listarNomesPacientes());
-        adapter = new ArrayAdapter<>(getApplicationContext(), R.layout.item_patient_row, R.id.nomePacienteRow, arrayList);
+        adapter = new ArrayAdapter<>(this, R.layout.item_patient_row, R.id.nomePacienteRow, arrayList);
         listaPaciente.setAdapter(adapter);
 
         btnHelp.setOnClickListener(v -> finish());
