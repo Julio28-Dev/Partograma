@@ -40,10 +40,10 @@ public class HomeActivity extends AppCompatActivity {
 
         lightRaysView = findViewById(R.id.lightRaysView);
 
-        Typeface signatureTypeface = ResourcesCompat.getFont(this, R.font.lastoria_bold_regular);
+        Typeface interRegular = ResourcesCompat.getFont(this, R.font.inter_regular);
         TextView tagline = findViewById(R.id.taglineText);
-        if (signatureTypeface != null) {
-            tagline.setTypeface(signatureTypeface);
+        if (interRegular != null) {
+            tagline.setTypeface(Typeface.create(interRegular, Typeface.ITALIC));
         }
 
         bindFeature(R.id.feature1, R.drawable.ic_feature_clock, R.string.home_feature_registro);

@@ -20,7 +20,7 @@
         android:importantForAccessibility="no"
         android:src="@drawable/bg_blob_bottom_right" />
 
-    <com.jninfo.partograma.partograma.ui.SlideUpTextView
+    <com.jninfo.partograma.partograma.ui.HighlightedTextView
         android:id="@+id/signatureView"
         android:layout_width="match_parent"
         android:layout_height="90dp"

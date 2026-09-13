@@ -8,12 +8,13 @@ import android.view.View;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.res.ResourcesCompat;
 
-import com.jninfo.partograma.partograma.ui.SlideUpTextView;
+import com.jninfo.partograma.partograma.ui.HighlightedTextView;
 
 /**
  * Nova tela de abertura do aplicativo, exibida antes da Home. Mostra "Partograma Digital"
- * surgindo com o efeito "slide up" (ver {@link SlideUpTextView}) com a fonte Lastoria Bold
- * e, ao concluir, navega para {@link HomeActivity}.
+ * revelado por uma barra de destaque estilo marca-texto (ver {@link HighlightedTextView})
+ * com a fonte Inter (legivel, ao contrario da fonte decorativa usada anteriormente) e, ao
+ * concluir, navega para {@link HomeActivity}.
  *
  * Fluxo: SPLASH -> HOME -> (INICIAR) -> restante do aplicativo (TelaInicial/Menu),
  * sem alterar nenhuma tela ou logica de negocio existente.
@@ -21,10 +22,10 @@ import com.jninfo.partograma.partograma.ui.SlideUpTextView;
 public class SplashActivity extends AppCompatActivity {
 
     private static final long INITIAL_DELAY_MS = 250L;
-    private static final long HOLD_DURATION_MS = 500L;
+    private static final long HOLD_DURATION_MS = 550L;
 
     private View root;
-    private SlideUpTextView signatureView;
+    private HighlightedTextView signatureView;
     private boolean navigated = false;
 
     @Override
@@ -35,8 +36,8 @@ public class SplashActivity extends AppCompatActivity {
         root = findViewById(R.id.splashRoot);
         signatureView = findViewById(R.id.signatureView);
 
-        Typeface signatureTypeface = ResourcesCompat.getFont(this, R.font.lastoria_bold_regular);
-        signatureView.setTypeface(signatureTypeface);
+        Typeface interBold = ResourcesCompat.getFont(this, R.font.inter_bold);
+        signatureView.setTypeface(interBold);
         signatureView.setText(getString(R.string.splash_signature));
         signatureView.setOnFinishedListener(this::goToHome);
 

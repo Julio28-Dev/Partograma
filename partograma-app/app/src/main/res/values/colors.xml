@@ -2,10 +2,12 @@
 <resources>
     <!-- Realinhados a identidade "Partograma Digital" (mesma paleta da Home/Splash),
          mantendo os NOMES originais para nao quebrar referencias existentes (ex.:
-         android:background="@color/colorPrimary" em activity_detalhes.xml). -->
-    <color name="colorPrimary">#FFF8DCE8</color>
-    <color name="colorPrimaryDark">#FFEFC0D8</color>
-    <color name="colorAccent">#FFE8608F</color>
+         android:background="@color/colorPrimary" em activity_detalhes.xml). Tom mais
+         saturado de proposito: o tema usa DarkActionBar (texto branco na action bar),
+         que precisa de um colorPrimary com contraste suficiente para ficar legivel. -->
+    <color name="colorPrimary">#FFE8608F</color>
+    <color name="colorPrimaryDark">#FFC94770</color>
+    <color name="colorAccent">#FF5FB8AE</color>
 
     <!-- Cor de destaque usada nas telas de Detalhes/Relatório para sinalizar
          alertas de regra de negocio (BCF fora da faixa, dilatacao estagnada,
