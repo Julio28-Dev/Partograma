@@ -44,6 +44,7 @@ public class Detalhes extends AppCompatActivity {
     private static final String[] ARR_FREQ_CONTRACAO = {"LEVE", "MODERADA", "ALTA"};
 
     private static final String COR_ALERTA = "#FFFF4081";
+    private static final String COR_OK = "#FFBAF39B";
     private static final int ULTIMA_POSICAO_LEE = 8;
 
     private PatientRepository repositorio;
@@ -218,6 +219,17 @@ public class Detalhes extends AppCompatActivity {
             repositorio.salvarRegistro(slot, hora, r);
         }
 
+        // Igual ao original: toda vez que "Salvar" e concluido, a tela primeiro volta para
+        // o estado "tudo OK" (faixa verde + os tres avisos neutros) e SO DEPOIS os metodos
+        // de aviso abaixo podem sobrescrever isso com o alerta especifico (faixa rosa +
+        // mensagem), caso alguma regra de negocio dispare. Sem este reset, um valor normal
+        // deixava a tela com a cor de alerta de uma leitura anterior (ou sem nenhuma cor
+        // definida), em vez de confirmar visualmente que o registro esta dentro do esperado.
+        imgViewFundo.setBackgroundColor(Color.parseColor(COR_OK));
+        txtAvisoBCF.setText("Batimentos: OK");
+        txtAvisoLee.setText("Plano de Lee: OK");
+        txtAvisoDilatacao.setText("Dilatação: OK");
+
         avisarBatimentos();
         avisarLee(hora);
         avisarDilatacao(hora);
@@ -253,7 +265,12 @@ public class Detalhes extends AppCompatActivity {
         spnLiquido.setSelection(indiceDe(ARR_LIQUIDO, repositorio.getCampo(slot, "liquido", hora, "ainda sem")));
         spnLee.setSelection(indiceDe(ARR_LEE, repositorio.getCampo(slot, "lee", hora, "ainda sem")));
         spnFreqContracao.setSelection(indiceDe(ARR_FREQ_CONTRACAO, repositorio.getCampo(slot, "freqcontracao", hora, "ainda sem")));
-        posicaoLeeAtual = repositorio.getPosicaoLee(slot, hora, 1);
+
+        // Igual ao original: a posicao do Lee salva NAO e restaurada ao abrir a tela -- a
+        // imagem sempre comeca em "posicao1" (valor padrao de posicaoLeeAtual) ate o usuario
+        // tocar em "Girar" pelo menos uma vez. No app original isso acontece porque a funcao
+        // que redesenha a imagem roda por cima do valor recem-carregado logo depois, sempre
+        // usando a posicao inicial. Preservado aqui de proposito -- ver auditoria funcional.
     }
 
     private static int indiceDe(String[] opcoes, String valor) {
