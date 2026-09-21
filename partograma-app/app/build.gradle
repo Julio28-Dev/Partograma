@@ -4,16 +4,24 @@ plugins {
 
 android {
     namespace 'com.jninfo.partograma.partograma'
-    compileSdk 33
+    // Elevado de 33 para 34 nesta etapa: a biblioteca oficial do Firebase Auth passou a
+    // depender do androidx.credentials, que exige compilar contra a API 34+. Isso muda
+    // apenas as APIs disponiveis EM TEMPO DE COMPILACAO -- minSdk (21) e targetSdk (26)
+    // continuam identicos, entao o comportamento em tempo de execucao no aparelho nao muda.
+    compileSdk 34
 
     defaultConfig {
         applicationId "com.jninfo.partograma.partograma"
-        // minSdk original do APK era 16. Elevado para 21 apenas para compatibilidade com as
-        // ferramentas de build atuais (AndroidX/AGP modernos nao suportam mais 16 com folga).
+        // minSdk original do APK era 16, elevado antes para 21 (compatibilidade com as
+        // ferramentas de build atuais) e agora para 23: a biblioteca do Firebase Auth
+        // (autenticacao anonima, ver PartogramaApplication e firestore.rules) exige minSdk
+        // 23 -- versoes anteriores da biblioteca podem chamar APIs inexistentes no Android
+        // 5.x. Na pratica exclui apenas aparelhos com Android 5.0/5.1 (2014/2015), o que e
+        // um custo aceitavel para o app passar a ter autenticacao real no banco.
         // targetSdk mantido em 26, identico ao original, para preservar fielmente o
         // comportamento observado (ex.: notificacoes sem NotificationChannel, armazenamento
         // externo sem "scoped storage"). Ver REVERSE_ENGINEERING.md, secao 4.
-        minSdk 21
+        minSdk 23
         targetSdk 26
         versionCode 1
         versionName "1.0"
@@ -42,4 +50,29 @@ dependencies {
     // apenas o namespace de pacote mudou. Nenhum comportamento visual ou funcional é alterado.
     implementation 'androidx.appcompat:appcompat:1.6.1'
     implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
+
+    // Lista funcional de pacientes (tela "Pacientes") precisa de RecyclerView -- nao existia
+    // dependencia nenhuma de lista dinamica no projeto (o Menu original usa ListView + ArrayAdapter).
+    implementation 'androidx.recyclerview:recyclerview:1.3.2'
+    implementation 'androidx.swiperefreshlayout:swiperefreshlayout:1.1.0'
+
+    // Cadastro de pacientes hospedado (Firestore) -- ver data/FirestorePatientRepository.java.
+    // So passa a inicializar de verdade quando app/google-services.json existir (plugin
+    // aplicado condicionalmente no topo deste arquivo).
+    implementation platform('com.google.firebase:firebase-bom:33.5.1')
+    implementation 'com.google.firebase:firebase-firestore'
+
+    // Autenticacao anonima -- unica linha de defesa do banco alem das regras do Firestore,
+    // ja que o app nao tem tela de login (nunca teve, nem no original). Sem isso, as regras
+    // do Firestore nao teriam como diferenciar "alguem usando o app" de "qualquer script na
+    // internet com a mesma api_key publica". Ver PartogramaApplication e firestore.rules.
+    implementation 'com.google.firebase:firebase-auth'
+}
+
+// O plugin do Firebase falha o build se google-services.json nao existir. Como esse
+// arquivo depende de voce criar o projeto no Firebase Console (nao pode ser gerado por
+// codigo), so aplicamos o plugin quando ele estiver presente -- assim o projeto continua
+// compilando normalmente enquanto o arquivo real ainda nao chegou.
+if (file('google-services.json').exists()) {
+    apply plugin: 'com.google.gms.google-services'
 }

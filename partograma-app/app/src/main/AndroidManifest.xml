@@ -1,12 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <!-- Permissoes identicas ao APK original: apenas armazenamento (para salvar/compartilhar
-         a imagem do relatorio). O app original NAO possui permissao de INTERNET. -->
+    <!-- Permissoes de armazenamento identicas ao APK original (salvar/compartilhar a imagem
+         do relatorio). INTERNET e nova nesta etapa: o app original nao tinha, mas ela e
+         estritamente necessaria para o cadastro de pacientes em nuvem (Firestore) pedido
+         nesta evolucao. Sem ela nenhuma chamada de rede sai do aparelho. -->
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 
     <application
+        android:name=".PartogramaApplication"
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
@@ -37,6 +42,27 @@
             android:name=".TelaInicial"
             android:configChanges="orientation"
             android:screenOrientation="portrait"
+            android:exported="false" />
+
+        <activity
+            android:name=".PacientesActivity"
+            android:configChanges="orientation"
+            android:screenOrientation="portrait"
+            android:theme="@style/AppTheme.NoActionBar"
+            android:exported="false" />
+
+        <activity
+            android:name=".AdicionarPacienteActivity"
+            android:configChanges="orientation"
+            android:screenOrientation="portrait"
+            android:theme="@style/AppTheme.NoActionBar"
+            android:exported="false" />
+
+        <activity
+            android:name=".PacienteDetalhesActivity"
+            android:configChanges="orientation"
+            android:screenOrientation="portrait"
+            android:theme="@style/AppTheme.NoActionBar"
             android:exported="false" />
 
         <activity

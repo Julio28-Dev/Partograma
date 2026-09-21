@@ -15,7 +15,10 @@ import com.jninfo.partograma.partograma.data.PatientRepository;
 /**
  * Tela inicial / tutorial (4 passos), exibida apenas enquanto o tutorial nao tiver sido
  * concluido (flag "tutorial" no SharedPreferences). Ao concluir, ou se o tutorial ja
- * tiver sido concluido antes, navega direto para {@link Menu}.
+ * tiver sido concluido antes, navega para {@link PacientesActivity} -- a nova tela de
+ * pacientes que substitui visualmente o {@link Menu} original no fluxo principal do app
+ * (Splash -> Home -> Tutorial -> Pacientes). O {@link Menu} original continua existindo
+ * e funcional, apenas deixou de ser o destino desta tela.
  */
 public class TelaInicial extends AppCompatActivity {
 
@@ -38,7 +41,7 @@ public class TelaInicial extends AppCompatActivity {
 
         repositorio = new PatientRepository(this);
         if (repositorio.isTutorialCompleto()) {
-            startActivity(new Intent(this, Menu.class));
+            startActivity(new Intent(this, PacientesActivity.class));
         }
 
         iconeAjuda = findViewById(R.id.imageView);
@@ -54,7 +57,7 @@ public class TelaInicial extends AppCompatActivity {
             }
             if (passo >= ULTIMO_PASSO) {
                 repositorio.marcarTutorialCompleto();
-                startActivity(new Intent(TelaInicial.this, Menu.class));
+                startActivity(new Intent(TelaInicial.this, PacientesActivity.class));
                 passo = 0;
                 return;
             }

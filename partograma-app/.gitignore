@@ -7,3 +7,10 @@ local.properties
 captures/
 .externalNativeBuild/
 .cxx/
+
+# Configuracao do projeto Firebase (Firestore). A api_key aqui nao e um segredo de
+# admin -- quem protege os dados de verdade sao as regras do Firestore (firestore.rules)
+# e a autenticacao anonima, nao este arquivo -- mas ele fica de fora do Git mesmo assim
+# para nao atrelar o repositorio a um projeto Firebase especifico. Cada maquina que for
+# compilar o app precisa colocar o proprio app/google-services.json aqui.
+app/google-services.json
