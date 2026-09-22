@@ -5,11 +5,13 @@ import androidx.annotation.Nullable;
 
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.ListenerRegistration;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
+import com.google.firebase.firestore.WriteBatch;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -53,6 +55,11 @@ public class FirestorePatientRepository {
 
     public interface PacienteCallback {
         void onCarregado(@Nullable Paciente paciente);
+        void onErro(Exception erro);
+    }
+
+    public interface ListaRegistrosCallback {
+        void onRegistrosAtualizados(List<RegistroPartograma> registros);
         void onErro(Exception erro);
     }
 
@@ -130,11 +137,104 @@ public class FirestorePatientRepository {
                 .addOnFailureListener(callback::onErro);
     }
 
+    /**
+     * Exclusao em cascata: o Firestore NAO apaga subcolecoes automaticamente ao apagar o
+     * documento pai -- se so déssemos doc.delete() no paciente, os documentos de
+     * "registros" e "evolucoes" continuariam existindo, orfaos (acessiveis por quem
+     * soubesse o caminho, mas invisiveis nas telas). Por isso buscamos os IDs de cada
+     * subcolecao primeiro e apagamos tudo -- registros, evolucoes e o proprio paciente --
+     * num unico WriteBatch atomico (tudo ou nada, sem risco de exclusao parcial).
+     */
+    public void excluirPacienteCompleto(String pacienteId, OperacaoCallback callback) {
+        DocumentReference docPaciente = db.collection(COLECAO_PACIENTES).document(pacienteId);
+        registrosDoPaciente(pacienteId).get()
+                .addOnSuccessListener(registrosSnapshot ->
+                        evolucoesDoPaciente(pacienteId).get()
+                                .addOnSuccessListener(evolucoesSnapshot -> {
+                                    WriteBatch batch = db.batch();
+                                    for (DocumentSnapshot doc : registrosSnapshot.getDocuments()) {
+                                        batch.delete(doc.getReference());
+                                    }
+                                    for (DocumentSnapshot doc : evolucoesSnapshot.getDocuments()) {
+                                        batch.delete(doc.getReference());
+                                    }
+                                    batch.delete(docPaciente);
+                                    batch.commit()
+                                            .addOnSuccessListener(unused -> callback.onSucesso())
+                                            .addOnFailureListener(callback::onErro);
+                                })
+                                .addOnFailureListener(callback::onErro))
+                .addOnFailureListener(callback::onErro);
+    }
+
     public CollectionReference registrosDoPaciente(String pacienteId) {
         return db.collection(COLECAO_PACIENTES).document(pacienteId).collection(SUBCOLECAO_REGISTROS);
     }
 
     public CollectionReference evolucoesDoPaciente(String pacienteId) {
         return db.collection(COLECAO_PACIENTES).document(pacienteId).collection(SUBCOLECAO_EVOLUCOES);
+    }
+
+    /** Observa os registros (avaliacoes) do partograma em tempo real, mais recente primeiro. */
+    public ListenerRegistration observarRegistros(String pacienteId, ListaRegistrosCallback callback) {
+        Query query = registrosDoPaciente(pacienteId).orderBy("dataHora", Query.Direction.DESCENDING);
+        return query.addSnapshotListener((snapshot, erro) -> {
+            if (erro != null) {
+                callback.onErro(erro);
+                return;
+            }
+            List<RegistroPartograma> registros = new ArrayList<>();
+            if (snapshot != null) {
+                for (DocumentSnapshot doc : snapshot.getDocuments()) {
+                    RegistroPartograma registro = doc.toObject(RegistroPartograma.class);
+                    if (registro != null) {
+                        registro.setId(doc.getId());
+                        registros.add(registro);
+                    }
+                }
+            }
+            callback.onRegistrosAtualizados(registros);
+        });
+    }
+
+    /**
+     * Adiciona uma nova avaliacao (registro) do partograma e atualiza o resumo no
+     * documento do paciente (horaAtual), equivalente ao "pessoa{slot}hora" do original.
+     */
+    public void adicionarRegistro(String pacienteId, RegistroPartograma registro, OperacaoCallback callback) {
+        Map<String, Object> dados = new HashMap<>();
+        dados.put("horario", registro.getHorario());
+        dados.put("dilatacao", registro.getDilatacao());
+        dados.put("posicaoLee", registro.getPosicaoLee());
+        dados.put("batimentos", registro.getBatimentos());
+        dados.put("integridade", registro.getIntegridade());
+        dados.put("liquido", registro.getLiquido());
+        dados.put("freqContracao", registro.getFreqContracao());
+        dados.put("ocitocina", registro.getOcitocina());
+        dados.put("mesoprostol", registro.getMesoprostol());
+        dados.put("remedios", registro.getRemedios());
+        dados.put("examinador", registro.getExaminador());
+        dados.put("intercorrencia", registro.getIntercorrencia());
+        dados.put("dataHora", FieldValue.serverTimestamp());
+
+        registrosDoPaciente(pacienteId).add(dados)
+                .addOnSuccessListener(docRef -> {
+                    Map<String, Object> atualizacaoPaciente = new HashMap<>();
+                    atualizacaoPaciente.put("horaAtual", registro.getHorario());
+                    atualizacaoPaciente.put("ultimoAcesso", FieldValue.serverTimestamp());
+                    db.collection(COLECAO_PACIENTES).document(pacienteId).update(atualizacaoPaciente);
+                    callback.onSucesso();
+                })
+                .addOnFailureListener(callback::onErro);
+    }
+
+    /** Adiciona uma nota de evolucao/observacao da paciente. */
+    public void adicionarEvolucao(String pacienteId, String texto, OperacaoCallback callback) {
+        Map<String, Object> dados = new HashMap<>();
+        dados.put("texto", texto);
+        dados.put("criadoEm", FieldValue.serverTimestamp());
+        evolucoesDoPaciente(pacienteId).add(dados)
+                .addOnSuccessListener(docRef -> callback.onSucesso())
+                .addOnFailureListener(callback::onErro);
     }
 }

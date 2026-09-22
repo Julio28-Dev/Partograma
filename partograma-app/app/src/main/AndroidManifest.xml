@@ -66,6 +66,34 @@
             android:exported="false" />
 
         <activity
+            android:name=".NovaAvaliacaoActivity"
+            android:configChanges="orientation"
+            android:screenOrientation="portrait"
+            android:theme="@style/AppTheme.NoActionBar"
+            android:exported="false" />
+
+        <activity
+            android:name=".GraficoPartogramaActivity"
+            android:configChanges="orientation"
+            android:screenOrientation="portrait"
+            android:theme="@style/AppTheme.NoActionBar"
+            android:exported="false" />
+
+        <activity
+            android:name=".RelatorioListaActivity"
+            android:configChanges="orientation"
+            android:screenOrientation="portrait"
+            android:theme="@style/AppTheme.NoActionBar"
+            android:exported="false" />
+
+        <activity
+            android:name=".TelaFinalActivity"
+            android:configChanges="orientation"
+            android:screenOrientation="portrait"
+            android:theme="@style/AppTheme.NoActionBar"
+            android:exported="false" />
+
+        <activity
             android:name=".Menu"
             android:configChanges="orientation"
             android:screenOrientation="portrait"
@@ -86,6 +114,18 @@
         <receiver
             android:name=".notifications.MyNotificationPublisher"
             android:exported="false" />
+
+        <!-- Necessario para compartilhar o PDF gerado (PdfRelatorioGenerator) como
+             content:// Uri. targetSdk 26 (>= 24) proibe expor Uri.fromFile() em Intents. -->
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="${applicationId}.fileprovider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/file_paths" />
+        </provider>
 
     </application>
 

@@ -1,0 +1,172 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/background"
+    android:orientation="vertical">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:paddingStart="16dp"
+        android:paddingEnd="24dp"
+        android:paddingTop="18dp"
+        android:paddingBottom="10dp">
+
+        <ImageView
+            android:id="@+id/btnVoltar"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:background="?android:attr/selectableItemBackgroundBorderless"
+            android:padding="8dp"
+            android:src="@drawable/ic_back_thin" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="6dp"
+            android:text="@string/nova_avaliacao_titulo"
+            android:textColor="@color/textPrimary"
+            android:textSize="20sp"
+            android:textStyle="bold" />
+    </LinearLayout>
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:clipToPadding="false"
+        android:fillViewport="true">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingStart="24dp"
+            android:paddingEnd="24dp"
+            android:paddingBottom="24dp">
+
+            <TextView style="@style/CampoLabel" android:text="@string/nova_avaliacao_horario" />
+            <EditText
+                android:id="@+id/edtHorario"
+                style="@style/CampoInput"
+                android:hint="HH:mm"
+                android:inputType="datetime" />
+
+            <TextView style="@style/CampoLabel" android:text="@string/nova_avaliacao_dilatacao" />
+            <EditText
+                android:id="@+id/edtDilatacao"
+                style="@style/CampoInput"
+                android:hint="0 a 10"
+                android:inputType="numberDecimal" />
+
+            <TextView style="@style/CampoLabel" android:text="@string/nova_avaliacao_posicao_lee" />
+            <Spinner
+                android:id="@+id/spinnerPosicaoLee"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="14dp"
+                android:background="@drawable/bg_input_field"
+                android:paddingStart="14dp"
+                android:paddingEnd="14dp"
+                android:spinnerMode="dropdown" />
+
+            <TextView style="@style/CampoLabel" android:text="@string/nova_avaliacao_batimentos" />
+            <EditText
+                android:id="@+id/edtBatimentos"
+                style="@style/CampoInput"
+                android:inputType="number" />
+
+            <TextView style="@style/CampoLabel" android:text="@string/nova_avaliacao_integridade" />
+            <Spinner
+                android:id="@+id/spinnerIntegridade"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="14dp"
+                android:background="@drawable/bg_input_field"
+                android:paddingStart="14dp"
+                android:paddingEnd="14dp"
+                android:spinnerMode="dropdown" />
+
+            <TextView style="@style/CampoLabel" android:text="@string/nova_avaliacao_liquido" />
+            <Spinner
+                android:id="@+id/spinnerLiquido"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="14dp"
+                android:background="@drawable/bg_input_field"
+                android:paddingStart="14dp"
+                android:paddingEnd="14dp"
+                android:spinnerMode="dropdown" />
+
+            <TextView style="@style/CampoLabel" android:text="@string/nova_avaliacao_freq_contracao" />
+            <EditText
+                android:id="@+id/edtFreqContracao"
+                style="@style/CampoInput"
+                android:inputType="text" />
+
+            <TextView style="@style/CampoLabel" android:text="@string/nova_avaliacao_ocitocina" />
+            <EditText
+                android:id="@+id/edtOcitocina"
+                style="@style/CampoInput"
+                android:inputType="text" />
+
+            <TextView style="@style/CampoLabel" android:text="@string/nova_avaliacao_mesoprostol" />
+            <EditText
+                android:id="@+id/edtMesoprostol"
+                style="@style/CampoInput"
+                android:inputType="text" />
+
+            <TextView style="@style/CampoLabel" android:text="@string/nova_avaliacao_remedios" />
+            <EditText
+                android:id="@+id/edtRemedios"
+                style="@style/CampoInput"
+                android:inputType="text" />
+
+            <TextView style="@style/CampoLabel" android:text="@string/nova_avaliacao_examinador" />
+            <EditText
+                android:id="@+id/edtExaminador"
+                style="@style/CampoInput"
+                android:inputType="textPersonName|textCapWords" />
+
+            <TextView style="@style/CampoLabel" android:text="@string/nova_avaliacao_intercorrencia" />
+            <EditText
+                android:id="@+id/edtIntercorrencia"
+                style="@style/CampoInput"
+                android:inputType="textMultiLine"
+                android:minLines="2" />
+
+            <LinearLayout
+                android:id="@+id/btnSalvarAvaliacao"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:background="@drawable/bg_button_primary"
+                android:clickable="true"
+                android:focusable="true"
+                android:gravity="center"
+                android:paddingTop="13dp"
+                android:paddingBottom="13dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/nova_avaliacao_salvar"
+                    android:textColor="#FFFFFFFF"
+                    android:textSize="14.5sp"
+                    android:textStyle="bold" />
+            </LinearLayout>
+
+            <ProgressBar
+                android:id="@+id/progressSalvando"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_marginTop="16dp"
+                android:indeterminateTint="@color/primaryPink"
+                android:visibility="gone" />
+        </LinearLayout>
+    </ScrollView>
+</LinearLayout>

@@ -10,7 +10,7 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.app.AlertDialog;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
@@ -33,7 +33,7 @@ import java.util.Locale;
  * e funcionando sem nenhuma alteracao -- esta tela nao os substitui ainda, e a base da
  * nova arquitetura de dados hospedada.
  */
-public class PacientesActivity extends AppCompatActivity {
+public class PacientesActivity extends BaseActivity {
 
     private FirestorePatientRepository repositorio;
     private ListenerRegistration listenerPacientes;
@@ -60,7 +60,7 @@ public class PacientesActivity extends AppCompatActivity {
 
         RecyclerView listaPacientes = findViewById(R.id.listaPacientes);
         listaPacientes.setLayoutManager(new LinearLayoutManager(this));
-        adapter = new PacientesAdapter(this::abrirDetalhesPaciente);
+        adapter = new PacientesAdapter(this::abrirDetalhesPaciente, this::confirmarExclusao);
         listaPacientes.setAdapter(adapter);
 
         swipeRefresh.setOnRefreshListener(this::observarPacientes);
@@ -139,6 +139,35 @@ public class PacientesActivity extends AppCompatActivity {
         Intent intent = new Intent(this, PacienteDetalhesActivity.class);
         intent.putExtra(PacienteDetalhesActivity.EXTRA_PACIENTE_ID, paciente.getId());
         startActivity(intent);
+    }
+
+    private void confirmarExclusao(Paciente paciente) {
+        new AlertDialog.Builder(this)
+                .setTitle(R.string.excluir_paciente_titulo)
+                .setMessage(getString(R.string.excluir_paciente_mensagem, paciente.getNome()))
+                .setNegativeButton(R.string.excluir_paciente_cancelar, null)
+                .setPositiveButton(R.string.excluir_paciente_confirmar, (dialog, which) -> excluirPaciente(paciente))
+                .create()
+                .show();
+    }
+
+    private void excluirPaciente(Paciente paciente) {
+        // Identificador usado e o document ID do Firestore (paciente.getId()), nunca o
+        // nome -- dois pacientes podem ter o mesmo nome, o ID e o que garante que so o
+        // documento certo (e as subcolecoes certas) sejam apagados.
+        repositorio.excluirPacienteCompleto(paciente.getId(), new FirestorePatientRepository.OperacaoCallback() {
+            @Override
+            public void onSucesso() {
+                Toast.makeText(PacientesActivity.this, R.string.excluir_paciente_sucesso, Toast.LENGTH_LONG).show();
+                // A lista se atualiza sozinha via observarPacientes() (listener em tempo
+                // real) -- nao precisa remover manualmente do adapter aqui.
+            }
+
+            @Override
+            public void onErro(Exception erro) {
+                Toast.makeText(PacientesActivity.this, R.string.excluir_paciente_erro, Toast.LENGTH_LONG).show();
+            }
+        });
     }
 
     @Override

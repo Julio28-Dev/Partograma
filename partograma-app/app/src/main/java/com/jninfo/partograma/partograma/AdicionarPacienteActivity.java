@@ -9,8 +9,6 @@ import android.widget.ProgressBar;
 import android.widget.Spinner;
 import android.widget.Toast;
 
-import androidx.appcompat.app.AppCompatActivity;
-
 import com.jninfo.partograma.partograma.data.FirestorePatientRepository;
 import com.jninfo.partograma.partograma.data.Paciente;
 
@@ -23,7 +21,7 @@ import java.util.Locale;
  * Valida, salva no Firestore e volta para a lista, que se atualiza sozinha via listener
  * em tempo real ({@link PacientesActivity#observarPacientes()}).
  */
-public class AdicionarPacienteActivity extends AppCompatActivity {
+public class AdicionarPacienteActivity extends BaseActivity {
 
     private FirestorePatientRepository repositorio;
 

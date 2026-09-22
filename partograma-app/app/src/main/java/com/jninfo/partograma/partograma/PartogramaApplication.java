@@ -4,6 +4,7 @@ import android.app.Application;
 import android.util.Log;
 
 import com.google.firebase.auth.FirebaseAuth;
+import com.jninfo.partograma.partograma.data.AppPreferences;
 
 /**
  * Classe de Application do app. Unica responsabilidade hoje: autenticar o aparelho de
@@ -33,6 +34,10 @@ public class PartogramaApplication extends Application {
     public void onCreate() {
         super.onCreate();
         autenticarAnonimamenteSeNecessario();
+        // Aplica o tema (Claro/Escuro/Automatico) salvo em Configuracoes antes de
+        // qualquer Activity ser criada -- e uma configuracao global do AppCompatDelegate,
+        // por isso fica aqui em vez de em cada tela.
+        AppPreferences.aplicarTemaSalvo(this);
     }
 
     private void autenticarAnonimamenteSeNecessario() {

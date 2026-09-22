@@ -22,11 +22,17 @@ public class PacientesAdapter extends RecyclerView.Adapter<PacientesAdapter.Paci
         void onPacienteClicado(Paciente paciente);
     }
 
+    public interface OnPacienteLongClickListener {
+        void onPacienteSegurado(Paciente paciente);
+    }
+
     private final List<Paciente> pacientes = new ArrayList<>();
     private final OnPacienteClickListener listener;
+    private final OnPacienteLongClickListener longClickListener;
 
-    public PacientesAdapter(OnPacienteClickListener listener) {
+    public PacientesAdapter(OnPacienteClickListener listener, OnPacienteLongClickListener longClickListener) {
         this.listener = listener;
+        this.longClickListener = longClickListener;
     }
 
     public void atualizar(List<Paciente> novaLista) {
@@ -50,7 +56,7 @@ public class PacientesAdapter extends RecyclerView.Adapter<PacientesAdapter.Paci
     @Override
     public void onBindViewHolder(@NonNull PacienteViewHolder holder, int position) {
         Paciente paciente = pacientes.get(position);
-        holder.bind(paciente, listener);
+        holder.bind(paciente, listener, longClickListener);
     }
 
     @Override
@@ -73,7 +79,7 @@ public class PacientesAdapter extends RecyclerView.Adapter<PacientesAdapter.Paci
             txtUltimoAcesso = itemView.findViewById(R.id.txtUltimoAcesso);
         }
 
-        void bind(Paciente paciente, OnPacienteClickListener listener) {
+        void bind(Paciente paciente, OnPacienteClickListener listener, OnPacienteLongClickListener longClickListener) {
             txtNome.setText(paciente.getNome());
 
             int idade = paciente.getIdadeAnos();
@@ -102,6 +108,12 @@ public class PacientesAdapter extends RecyclerView.Adapter<PacientesAdapter.Paci
                 if (listener != null) {
                     listener.onPacienteClicado(paciente);
                 }
+            });
+            itemView.setOnLongClickListener(v -> {
+                if (longClickListener != null) {
+                    longClickListener.onPacienteSegurado(paciente);
+                }
+                return true;
             });
         }
 
