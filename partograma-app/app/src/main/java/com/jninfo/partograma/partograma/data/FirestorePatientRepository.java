@@ -36,6 +36,8 @@ public class FirestorePatientRepository {
     public static final String COLECAO_PACIENTES = "pacientes";
     public static final String SUBCOLECAO_REGISTROS = "registros";
     public static final String SUBCOLECAO_EVOLUCOES = "evolucoes";
+    public static final String SUBCOLECAO_SINAIS_VITAIS = "sinaisVitais";
+    public static final String CAMPO_DESFECHO = "desfecho";
 
     private final FirebaseFirestore db;
 
@@ -60,6 +62,16 @@ public class FirestorePatientRepository {
 
     public interface ListaRegistrosCallback {
         void onRegistrosAtualizados(List<RegistroPartograma> registros);
+        void onErro(Exception erro);
+    }
+
+    public interface ListaSinaisVitaisCallback {
+        void onSinaisVitaisAtualizados(List<SinalVital> sinaisVitais);
+        void onErro(Exception erro);
+    }
+
+    public interface DesfechoCallback {
+        void onCarregado(@Nullable DesfechoParto desfecho);
         void onErro(Exception erro);
     }
 
@@ -113,6 +125,9 @@ public class FirestorePatientRepository {
         dados.put("queixaPrincipal", paciente.getQueixaPrincipal());
         dados.put("conduta", paciente.getConduta());
         dados.put("status", paciente.getStatus());
+        dados.put("comorbidades", paciente.getComorbidades());
+        dados.put("comorbidadesOutras", paciente.getComorbidadesOutras());
+        dados.put("classificacaoRisco", paciente.getClassificacaoRisco());
         dados.put("horaAtual", "ainda sem");
         dados.put("avisoBatimento", "ainda sem");
         dados.put("avisoLee", "ainda sem");
@@ -140,29 +155,37 @@ public class FirestorePatientRepository {
     /**
      * Exclusao em cascata: o Firestore NAO apaga subcolecoes automaticamente ao apagar o
      * documento pai -- se so déssemos doc.delete() no paciente, os documentos de
-     * "registros" e "evolucoes" continuariam existindo, orfaos (acessiveis por quem
-     * soubesse o caminho, mas invisiveis nas telas). Por isso buscamos os IDs de cada
-     * subcolecao primeiro e apagamos tudo -- registros, evolucoes e o proprio paciente --
-     * num unico WriteBatch atomico (tudo ou nada, sem risco de exclusao parcial).
+     * "registros", "evolucoes" e "sinaisVitais" continuariam existindo, orfaos
+     * (acessiveis por quem soubesse o caminho, mas invisiveis nas telas). Por isso
+     * buscamos os IDs de cada subcolecao primeiro e apagamos tudo -- registros,
+     * evolucoes, sinais vitais e o proprio paciente (que carrega o desfecho embutido,
+     * ver {@link #salvarDesfecho}) -- num unico WriteBatch atomico (tudo ou nada, sem
+     * risco de exclusao parcial).
      */
     public void excluirPacienteCompleto(String pacienteId, OperacaoCallback callback) {
         DocumentReference docPaciente = db.collection(COLECAO_PACIENTES).document(pacienteId);
         registrosDoPaciente(pacienteId).get()
                 .addOnSuccessListener(registrosSnapshot ->
                         evolucoesDoPaciente(pacienteId).get()
-                                .addOnSuccessListener(evolucoesSnapshot -> {
-                                    WriteBatch batch = db.batch();
-                                    for (DocumentSnapshot doc : registrosSnapshot.getDocuments()) {
-                                        batch.delete(doc.getReference());
-                                    }
-                                    for (DocumentSnapshot doc : evolucoesSnapshot.getDocuments()) {
-                                        batch.delete(doc.getReference());
-                                    }
-                                    batch.delete(docPaciente);
-                                    batch.commit()
-                                            .addOnSuccessListener(unused -> callback.onSucesso())
-                                            .addOnFailureListener(callback::onErro);
-                                })
+                                .addOnSuccessListener(evolucoesSnapshot ->
+                                        sinaisVitaisDoPaciente(pacienteId).get()
+                                                .addOnSuccessListener(sinaisSnapshot -> {
+                                                    WriteBatch batch = db.batch();
+                                                    for (DocumentSnapshot doc : registrosSnapshot.getDocuments()) {
+                                                        batch.delete(doc.getReference());
+                                                    }
+                                                    for (DocumentSnapshot doc : evolucoesSnapshot.getDocuments()) {
+                                                        batch.delete(doc.getReference());
+                                                    }
+                                                    for (DocumentSnapshot doc : sinaisSnapshot.getDocuments()) {
+                                                        batch.delete(doc.getReference());
+                                                    }
+                                                    batch.delete(docPaciente);
+                                                    batch.commit()
+                                                            .addOnSuccessListener(unused -> callback.onSucesso())
+                                                            .addOnFailureListener(callback::onErro);
+                                                })
+                                                .addOnFailureListener(callback::onErro))
                                 .addOnFailureListener(callback::onErro))
                 .addOnFailureListener(callback::onErro);
     }
@@ -173,6 +196,10 @@ public class FirestorePatientRepository {
 
     public CollectionReference evolucoesDoPaciente(String pacienteId) {
         return db.collection(COLECAO_PACIENTES).document(pacienteId).collection(SUBCOLECAO_EVOLUCOES);
+    }
+
+    public CollectionReference sinaisVitaisDoPaciente(String pacienteId) {
+        return db.collection(COLECAO_PACIENTES).document(pacienteId).collection(SUBCOLECAO_SINAIS_VITAIS);
     }
 
     /** Observa os registros (avaliacoes) do partograma em tempo real, mais recente primeiro. */
@@ -199,13 +226,15 @@ public class FirestorePatientRepository {
 
     /**
      * Adiciona uma nova avaliacao (registro) do partograma e atualiza o resumo no
-     * documento do paciente (horaAtual), equivalente ao "pessoa{slot}hora" do original.
+     * documento do paciente (horaAtual + status = fase do trabalho de parto informada),
+     * para a tag da lista de pacientes refletir a fase mais recente de verdade.
      */
     public void adicionarRegistro(String pacienteId, RegistroPartograma registro, OperacaoCallback callback) {
         Map<String, Object> dados = new HashMap<>();
         dados.put("horario", registro.getHorario());
         dados.put("dilatacao", registro.getDilatacao());
-        dados.put("posicaoLee", registro.getPosicaoLee());
+        dados.put("posicaoBebe", registro.getPosicaoBebe());
+        dados.put("planoDeLee", registro.getPlanoDeLee());
         dados.put("batimentos", registro.getBatimentos());
         dados.put("integridade", registro.getIntegridade());
         dados.put("liquido", registro.getLiquido());
@@ -214,7 +243,11 @@ public class FirestorePatientRepository {
         dados.put("mesoprostol", registro.getMesoprostol());
         dados.put("remedios", registro.getRemedios());
         dados.put("examinador", registro.getExaminador());
+        dados.put("faseTrabalhoParto", registro.getFaseTrabalhoParto());
+        dados.put("metodosNaoFarmacologicos", registro.getMetodosNaoFarmacologicos());
+        dados.put("teveIntercorrencia", registro.getTeveIntercorrencia());
         dados.put("intercorrencia", registro.getIntercorrencia());
+        dados.put("observacaoAdicional", registro.getObservacaoAdicional());
         dados.put("dataHora", FieldValue.serverTimestamp());
 
         registrosDoPaciente(pacienteId).add(dados)
@@ -222,6 +255,9 @@ public class FirestorePatientRepository {
                     Map<String, Object> atualizacaoPaciente = new HashMap<>();
                     atualizacaoPaciente.put("horaAtual", registro.getHorario());
                     atualizacaoPaciente.put("ultimoAcesso", FieldValue.serverTimestamp());
+                    if (registro.getFaseTrabalhoParto() != null) {
+                        atualizacaoPaciente.put("status", registro.getFaseTrabalhoParto());
+                    }
                     db.collection(COLECAO_PACIENTES).document(pacienteId).update(atualizacaoPaciente);
                     callback.onSucesso();
                 })
@@ -236,5 +272,142 @@ public class FirestorePatientRepository {
         evolucoesDoPaciente(pacienteId).add(dados)
                 .addOnSuccessListener(docRef -> callback.onSucesso())
                 .addOnFailureListener(callback::onErro);
+    }
+
+    // ---- Sinais vitais -----------------------------------------------------------------------
+
+    public ListenerRegistration observarSinaisVitais(String pacienteId, ListaSinaisVitaisCallback callback) {
+        Query query = sinaisVitaisDoPaciente(pacienteId).orderBy("dataHora", Query.Direction.DESCENDING);
+        return query.addSnapshotListener((snapshot, erro) -> {
+            if (erro != null) {
+                callback.onErro(erro);
+                return;
+            }
+            List<SinalVital> lista = new ArrayList<>();
+            if (snapshot != null) {
+                for (DocumentSnapshot doc : snapshot.getDocuments()) {
+                    SinalVital sinal = doc.toObject(SinalVital.class);
+                    if (sinal != null) {
+                        sinal.setId(doc.getId());
+                        lista.add(sinal);
+                    }
+                }
+            }
+            callback.onSinaisVitaisAtualizados(lista);
+        });
+    }
+
+    public void adicionarSinalVital(String pacienteId, SinalVital sinal, OperacaoCallback callback) {
+        Map<String, Object> dados = new HashMap<>();
+        dados.put("dataAfericao", sinal.getDataAfericao());
+        dados.put("horario", sinal.getHorario());
+        dados.put("paSistolica", sinal.getPaSistolica());
+        dados.put("paDiastolica", sinal.getPaDiastolica());
+        dados.put("frequenciaCardiaca", sinal.getFrequenciaCardiaca());
+        dados.put("frequenciaRespiratoria", sinal.getFrequenciaRespiratoria());
+        dados.put("temperatura", sinal.getTemperatura());
+        dados.put("spo2", sinal.getSpo2());
+        dados.put("dor", sinal.getDor());
+        dados.put("hgt", sinal.getHgt());
+        dados.put("observacoes", sinal.getObservacoes());
+        dados.put("examinador", sinal.getExaminador());
+        dados.put("dataHora", FieldValue.serverTimestamp());
+
+        sinaisVitaisDoPaciente(pacienteId).add(dados)
+                .addOnSuccessListener(docRef -> {
+                    db.collection(COLECAO_PACIENTES).document(pacienteId)
+                            .update("ultimoAcesso", FieldValue.serverTimestamp());
+                    callback.onSucesso();
+                })
+                .addOnFailureListener(callback::onErro);
+    }
+
+    // ---- Desfecho do parto (embutido no documento do paciente, 1:1) --------------------------
+
+    public void salvarDesfecho(String pacienteId, DesfechoParto desfecho, OperacaoCallback callback) {
+        Map<String, Object> dados = new HashMap<>();
+        dados.put("viaDeParto", desfecho.getViaDeParto());
+        dados.put("dataParto", desfecho.getDataParto());
+        dados.put("apresentacaoFetal", desfecho.getApresentacaoFetal());
+        dados.put("posicaoVariedade", desfecho.getPosicaoVariedade());
+        dados.put("laceracaoPerineal", desfecho.getLaceracaoPerineal());
+        dados.put("dequitacao", desfecho.getDequitacao());
+        dados.put("placenta", desfecho.getPlacenta());
+        dados.put("intercorrencias", desfecho.getIntercorrencias());
+        dados.put("observacoes", desfecho.getObservacoes());
+        dados.put("sexoRn", desfecho.getSexoRn());
+        dados.put("pesoRn", desfecho.getPesoRn());
+        dados.put("comprimentoRn", desfecho.getComprimentoRn());
+        dados.put("perimetroCefalicoRn", desfecho.getPerimetroCefalicoRn());
+        dados.put("horarioNascimento", desfecho.getHorarioNascimento());
+        dados.put("apgar1", desfecho.getApgar1());
+        dados.put("apgar5", desfecho.getApgar5());
+        dados.put("apgar10", desfecho.getApgar10());
+        dados.put("contatoPeleAPele", desfecho.getContatoPeleAPele());
+        dados.put("amamentacaoPrimeiraHora", desfecho.getAmamentacaoPrimeiraHora());
+        dados.put("intercorrenciasRn", desfecho.getIntercorrenciasRn());
+        dados.put("condicaoMaterna", desfecho.getCondicaoMaterna());
+        dados.put("condicaoRn", desfecho.getCondicaoRn());
+        dados.put("destinoPuerpera", desfecho.getDestinoPuerpera());
+        dados.put("destinoRn", desfecho.getDestinoRn());
+        dados.put("profissionalResponsavel", desfecho.getProfissionalResponsavel());
+        dados.put("coren", desfecho.getCoren());
+        dados.put("observacoesFinais", desfecho.getObservacoesFinais());
+        dados.put("dataHora", FieldValue.serverTimestamp());
+
+        Map<String, Object> atualizacao = new HashMap<>();
+        atualizacao.put(CAMPO_DESFECHO, dados);
+        db.collection(COLECAO_PACIENTES).document(pacienteId).update(atualizacao)
+                .addOnSuccessListener(unused -> callback.onSucesso())
+                .addOnFailureListener(callback::onErro);
+    }
+
+    public void carregarDesfecho(String pacienteId, DesfechoCallback callback) {
+        db.collection(COLECAO_PACIENTES).document(pacienteId).get()
+                .addOnSuccessListener(doc -> {
+                    Map<String, Object> mapa = (Map<String, Object>) doc.get(CAMPO_DESFECHO);
+                    if (mapa == null) {
+                        callback.onCarregado(null);
+                        return;
+                    }
+                    DesfechoParto desfecho = new DesfechoParto();
+                    desfecho.setViaDeParto((String) mapa.get("viaDeParto"));
+                    desfecho.setDataParto((String) mapa.get("dataParto"));
+                    desfecho.setApresentacaoFetal((String) mapa.get("apresentacaoFetal"));
+                    desfecho.setPosicaoVariedade((String) mapa.get("posicaoVariedade"));
+                    desfecho.setLaceracaoPerineal((String) mapa.get("laceracaoPerineal"));
+                    desfecho.setDequitacao((String) mapa.get("dequitacao"));
+                    desfecho.setPlacenta((String) mapa.get("placenta"));
+                    desfecho.setIntercorrencias((String) mapa.get("intercorrencias"));
+                    desfecho.setObservacoes((String) mapa.get("observacoes"));
+                    desfecho.setSexoRn((String) mapa.get("sexoRn"));
+                    desfecho.setPesoRn(paraInteiro(mapa.get("pesoRn")));
+                    desfecho.setComprimentoRn(paraDouble(mapa.get("comprimentoRn")));
+                    desfecho.setPerimetroCefalicoRn(paraDouble(mapa.get("perimetroCefalicoRn")));
+                    desfecho.setHorarioNascimento((String) mapa.get("horarioNascimento"));
+                    desfecho.setApgar1(paraInteiro(mapa.get("apgar1")));
+                    desfecho.setApgar5(paraInteiro(mapa.get("apgar5")));
+                    desfecho.setApgar10(paraInteiro(mapa.get("apgar10")));
+                    desfecho.setContatoPeleAPele((Boolean) mapa.get("contatoPeleAPele"));
+                    desfecho.setAmamentacaoPrimeiraHora((Boolean) mapa.get("amamentacaoPrimeiraHora"));
+                    desfecho.setIntercorrenciasRn((String) mapa.get("intercorrenciasRn"));
+                    desfecho.setCondicaoMaterna((String) mapa.get("condicaoMaterna"));
+                    desfecho.setCondicaoRn((String) mapa.get("condicaoRn"));
+                    desfecho.setDestinoPuerpera((String) mapa.get("destinoPuerpera"));
+                    desfecho.setDestinoRn((String) mapa.get("destinoRn"));
+                    desfecho.setProfissionalResponsavel((String) mapa.get("profissionalResponsavel"));
+                    desfecho.setCoren((String) mapa.get("coren"));
+                    desfecho.setObservacoesFinais((String) mapa.get("observacoesFinais"));
+                    callback.onCarregado(desfecho);
+                })
+                .addOnFailureListener(callback::onErro);
+    }
+
+    private Integer paraInteiro(Object valor) {
+        return valor instanceof Number ? ((Number) valor).intValue() : null;
+    }
+
+    private Double paraDouble(Object valor) {
+        return valor instanceof Number ? ((Number) valor).doubleValue() : null;
     }
 }

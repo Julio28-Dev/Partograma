@@ -89,7 +89,7 @@ public class RelatorioListaActivity extends BaseActivity {
         containerLista.removeAllViews();
         boolean algumExibido = false;
         for (RegistroPartograma registro : registros) {
-            if (MODO_INTERCORRENCIAS.equals(modo) && TextUtils.isEmpty(registro.getIntercorrencia())) {
+            if (MODO_INTERCORRENCIAS.equals(modo) && !Boolean.TRUE.equals(registro.getTeveIntercorrencia())) {
                 continue;
             }
             if (MODO_MEDICACOES.equals(modo)
@@ -118,19 +118,25 @@ public class RelatorioListaActivity extends BaseActivity {
         containerLista.addView(cabecalho, paramsCabecalho);
 
         if (MODO_EVOLUCAO.equals(modo)) {
+            adicionarLinha("Fase do trabalho de parto", registro.getFaseTrabalhoParto());
             adicionarLinha("Dilatação", registro.getDilatacao() != null ? registro.getDilatacao() + " cm" : null);
-            adicionarLinha("Rotatividade do bebê", registro.getRotuloPosicaoLee());
-            adicionarLinha("Batimentos", registro.getBatimentos() != null ? registro.getBatimentos() + " bpm" : null);
+            adicionarLinha("Posição do bebê", registro.getPosicaoBebe());
+            adicionarLinha("Plano de De Lee", registro.getRotuloPlanoDeLee());
+            adicionarLinha("BCF", registro.getBatimentos() != null ? registro.getBatimentos() + " bpm" : null);
             adicionarLinha("Integridade da bolsa", registro.getIntegridade());
             adicionarLinha("Líquido amniótico", registro.getLiquido());
-            adicionarLinha("Frequência de contração", registro.getFreqContracao());
+            adicionarLinha("Frequência de contração (10 min)", registro.getFreqContracao());
             adicionarLinha("Examinador", registro.getExaminador());
+            if (!registro.getMetodosNaoFarmacologicos().isEmpty()) {
+                adicionarLinha("Métodos não farmacológicos", TextUtils.join(", ", registro.getMetodosNaoFarmacologicos()));
+            }
+            adicionarLinha("Observação adicional", registro.getObservacaoAdicional());
         } else if (MODO_INTERCORRENCIAS.equals(modo)) {
             adicionarLinha("Intercorrência", registro.getIntercorrencia());
         } else if (MODO_MEDICACOES.equals(modo)) {
             adicionarLinha("Ocitocina", registro.getOcitocina());
             adicionarLinha("Misoprostol", registro.getMesoprostol());
-            adicionarLinha("Outros remédios", registro.getRemedios());
+            adicionarLinha("Outras medicações", registro.getRemedios());
         }
     }
 

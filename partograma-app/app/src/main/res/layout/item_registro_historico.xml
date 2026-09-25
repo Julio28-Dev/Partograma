@@ -50,7 +50,16 @@
             android:layout_marginTop="1dp"
             android:textColor="@color/textSecondary"
             android:textSize="12sp"
-            tools:text="Rotatividade: Posição 3" />
+            tools:text="Posição do bebê: Cefálico" />
+
+        <TextView
+            android:id="@+id/txtPlanoDeLeeHistorico"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="1dp"
+            android:textColor="@color/textSecondary"
+            android:textSize="12sp"
+            tools:text="Plano de De Lee: 0" />
     </LinearLayout>
 
 </LinearLayout>

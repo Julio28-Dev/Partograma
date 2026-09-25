@@ -3,11 +3,13 @@
     android:height="200dp"
     android:viewportWidth="200"
     android:viewportHeight="200">
-    <!-- Coração-moldura -->
+    <!-- Coração-moldura. Cor propositalmente diferente da mãe/bebê logo abaixo (rosa vs
+         lilás/teal) para o coração ficar visualmente distinto. Antes usava a mesma cor
+         da mãe, e o icone lia como "duas pessoas" em vez de "coração com mãe e bebê". -->
     <path
         android:pathData="M100,172 C46,128 14,92 14,58 C14,30 36,12 62,12 C82,12 96,26 100,44 C104,26 118,12 138,12 C164,12 186,30 186,58 C186,92 154,128 100,172 Z"
-        android:strokeColor="#B79ACB"
-        android:strokeWidth="3.2"
+        android:strokeColor="#E8608F"
+        android:strokeWidth="3.4"
         android:strokeLineCap="round"
         android:strokeLineJoin="round"
         android:fillColor="#00000000" />

@@ -55,6 +55,17 @@
                 android:hint="HH:mm"
                 android:inputType="datetime" />
 
+            <TextView style="@style/CampoLabel" android:text="@string/nova_avaliacao_fase_trabalho_parto" />
+            <Spinner
+                android:id="@+id/spinnerFaseTrabalhoParto"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="14dp"
+                android:background="@drawable/bg_input_field"
+                android:paddingStart="14dp"
+                android:paddingEnd="14dp"
+                android:spinnerMode="dropdown" />
+
             <TextView style="@style/CampoLabel" android:text="@string/nova_avaliacao_dilatacao" />
             <EditText
                 android:id="@+id/edtDilatacao"
@@ -62,9 +73,43 @@
                 android:hint="0 a 10"
                 android:inputType="numberDecimal" />
 
-            <TextView style="@style/CampoLabel" android:text="@string/nova_avaliacao_posicao_lee" />
+            <TextView style="@style/CampoLabel" android:text="@string/nova_avaliacao_posicao_bebe" />
             <Spinner
-                android:id="@+id/spinnerPosicaoLee"
+                android:id="@+id/spinnerPosicaoBebe"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="14dp"
+                android:background="@drawable/bg_input_field"
+                android:paddingStart="14dp"
+                android:paddingEnd="14dp"
+                android:spinnerMode="dropdown" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <TextView
+                    style="@style/CampoLabel"
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:text="@string/nova_avaliacao_plano_de_lee" />
+
+                <TextView
+                    android:id="@+id/btnSaibaMaisDeLee"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:padding="4dp"
+                    android:text="@string/nova_avaliacao_saiba_mais"
+                    android:textColor="@color/primaryPink"
+                    android:textSize="12.5sp"
+                    android:textStyle="bold" />
+            </LinearLayout>
+            <Spinner
+                android:id="@+id/spinnerPlanoDeLee"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="14dp"
@@ -90,16 +135,24 @@
                 android:paddingEnd="14dp"
                 android:spinnerMode="dropdown" />
 
-            <TextView style="@style/CampoLabel" android:text="@string/nova_avaliacao_liquido" />
-            <Spinner
-                android:id="@+id/spinnerLiquido"
+            <LinearLayout
+                android:id="@+id/containerLiquido"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="14dp"
-                android:background="@drawable/bg_input_field"
-                android:paddingStart="14dp"
-                android:paddingEnd="14dp"
-                android:spinnerMode="dropdown" />
+                android:orientation="vertical"
+                android:visibility="gone">
+
+                <TextView style="@style/CampoLabel" android:text="@string/nova_avaliacao_liquido" />
+                <Spinner
+                    android:id="@+id/spinnerLiquido"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="14dp"
+                    android:background="@drawable/bg_input_field"
+                    android:paddingStart="14dp"
+                    android:paddingEnd="14dp"
+                    android:spinnerMode="dropdown" />
+            </LinearLayout>
 
             <TextView style="@style/CampoLabel" android:text="@string/nova_avaliacao_freq_contracao" />
             <EditText
@@ -131,9 +184,72 @@
                 style="@style/CampoInput"
                 android:inputType="textPersonName|textCapWords" />
 
-            <TextView style="@style/CampoLabel" android:text="@string/nova_avaliacao_intercorrencia" />
+            <TextView style="@style/CampoLabel" android:text="@string/nova_avaliacao_metodos_nao_farmacologicos" />
+            <LinearLayout
+                android:id="@+id/containerMetodosNaoFarmacologicos"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="8dp"
+                android:orientation="vertical" />
+
+            <TextView style="@style/CampoLabel" android:text="@string/nova_avaliacao_teve_intercorrencia" />
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="14dp"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:id="@+id/btnIntercorrenciaNao"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:layout_marginEnd="6dp"
+                    android:background="@drawable/bg_segment_selected"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:gravity="center"
+                    android:paddingTop="10dp"
+                    android:paddingBottom="10dp"
+                    android:text="@string/nova_avaliacao_intercorrencia_nao"
+                    android:textColor="@color/primaryPink"
+                    android:textSize="13sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/btnIntercorrenciaSim"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:background="@drawable/bg_segment_unselected"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:gravity="center"
+                    android:paddingTop="10dp"
+                    android:paddingBottom="10dp"
+                    android:text="@string/nova_avaliacao_intercorrencia_sim"
+                    android:textColor="@color/textSecondary"
+                    android:textSize="13sp" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/containerDescricaoIntercorrencia"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:visibility="gone">
+
+                <TextView style="@style/CampoLabel" android:text="@string/nova_avaliacao_descricao_intercorrencia" />
+                <EditText
+                    android:id="@+id/edtIntercorrencia"
+                    style="@style/CampoInput"
+                    android:inputType="textMultiLine"
+                    android:minLines="2" />
+            </LinearLayout>
+
+            <TextView style="@style/CampoLabel" android:text="@string/nova_avaliacao_observacao_adicional" />
             <EditText
-                android:id="@+id/edtIntercorrencia"
+                android:id="@+id/edtObservacaoAdicional"
                 style="@style/CampoInput"
                 android:inputType="textMultiLine"
                 android:minLines="2" />

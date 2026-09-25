@@ -81,6 +81,8 @@ public class PacientesActivity extends BaseActivity {
 
         findViewById(R.id.btnAdicionarPaciente).setOnClickListener(v ->
                 startActivity(new Intent(PacientesActivity.this, AdicionarPacienteActivity.class)));
+        findViewById(R.id.btnConfiguracoes).setOnClickListener(v ->
+                startActivity(new Intent(PacientesActivity.this, ConfiguracoesActivity.class)));
 
         observarPacientes();
     }

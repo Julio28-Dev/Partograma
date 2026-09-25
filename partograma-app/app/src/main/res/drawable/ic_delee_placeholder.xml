@@ -1,0 +1,20 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="96dp"
+    android:height="96dp"
+    android:viewportWidth="96"
+    android:viewportHeight="96">
+    <!-- Placeholder provisorio (pelve estilizada + cabeca fetal) para o Plano de De Lee.
+         Substituir por ilustracao clinica definitiva quando disponivel. Ver
+         PlanoDeLeeExplicacaoActivity, que mapeia cada valor a um recurso proprio. -->
+    <path
+        android:pathData="M14,30 C14,16 30,8 48,8 C66,8 82,16 82,30 C82,52 66,74 48,86 C30,74 14,52 14,30 Z"
+        android:strokeColor="#B79ACB"
+        android:strokeWidth="3"
+        android:strokeLineJoin="round"
+        android:fillColor="#00000000" />
+    <path
+        android:pathData="M48,52 m-18,0 a18,18 0 1,1 36,0 a18,18 0 1,1 -36,0"
+        android:strokeColor="#7FB9AE"
+        android:strokeWidth="3"
+        android:fillColor="#00000000" />
+</vector>

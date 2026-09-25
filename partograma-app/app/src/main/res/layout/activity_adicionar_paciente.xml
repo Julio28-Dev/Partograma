@@ -92,6 +92,33 @@
                 android:hint="Nega"
                 android:inputType="text" />
 
+            <TextView style="@style/CampoLabel" android:text="@string/adicionar_paciente_comorbidades" />
+            <LinearLayout
+                android:id="@+id/containerComorbidades"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="6dp"
+                android:orientation="vertical" />
+
+            <EditText
+                android:id="@+id/edtComorbidadesOutras"
+                style="@style/CampoInput"
+                android:layout_marginBottom="14dp"
+                android:hint="@string/adicionar_paciente_comorbidades_outras"
+                android:inputType="text"
+                android:visibility="gone" />
+
+            <TextView style="@style/CampoLabel" android:text="@string/adicionar_paciente_classificacao_risco" />
+            <Spinner
+                android:id="@+id/spinnerClassificacaoRisco"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="14dp"
+                android:background="@drawable/bg_input_field"
+                android:paddingStart="14dp"
+                android:paddingEnd="14dp"
+                android:spinnerMode="dropdown" />
+
             <TextView style="@style/CampoLabel" android:text="@string/adicionar_paciente_profissional" />
             <EditText
                 android:id="@+id/edtProfissional"

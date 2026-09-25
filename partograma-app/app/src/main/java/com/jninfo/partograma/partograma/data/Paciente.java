@@ -5,8 +5,10 @@ import com.google.firebase.firestore.IgnoreExtraProperties;
 import com.google.firebase.firestore.ServerTimestamp;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.List;
 import java.util.Locale;
 
 /**
@@ -41,7 +43,12 @@ public class Paciente {
     private String profissionalResponsavel;
     private String queixaPrincipal;
     private String conduta;
-    private String status;              // "Em avaliação" | "Fase latente" | "Trabalho de parto ativo"
+    private String status;              // reflete faseTrabalhoParto do ultimo registro do partograma
+
+    // ---- Dados da gestante (admissao), pedidos nesta etapa --------------------------------
+    private List<String> comorbidades;
+    private String comorbidadesOutras;   // texto livre, so preenchido quando "Outras" selecionado
+    private String classificacaoRisco;   // "Gestação de risco habitual" | "Gestação de alto risco"
 
     @ServerTimestamp
     private Date criadoEm;
@@ -173,6 +180,30 @@ public class Paciente {
 
     public void setStatus(String status) {
         this.status = status;
+    }
+
+    public List<String> getComorbidades() {
+        return comorbidades != null ? comorbidades : new ArrayList<>();
+    }
+
+    public void setComorbidades(List<String> comorbidades) {
+        this.comorbidades = comorbidades;
+    }
+
+    public String getComorbidadesOutras() {
+        return comorbidadesOutras;
+    }
+
+    public void setComorbidadesOutras(String comorbidadesOutras) {
+        this.comorbidadesOutras = comorbidadesOutras;
+    }
+
+    public String getClassificacaoRisco() {
+        return classificacaoRisco;
+    }
+
+    public void setClassificacaoRisco(String classificacaoRisco) {
+        this.classificacaoRisco = classificacaoRisco;
     }
 
     public Date getCriadoEm() {

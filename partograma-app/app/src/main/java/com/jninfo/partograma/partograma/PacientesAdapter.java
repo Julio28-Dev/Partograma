@@ -117,12 +117,25 @@ public class PacientesAdapter extends RecyclerView.Adapter<PacientesAdapter.Paci
             });
         }
 
+        /**
+         * O status vem de "Fase do trabalho de parto" (6 valores definidos pelo cliente:
+         * Em avaliação / Fase latente / Fase ativa / Período expulsivo / Dequitação /
+         * Período de Greenberg). Agrupamos essas 6 fases em 3 cores ja existentes no app
+         * (rosa = fase mais critica/ativa, lilas = fase intermediaria, teal = inicial/
+         * neutra) -- e mantemos o antigo "Trabalho de parto ativo" (status padrao usado
+         * antes desta etapa) mapeado como rosa, para pacientes cadastradas antes dela.
+         */
         private void aplicarCorStatus(String status) {
             android.content.Context context = itemView.getContext();
-            if (context.getString(R.string.pacientes_status_trabalho_ativo).equals(status)) {
+            boolean fasePink = "Fase ativa".equals(status)
+                    || "Período expulsivo".equals(status)
+                    || context.getString(R.string.pacientes_status_trabalho_ativo).equals(status);
+            boolean faseLilac = "Fase latente".equals(status) || "Dequitação".equals(status);
+
+            if (fasePink) {
                 txtStatus.setBackgroundResource(R.drawable.bg_badge_pink);
                 txtStatus.setTextColor(ContextCompat.getColor(context, R.color.primaryPink));
-            } else if (context.getString(R.string.pacientes_status_fase_latente).equals(status)) {
+            } else if (faseLilac) {
                 txtStatus.setBackgroundResource(R.drawable.bg_badge_lilac);
                 txtStatus.setTextColor(ContextCompat.getColor(context, R.color.softPurple));
             } else {

@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/background"
+    android:orientation="vertical">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:paddingStart="16dp"
+        android:paddingEnd="24dp"
+        android:paddingTop="18dp"
+        android:paddingBottom="10dp">
+
+        <ImageView
+            android:id="@+id/btnVoltar"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:background="?android:attr/selectableItemBackgroundBorderless"
+            android:padding="8dp"
+            android:src="@drawable/ic_back_thin" />
+
+        <TextView
+            android:id="@+id/txtNomePacienteAfericao"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_marginStart="6dp"
+            android:ellipsize="end"
+            android:maxLines="1"
+            android:text="@string/sinais_vitais_nova_afericao"
+            android:textColor="@color/textPrimary"
+            android:textSize="20sp"
+            android:textStyle="bold" />
+    </LinearLayout>
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:clipToPadding="false"
+        android:fillViewport="true">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingStart="24dp"
+            android:paddingEnd="24dp"
+            android:paddingBottom="24dp">
+
+            <TextView style="@style/CampoLabel" android:text="@string/sinais_vitais_data_afericao" />
+            <EditText android:id="@+id/edtDataAfericao" style="@style/CampoInput" android:hint="dd/mm/aaaa" android:inputType="date" />
+
+            <TextView style="@style/CampoLabel" android:text="@string/sinais_vitais_horario" />
+            <EditText android:id="@+id/edtHorarioAfericao" style="@style/CampoInput" android:hint="HH:mm" android:inputType="datetime" />
+
+            <TextView style="@style/CampoLabel" android:text="@string/sinais_vitais_pa" />
+            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginBottom="14dp" android:gravity="center_vertical" android:orientation="horizontal">
+                <EditText android:id="@+id/edtPaSistolica" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1"
+                    android:background="@drawable/bg_input_field" android:textColor="@color/textPrimary" android:textColorHint="@color/textSecondary" android:textSize="14sp" android:inputType="number" android:hint="Sistólica" />
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginStart="8dp" android:layout_marginEnd="8dp" android:text="×" android:textColor="@color/textSecondary" />
+                <EditText android:id="@+id/edtPaDiastolica" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1"
+                    android:background="@drawable/bg_input_field" android:textColor="@color/textPrimary" android:textColorHint="@color/textSecondary" android:textSize="14sp" android:inputType="number" android:hint="Diastólica" />
+            </LinearLayout>
+
+            <TextView style="@style/CampoLabel" android:text="@string/sinais_vitais_fc" />
+            <EditText android:id="@+id/edtFrequenciaCardiaca" style="@style/CampoInput" android:inputType="number" />
+
+            <TextView style="@style/CampoLabel" android:text="@string/sinais_vitais_fr" />
+            <EditText android:id="@+id/edtFrequenciaRespiratoria" style="@style/CampoInput" android:inputType="number" />
+
+            <TextView style="@style/CampoLabel" android:text="@string/sinais_vitais_temperatura" />
+            <EditText android:id="@+id/edtTemperatura" style="@style/CampoInput" android:inputType="numberDecimal" />
+
+            <TextView style="@style/CampoLabel" android:text="@string/sinais_vitais_spo2" />
+            <EditText android:id="@+id/edtSpo2" style="@style/CampoInput" android:inputType="number" />
+
+            <TextView style="@style/CampoLabel" android:text="@string/sinais_vitais_dor" />
+            <EditText android:id="@+id/edtDor" style="@style/CampoInput" android:inputType="number" />
+
+            <TextView style="@style/CampoLabel" android:text="@string/sinais_vitais_hgt" />
+            <EditText android:id="@+id/edtHgt" style="@style/CampoInput" android:inputType="numberDecimal" />
+
+            <TextView style="@style/CampoLabel" android:text="@string/sinais_vitais_observacoes" />
+            <EditText android:id="@+id/edtObservacoesAfericao" style="@style/CampoInput" android:inputType="textMultiLine" android:minLines="2" />
+
+            <TextView style="@style/CampoLabel" android:text="@string/sinais_vitais_examinador" />
+            <EditText android:id="@+id/edtExaminadorAfericao" style="@style/CampoInput" android:inputType="textPersonName|textCapWords" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:id="@+id/btnCancelarAfericao"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:layout_marginEnd="8dp"
+                    android:background="@drawable/bg_input_field"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:gravity="center"
+                    android:paddingTop="13dp"
+                    android:paddingBottom="13dp"
+                    android:text="@string/sinais_vitais_cancelar"
+                    android:textColor="@color/textSecondary"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/btnSalvarAfericao"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:layout_marginStart="8dp"
+                    android:background="@drawable/bg_button_primary"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:gravity="center"
+                    android:paddingTop="13dp"
+                    android:paddingBottom="13dp"
+                    android:text="@string/sinais_vitais_salvar"
+                    android:textColor="#FFFFFFFF"
+                    android:textStyle="bold" />
+            </LinearLayout>
+
+            <ProgressBar
+                android:id="@+id/progressAfericao"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_marginTop="16dp"
+                android:indeterminateTint="@color/primaryPink"
+                android:visibility="gone" />
+        </LinearLayout>
+    </ScrollView>
+</LinearLayout>

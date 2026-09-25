@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:paddingTop="10dp"
+    android:paddingBottom="10dp">
+
+    <TextView
+        android:id="@+id/txtDataHoraSinal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textColor="@color/textPrimary"
+        android:textSize="13sp"
+        android:textStyle="bold"
+        tools:text="14:20 · 14/09/2026" />
+
+    <TextView
+        android:id="@+id/txtResumoSinal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="2dp"
+        android:textColor="@color/textSecondary"
+        android:textSize="12sp"
+        tools:text="PA: 118/76 mmHg | FC: 82 bpm | FR: 18 irpm" />
+
+</LinearLayout>

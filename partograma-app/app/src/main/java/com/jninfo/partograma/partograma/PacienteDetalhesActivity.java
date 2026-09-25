@@ -1,15 +1,15 @@
 package com.jninfo.partograma.partograma;
 
 import android.content.Intent;
+import android.text.TextUtils;
 import android.os.Bundle;
 import android.text.format.DateFormat;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.widget.CompoundButton;
 import android.widget.LinearLayout;
 import android.widget.PopupMenu;
 import android.widget.ProgressBar;
-import android.widget.Switch;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -18,33 +18,35 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.core.content.ContextCompat;
 
 import com.google.firebase.firestore.ListenerRegistration;
-import com.jninfo.partograma.partograma.data.AppPreferences;
+import com.jninfo.partograma.partograma.data.DesfechoParto;
 import com.jninfo.partograma.partograma.data.FirestorePatientRepository;
 import com.jninfo.partograma.partograma.data.Paciente;
 import com.jninfo.partograma.partograma.data.RegistroPartograma;
+import com.jninfo.partograma.partograma.data.SinalVital;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 /**
- * Tela de detalhes da paciente, com as 4 abas do novo design (Dados/Partograma/
- * Relatório/Configurações). Dados, Partograma e Relatório sao alimentados em tempo real
- * pelo Firestore; Configuracoes e local (SharedPreferences via {@link AppPreferences}).
- *
- * O fluxo antigo (Menu/Detalhes/relatorio, baseado em SharedPreferences por slot)
- * continua existindo e funcionando sem nenhuma alteracao -- esta tela e a nova area de
- * partograma, com seu proprio esquema de dados (ver {@link RegistroPartograma}).
+ * Tela de detalhes da paciente, com as 5 abas pedidas pelo cliente, nesta ordem exata:
+ * Dados / Partograma / Relatório / Sinais vitais / Desfecho do parto. "Configurações"
+ * NAO e mais uma aba daqui -- e uma tela propria (ver {@link ConfiguracoesActivity}),
+ * porque sao preferencias do aparelho/app, nao dados de uma paciente especifica, e a
+ * lista de abas pedida pelo cliente e exaustiva (nao inclui Configuracoes).
  */
 public class PacienteDetalhesActivity extends BaseActivity {
 
     public static final String EXTRA_PACIENTE_ID = "extra_paciente_id";
 
     private FirestorePatientRepository repositorio;
-    private AppPreferences preferencias;
     private String pacienteId;
     private String nomePaciente;
     private ListenerRegistration listenerRegistros;
+    private ListenerRegistration listenerSinaisVitais;
     private List<RegistroPartograma> registrosAtuais = new ArrayList<>();
+    private List<SinalVital> sinaisVitaisAtuais = new ArrayList<>();
 
     private TextView txtNomeCabecalho;
     private TextView txtSubtituloCabecalho;
@@ -55,7 +57,8 @@ public class PacienteDetalhesActivity extends BaseActivity {
     private View conteudoDados;
     private View conteudoPartograma;
     private View conteudoRelatorio;
-    private View conteudoConfiguracoes;
+    private View conteudoSinaisVitais;
+    private View conteudoDesfecho;
 
     private View[] abas;
     private View[] conteudos;
@@ -66,6 +69,49 @@ public class PacienteDetalhesActivity extends BaseActivity {
     private TextView txtHoraUltimaAvaliacao;
     private LinearLayout containerHistorico;
 
+    // Sinais vitais
+    private LinearLayout containerHistoricoSinaisVitais;
+
+    // Desfecho
+    private LinearLayout containerDesfechoRegistrado;
+    private View btnViaVaginal;
+    private View btnViaCesarea;
+    private String viaDePartoEscolhida = "Parto vaginal";
+    private android.widget.EditText edtDataParto;
+    private android.widget.EditText edtApresentacaoFetal;
+    private android.widget.EditText edtPosicaoVariedade;
+    private Spinner spinnerLaceracaoPerineal;
+    private Spinner spinnerDequitacao;
+    private Spinner spinnerPlacenta;
+    private android.widget.EditText edtIntercorrenciasParto;
+    private android.widget.EditText edtObservacoesParto;
+    private View btnSexoMasculino;
+    private View btnSexoFeminino;
+    private String sexoRnEscolhido = "Masculino";
+    private android.widget.EditText edtPesoRn;
+    private android.widget.EditText edtComprimentoRn;
+    private android.widget.EditText edtPerimetroCefalico;
+    private android.widget.EditText edtHorarioNascimento;
+    private android.widget.EditText edtApgar1;
+    private android.widget.EditText edtApgar5;
+    private android.widget.EditText edtApgar10;
+    private View btnContatoPeleSim;
+    private View btnContatoPeleNao;
+    private boolean contatoPeleEscolhido = true;
+    private View btnAmamentacaoSim;
+    private View btnAmamentacaoNao;
+    private boolean amamentacaoEscolhida = true;
+    private android.widget.EditText edtIntercorrenciasRn;
+    private android.widget.EditText edtCondicaoMaterna;
+    private android.widget.EditText edtCondicaoRn;
+    private android.widget.EditText edtDestinoPuerpera;
+    private android.widget.EditText edtDestinoRn;
+    private android.widget.EditText edtProfissionalDesfecho;
+    private android.widget.EditText edtCorenDesfecho;
+    private android.widget.EditText edtObservacoesFinais;
+    private View btnSalvarDesfecho;
+    private ProgressBar progressDesfecho;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -73,7 +119,6 @@ public class PacienteDetalhesActivity extends BaseActivity {
 
         pacienteId = getIntent().getStringExtra(EXTRA_PACIENTE_ID);
         repositorio = new FirestorePatientRepository();
-        preferencias = new AppPreferences(this);
 
         txtNomeCabecalho = findViewById(R.id.txtNomeCabecalho);
         txtSubtituloCabecalho = findViewById(R.id.txtSubtituloCabecalho);
@@ -84,24 +129,28 @@ public class PacienteDetalhesActivity extends BaseActivity {
         conteudoDados = findViewById(R.id.conteudoDados);
         conteudoPartograma = findViewById(R.id.conteudoPartograma);
         conteudoRelatorio = findViewById(R.id.conteudoRelatorio);
-        conteudoConfiguracoes = findViewById(R.id.conteudoConfiguracoes);
-        conteudos = new View[]{conteudoDados, conteudoPartograma, conteudoRelatorio, conteudoConfiguracoes};
+        conteudoSinaisVitais = findViewById(R.id.conteudoSinaisVitais);
+        conteudoDesfecho = findViewById(R.id.conteudoDesfecho);
+        conteudos = new View[]{conteudoDados, conteudoPartograma, conteudoRelatorio, conteudoSinaisVitais, conteudoDesfecho};
 
         indicadorDilatacao = findViewById(R.id.indicadorDilatacao);
         indicadorRotatividade = findViewById(R.id.indicadorRotatividade);
         txtHoraUltimaAvaliacao = findViewById(R.id.txtHoraUltimaAvaliacao);
         containerHistorico = findViewById(R.id.containerHistorico);
+        containerHistoricoSinaisVitais = findViewById(R.id.containerHistoricoSinaisVitais);
 
         View tabDados = findViewById(R.id.tabDados);
         View tabPartograma = findViewById(R.id.tabPartograma);
         View tabRelatorio = findViewById(R.id.tabRelatorio);
-        View tabConfiguracoes = findViewById(R.id.tabConfiguracoes);
-        abas = new View[]{tabDados, tabPartograma, tabRelatorio, tabConfiguracoes};
+        View tabSinaisVitais = findViewById(R.id.tabSinaisVitais);
+        View tabDesfecho = findViewById(R.id.tabDesfecho);
+        abas = new View[]{tabDados, tabPartograma, tabRelatorio, tabSinaisVitais, tabDesfecho};
 
         configurarAba(tabDados, R.string.paciente_detalhes_aba_dados);
         configurarAba(tabPartograma, R.string.paciente_detalhes_aba_partograma);
         configurarAba(tabRelatorio, R.string.paciente_detalhes_aba_relatorio);
-        configurarAba(tabConfiguracoes, R.string.paciente_detalhes_aba_configuracoes);
+        configurarAba(tabSinaisVitais, R.string.sinais_vitais_titulo);
+        configurarAba(tabDesfecho, R.string.desfecho_titulo);
 
         for (int i = 0; i < abas.length; i++) {
             int indice = i;
@@ -114,7 +163,8 @@ public class PacienteDetalhesActivity extends BaseActivity {
 
         configurarPartograma();
         configurarRelatorio();
-        configurarConfiguracoes();
+        configurarSinaisVitais();
+        configurarDesfecho();
 
         if (pacienteId == null) {
             Toast.makeText(this, R.string.paciente_detalhes_erro_carregar, Toast.LENGTH_LONG).show();
@@ -123,6 +173,8 @@ public class PacienteDetalhesActivity extends BaseActivity {
         }
         carregarPaciente();
         observarRegistros();
+        observarSinaisVitais();
+        carregarDesfecho();
     }
 
     private void configurarAba(View aba, int textoRes) {
@@ -239,6 +291,16 @@ public class PacienteDetalhesActivity extends BaseActivity {
         adicionarLinhaDado(containerDadosPaciente, R.string.paciente_dados_rotulo_nascimento, paciente.getDataNascimento());
         adicionarLinhaDado(containerDadosPaciente, R.string.paciente_dados_rotulo_tipo_sanguineo, paciente.getTipoSanguineo());
         adicionarLinhaDado(containerDadosPaciente, R.string.paciente_dados_rotulo_alergias, paciente.getAlergias());
+
+        if (!paciente.getComorbidades().isEmpty()) {
+            String comorbidadesTexto = TextUtils.join(", ", paciente.getComorbidades());
+            if (!TextUtils.isEmpty(paciente.getComorbidadesOutras())) {
+                comorbidadesTexto += " (" + paciente.getComorbidadesOutras() + ")";
+            }
+            adicionarLinhaDado(containerDadosPaciente, R.string.paciente_dados_rotulo_comorbidades, comorbidadesTexto);
+        }
+        adicionarLinhaDado(containerDadosPaciente, R.string.paciente_dados_rotulo_classificacao_risco, paciente.getClassificacaoRisco());
+
         adicionarLinhaDado(containerDadosPaciente, R.string.paciente_dados_rotulo_profissional, paciente.getProfissionalResponsavel());
         adicionarLinhaDado(containerDadosPaciente, R.string.paciente_dados_rotulo_queixa, paciente.getQueixaPrincipal());
         adicionarLinhaDado(containerDadosPaciente, R.string.paciente_dados_rotulo_conduta, paciente.getConduta());
@@ -318,8 +380,8 @@ public class PacienteDetalhesActivity extends BaseActivity {
                 registros.isEmpty() ? "" : registros.get(0).getHorario());
 
         preencherIndicador(indicadorRotatividade, R.drawable.ic_patient, R.string.partograma_card_rotatividade,
-                registros.isEmpty() || registros.get(0).getPosicaoLee() == null ? getString(R.string.partograma_sem_dados)
-                        : registros.get(0).getRotuloPosicaoLee(),
+                registros.isEmpty() || TextUtils.isEmpty(registros.get(0).getPosicaoBebe()) ? getString(R.string.partograma_sem_dados)
+                        : registros.get(0).getPosicaoBebe(),
                 registros.isEmpty() ? "" : registros.get(0).getHorario());
 
         txtHoraUltimaAvaliacao.setText(getString(R.string.partograma_hora_ultima_avaliacao) + "\n"
@@ -339,9 +401,11 @@ public class PacienteDetalhesActivity extends BaseActivity {
             TextView txtHora = linha.findViewById(R.id.txtHoraHistorico);
             TextView txtDilatacao = linha.findViewById(R.id.txtDilatacaoHistorico);
             TextView txtRotatividade = linha.findViewById(R.id.txtRotatividadeHistorico);
+            TextView txtPlanoDeLee = linha.findViewById(R.id.txtPlanoDeLeeHistorico);
             txtHora.setText(registro.getHorario() != null ? registro.getHorario() : "-");
             txtDilatacao.setText("Dilatação: " + (registro.getDilatacao() != null ? formatarDilatacao(registro.getDilatacao()) : "-"));
-            txtRotatividade.setText("Rotatividade: " + registro.getRotuloPosicaoLee());
+            txtRotatividade.setText("Posição do bebê: " + (TextUtils.isEmpty(registro.getPosicaoBebe()) ? "-" : registro.getPosicaoBebe()));
+            txtPlanoDeLee.setText("Plano de De Lee: " + registro.getRotuloPlanoDeLee());
             containerHistorico.addView(linha);
         }
     }
@@ -356,9 +420,9 @@ public class PacienteDetalhesActivity extends BaseActivity {
 
     private String formatarDilatacao(Double dilatacao) {
         if (dilatacao == Math.floor(dilatacao)) {
-            return String.format(java.util.Locale.getDefault(), "%d cm", dilatacao.intValue());
+            return String.format(Locale.getDefault(), "%d cm", dilatacao.intValue());
         }
-        return String.format(java.util.Locale.getDefault(), "%.1f cm", dilatacao);
+        return String.format(Locale.getDefault(), "%.1f cm", dilatacao);
     }
 
     private void abrirGrafico() {
@@ -366,6 +430,54 @@ public class PacienteDetalhesActivity extends BaseActivity {
         intent.putExtra(GraficoPartogramaActivity.EXTRA_PACIENTE_ID, pacienteId);
         intent.putExtra(GraficoPartogramaActivity.EXTRA_NOME_PACIENTE, nomePaciente);
         startActivity(intent);
+    }
+
+    // ---- Sinais vitais -----------------------------------------------------------------------
+
+    private void configurarSinaisVitais() {
+        findViewById(R.id.btnNovaAfericao).setOnClickListener(v -> {
+            Intent intent = new Intent(this, NovaAfericaoActivity.class);
+            intent.putExtra(NovaAfericaoActivity.EXTRA_PACIENTE_ID, pacienteId);
+            intent.putExtra(NovaAfericaoActivity.EXTRA_NOME_PACIENTE, nomePaciente);
+            startActivity(intent);
+        });
+    }
+
+    private void observarSinaisVitais() {
+        listenerSinaisVitais = repositorio.observarSinaisVitais(pacienteId, new FirestorePatientRepository.ListaSinaisVitaisCallback() {
+            @Override
+            public void onSinaisVitaisAtualizados(List<SinalVital> sinaisVitais) {
+                sinaisVitaisAtuais = sinaisVitais;
+                preencherSinaisVitais(sinaisVitais);
+            }
+
+            @Override
+            public void onErro(Exception erro) {
+                Toast.makeText(PacienteDetalhesActivity.this, R.string.paciente_detalhes_erro_carregar, Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    private void preencherSinaisVitais(List<SinalVital> sinaisVitais) {
+        containerHistoricoSinaisVitais.removeAllViews();
+        if (sinaisVitais.isEmpty()) {
+            TextView vazio = new TextView(this);
+            vazio.setText(R.string.sinais_vitais_historico_vazio);
+            vazio.setTextColor(ContextCompat.getColor(this, R.color.textSecondary));
+            vazio.setTextSize(13f);
+            containerHistoricoSinaisVitais.addView(vazio);
+            return;
+        }
+        for (SinalVital sinal : sinaisVitais) {
+            View linha = LayoutInflater.from(this).inflate(R.layout.item_sinal_vital_historico, containerHistoricoSinaisVitais, false);
+            TextView txtDataHora = linha.findViewById(R.id.txtDataHoraSinal);
+            TextView txtResumo = linha.findViewById(R.id.txtResumoSinal);
+            String horario = sinal.getHorario() != null ? sinal.getHorario() : "";
+            String data = sinal.getDataAfericao() != null ? sinal.getDataAfericao() : "";
+            txtDataHora.setText(horario + (data.isEmpty() ? "" : " · " + data));
+            txtResumo.setText(sinal.getResumo());
+            containerHistoricoSinaisVitais.addView(linha);
+        }
     }
 
     // ---- Relatorio -------------------------------------------------------------------------
@@ -381,6 +493,16 @@ public class PacienteDetalhesActivity extends BaseActivity {
                 R.string.relatorio_medicacoes, RelatorioListaActivity.MODO_MEDICACOES);
         configurarLinhaRelatorio(R.id.itemRelatorioObservacoes, R.drawable.ic_feature_rotate,
                 R.string.relatorio_observacoes, RelatorioListaActivity.MODO_OBSERVACOES);
+
+        View linhaSinaisVitais = findViewById(R.id.itemRelatorioSinaisVitais);
+        ((android.widget.ImageView) linhaSinaisVitais.findViewById(R.id.iconRelatorio)).setImageResource(R.drawable.ic_feature_pulse);
+        ((TextView) linhaSinaisVitais.findViewById(R.id.txtLabelRelatorio)).setText(R.string.relatorio_sinais_vitais);
+        linhaSinaisVitais.setOnClickListener(v -> selecionarAba(3));
+
+        View linhaDesfecho = findViewById(R.id.itemRelatorioDesfecho);
+        ((android.widget.ImageView) linhaDesfecho.findViewById(R.id.iconRelatorio)).setImageResource(R.drawable.ic_patient);
+        ((TextView) linhaDesfecho.findViewById(R.id.txtLabelRelatorio)).setText(R.string.relatorio_desfecho);
+        linhaDesfecho.setOnClickListener(v -> selecionarAba(4));
 
         findViewById(R.id.btnGerarPdf).setOnClickListener(v -> gerarPdf());
     }
@@ -423,13 +545,23 @@ public class PacienteDetalhesActivity extends BaseActivity {
                                     observacoes.add(texto);
                                 }
                             }
-                            try {
-                                android.net.Uri uri = new PdfRelatorioGenerator(PacienteDetalhesActivity.this)
-                                        .gerar(paciente, registrosAtuais, observacoes);
-                                abrirOuCompartilharPdf(uri);
-                            } catch (Exception e) {
-                                Toast.makeText(PacienteDetalhesActivity.this, R.string.relatorio_pdf_erro, Toast.LENGTH_LONG).show();
-                            }
+                            repositorio.carregarDesfecho(pacienteId, new FirestorePatientRepository.DesfechoCallback() {
+                                @Override
+                                public void onCarregado(@Nullable DesfechoParto desfecho) {
+                                    try {
+                                        android.net.Uri uri = new PdfRelatorioGenerator(PacienteDetalhesActivity.this)
+                                                .gerar(paciente, registrosAtuais, observacoes, sinaisVitaisAtuais, desfecho);
+                                        abrirOuCompartilharPdf(uri);
+                                    } catch (Exception e) {
+                                        Toast.makeText(PacienteDetalhesActivity.this, R.string.relatorio_pdf_erro, Toast.LENGTH_LONG).show();
+                                    }
+                                }
+
+                                @Override
+                                public void onErro(Exception erro) {
+                                    Toast.makeText(PacienteDetalhesActivity.this, R.string.relatorio_pdf_erro, Toast.LENGTH_LONG).show();
+                                }
+                            });
                         })
                         .addOnFailureListener(e -> Toast.makeText(PacienteDetalhesActivity.this, R.string.relatorio_pdf_erro, Toast.LENGTH_LONG).show());
             }
@@ -450,118 +582,268 @@ public class PacienteDetalhesActivity extends BaseActivity {
         startActivity(Intent.createChooser(intent, getString(R.string.relatorio_gerar_pdf)));
     }
 
-    // ---- Configuracoes ---------------------------------------------------------------------
+    // ---- Desfecho do parto -------------------------------------------------------------------
 
-    private void configurarConfiguracoes() {
-        View btnClaro = findViewById(R.id.btnTemaClaro);
-        View btnEscuro = findViewById(R.id.btnTemaEscuro);
-        View btnAutomatico = findViewById(R.id.btnTemaAutomatico);
-        View[] botoesTema = {btnClaro, btnEscuro, btnAutomatico};
-        String[] valoresTema = {AppPreferences.TEMA_CLARO, AppPreferences.TEMA_ESCURO, AppPreferences.TEMA_AUTOMATICO};
-        aplicarSelecaoSegmento(botoesTema, indiceTema(preferencias.getTema()));
-        for (int i = 0; i < botoesTema.length; i++) {
-            int indice = i;
-            botoesTema[i].setOnClickListener(v -> {
-                preferencias.setTema(valoresTema[indice]);
-                aplicarSelecaoSegmento(botoesTema, indice);
-                Toast.makeText(this, R.string.config_reiniciar_aviso, Toast.LENGTH_LONG).show();
-            });
+    private void configurarDesfecho() {
+        containerDesfechoRegistrado = findViewById(R.id.containerDesfechoRegistrado);
+        btnViaVaginal = findViewById(R.id.btnViaVaginal);
+        btnViaCesarea = findViewById(R.id.btnViaCesarea);
+        edtDataParto = findViewById(R.id.edtDataParto);
+        edtApresentacaoFetal = findViewById(R.id.edtApresentacaoFetal);
+        edtPosicaoVariedade = findViewById(R.id.edtPosicaoVariedade);
+        spinnerLaceracaoPerineal = findViewById(R.id.spinnerLaceracaoPerineal);
+        spinnerDequitacao = findViewById(R.id.spinnerDequitacao);
+        spinnerPlacenta = findViewById(R.id.spinnerPlacenta);
+        edtIntercorrenciasParto = findViewById(R.id.edtIntercorrenciasParto);
+        edtObservacoesParto = findViewById(R.id.edtObservacoesParto);
+        btnSexoMasculino = findViewById(R.id.btnSexoMasculino);
+        btnSexoFeminino = findViewById(R.id.btnSexoFeminino);
+        edtPesoRn = findViewById(R.id.edtPesoRn);
+        edtComprimentoRn = findViewById(R.id.edtComprimentoRn);
+        edtPerimetroCefalico = findViewById(R.id.edtPerimetroCefalico);
+        edtHorarioNascimento = findViewById(R.id.edtHorarioNascimento);
+        edtApgar1 = findViewById(R.id.edtApgar1);
+        edtApgar5 = findViewById(R.id.edtApgar5);
+        edtApgar10 = findViewById(R.id.edtApgar10);
+        btnContatoPeleSim = findViewById(R.id.btnContatoPeleSim);
+        btnContatoPeleNao = findViewById(R.id.btnContatoPeleNao);
+        btnAmamentacaoSim = findViewById(R.id.btnAmamentacaoSim);
+        btnAmamentacaoNao = findViewById(R.id.btnAmamentacaoNao);
+        edtIntercorrenciasRn = findViewById(R.id.edtIntercorrenciasRn);
+        edtCondicaoMaterna = findViewById(R.id.edtCondicaoMaterna);
+        edtCondicaoRn = findViewById(R.id.edtCondicaoRn);
+        edtDestinoPuerpera = findViewById(R.id.edtDestinoPuerpera);
+        edtDestinoRn = findViewById(R.id.edtDestinoRn);
+        edtProfissionalDesfecho = findViewById(R.id.edtProfissionalDesfecho);
+        edtCorenDesfecho = findViewById(R.id.edtCorenDesfecho);
+        edtObservacoesFinais = findViewById(R.id.edtObservacoesFinais);
+        btnSalvarDesfecho = findViewById(R.id.btnSalvarDesfecho);
+        progressDesfecho = findViewById(R.id.progressDesfecho);
+
+        configurarSpinnerSimples(spinnerLaceracaoPerineal, R.array.opcoes_laceracao_perineal);
+        configurarSpinnerSimples(spinnerDequitacao, R.array.opcoes_dequitacao);
+        configurarSpinnerSimples(spinnerPlacenta, R.array.opcoes_placenta);
+
+        btnViaVaginal.setOnClickListener(v -> selecionarVia(getString(R.string.desfecho_via_vaginal)));
+        btnViaCesarea.setOnClickListener(v -> selecionarVia(getString(R.string.desfecho_via_cesarea)));
+        btnSexoMasculino.setOnClickListener(v -> selecionarSexo(getString(R.string.desfecho_sexo_masculino)));
+        btnSexoFeminino.setOnClickListener(v -> selecionarSexo(getString(R.string.desfecho_sexo_feminino)));
+        btnContatoPeleSim.setOnClickListener(v -> selecionarContatoPele(true));
+        btnContatoPeleNao.setOnClickListener(v -> selecionarContatoPele(false));
+        btnAmamentacaoSim.setOnClickListener(v -> selecionarAmamentacao(true));
+        btnAmamentacaoNao.setOnClickListener(v -> selecionarAmamentacao(false));
+
+        btnSalvarDesfecho.setOnClickListener(v -> salvarDesfecho());
+    }
+
+    private void configurarSpinnerSimples(Spinner spinner, int arrayRes) {
+        android.widget.ArrayAdapter<CharSequence> adapter = android.widget.ArrayAdapter.createFromResource(
+                this, arrayRes, android.R.layout.simple_spinner_item);
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spinner.setAdapter(adapter);
+    }
+
+    private void selecionarVia(String via) {
+        viaDePartoEscolhida = via;
+        boolean vaginal = getString(R.string.desfecho_via_vaginal).equals(via);
+        aplicarEstiloSegmento((TextView) btnViaVaginal, vaginal);
+        aplicarEstiloSegmento((TextView) btnViaCesarea, !vaginal);
+    }
+
+    private void selecionarSexo(String sexo) {
+        sexoRnEscolhido = sexo;
+        boolean masculino = getString(R.string.desfecho_sexo_masculino).equals(sexo);
+        aplicarEstiloSegmento((TextView) btnSexoMasculino, masculino);
+        aplicarEstiloSegmento((TextView) btnSexoFeminino, !masculino);
+    }
+
+    private void selecionarContatoPele(boolean sim) {
+        contatoPeleEscolhido = sim;
+        aplicarEstiloSegmento((TextView) btnContatoPeleSim, sim);
+        aplicarEstiloSegmento((TextView) btnContatoPeleNao, !sim);
+    }
+
+    private void selecionarAmamentacao(boolean sim) {
+        amamentacaoEscolhida = sim;
+        aplicarEstiloSegmento((TextView) btnAmamentacaoSim, sim);
+        aplicarEstiloSegmento((TextView) btnAmamentacaoNao, !sim);
+    }
+
+    private void aplicarEstiloSegmento(TextView botao, boolean selecionado) {
+        botao.setBackgroundResource(selecionado ? R.drawable.bg_segment_selected : R.drawable.bg_segment_unselected);
+        botao.setTextColor(ContextCompat.getColor(this, selecionado ? R.color.primaryPink : R.color.textSecondary));
+        botao.setTypeface(null, selecionado ? android.graphics.Typeface.BOLD : android.graphics.Typeface.NORMAL);
+    }
+
+    private void carregarDesfecho() {
+        repositorio.carregarDesfecho(pacienteId, new FirestorePatientRepository.DesfechoCallback() {
+            @Override
+            public void onCarregado(@Nullable DesfechoParto desfecho) {
+                if (desfecho == null) {
+                    containerDesfechoRegistrado.setVisibility(View.GONE);
+                    return;
+                }
+                preencherFormularioDesfecho(desfecho);
+                preencherResumoDesfecho(desfecho);
+            }
+
+            @Override
+            public void onErro(Exception erro) {
+                // Sem desfecho ainda ou sem conexao -- o formulario continua disponivel para preencher.
+            }
+        });
+    }
+
+    private void preencherResumoDesfecho(DesfechoParto d) {
+        containerDesfechoRegistrado.removeAllViews();
+        TextView titulo = new TextView(this);
+        titulo.setText(R.string.desfecho_registrado);
+        titulo.setTextColor(ContextCompat.getColor(this, R.color.primaryPink));
+        titulo.setTypeface(null, android.graphics.Typeface.BOLD);
+        titulo.setTextSize(13.5f);
+        containerDesfechoRegistrado.addView(titulo);
+
+        StringBuilder resumo = new StringBuilder();
+        if (!TextUtils.isEmpty(d.getViaDeParto())) resumo.append(d.getViaDeParto());
+        if (!TextUtils.isEmpty(d.getSexoRn())) resumo.append(" • RN ").append(d.getSexoRn().toLowerCase(Locale.getDefault()));
+        if (d.getPesoRn() != null) resumo.append(" • ").append(d.getPesoRn()).append(" g");
+        TextView linha = new TextView(this);
+        linha.setText(resumo.toString());
+        linha.setTextColor(ContextCompat.getColor(this, R.color.textSecondary));
+        linha.setTextSize(12.5f);
+        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+        params.topMargin = 4;
+        containerDesfechoRegistrado.addView(linha, params);
+        containerDesfechoRegistrado.setVisibility(View.VISIBLE);
+    }
+
+    private void preencherFormularioDesfecho(DesfechoParto d) {
+        if (!TextUtils.isEmpty(d.getViaDeParto())) {
+            selecionarVia(d.getViaDeParto());
         }
-
-        View btnMenor = findViewById(R.id.btnFonteMenor);
-        View btnPadrao = findViewById(R.id.btnFontePadrao);
-        View btnMaior = findViewById(R.id.btnFonteMaior);
-        View[] botoesFonte = {btnMenor, btnPadrao, btnMaior};
-        float[] valoresFonte = {AppPreferences.ESCALA_FONTE_MENOR, AppPreferences.ESCALA_FONTE_PADRAO, AppPreferences.ESCALA_FONTE_MAIOR};
-        aplicarSelecaoSegmento(botoesFonte, indiceFonte(preferencias.getEscalaFonte()));
-        for (int i = 0; i < botoesFonte.length; i++) {
-            int indice = i;
-            botoesFonte[i].setOnClickListener(v -> {
-                preferencias.setEscalaFonte(valoresFonte[indice]);
-                aplicarSelecaoSegmento(botoesFonte, indice);
-                recreate();
-            });
+        edtDataParto.setText(d.getDataParto());
+        edtApresentacaoFetal.setText(d.getApresentacaoFetal());
+        edtPosicaoVariedade.setText(d.getPosicaoVariedade());
+        selecionarValorSpinner(spinnerLaceracaoPerineal, d.getLaceracaoPerineal());
+        selecionarValorSpinner(spinnerDequitacao, d.getDequitacao());
+        selecionarValorSpinner(spinnerPlacenta, d.getPlacenta());
+        edtIntercorrenciasParto.setText(d.getIntercorrencias());
+        edtObservacoesParto.setText(d.getObservacoes());
+        if (!TextUtils.isEmpty(d.getSexoRn())) {
+            selecionarSexo(d.getSexoRn());
         }
-
-        Switch switchLembretes = findViewById(R.id.switchNotifLembretes);
-        Switch switchDilatacao = findViewById(R.id.switchNotifDilatacao);
-        Switch switchSistema = findViewById(R.id.switchNotifSistema);
-        switchLembretes.setChecked(preferencias.isNotifLembretesAtivo());
-        switchDilatacao.setChecked(preferencias.isNotifDilatacaoAtivo());
-        switchSistema.setChecked(preferencias.isNotifSistemaAtivo());
-        switchLembretes.setOnCheckedChangeListener((CompoundButton b, boolean checked) -> preferencias.setNotifLembretesAtivo(checked));
-        switchDilatacao.setOnCheckedChangeListener((CompoundButton b, boolean checked) -> preferencias.setNotifDilatacaoAtivo(checked));
-        switchSistema.setOnCheckedChangeListener((CompoundButton b, boolean checked) -> preferencias.setNotifSistemaAtivo(checked));
-
-        findViewById(R.id.btnLimparCache).setOnClickListener(v -> limparCache());
-        findViewById(R.id.btnSobreApp).setOnClickListener(v -> mostrarSobre());
-        findViewById(R.id.btnAjudaSuporte).setOnClickListener(v -> startActivity(new Intent(this, TelaInicial.class)));
+        if (d.getPesoRn() != null) edtPesoRn.setText(String.valueOf(d.getPesoRn()));
+        if (d.getComprimentoRn() != null) edtComprimentoRn.setText(String.valueOf(d.getComprimentoRn()));
+        if (d.getPerimetroCefalicoRn() != null) edtPerimetroCefalico.setText(String.valueOf(d.getPerimetroCefalicoRn()));
+        edtHorarioNascimento.setText(d.getHorarioNascimento());
+        if (d.getApgar1() != null) edtApgar1.setText(String.valueOf(d.getApgar1()));
+        if (d.getApgar5() != null) edtApgar5.setText(String.valueOf(d.getApgar5()));
+        if (d.getApgar10() != null) edtApgar10.setText(String.valueOf(d.getApgar10()));
+        if (d.getContatoPeleAPele() != null) selecionarContatoPele(d.getContatoPeleAPele());
+        if (d.getAmamentacaoPrimeiraHora() != null) selecionarAmamentacao(d.getAmamentacaoPrimeiraHora());
+        edtIntercorrenciasRn.setText(d.getIntercorrenciasRn());
+        edtCondicaoMaterna.setText(d.getCondicaoMaterna());
+        edtCondicaoRn.setText(d.getCondicaoRn());
+        edtDestinoPuerpera.setText(d.getDestinoPuerpera());
+        edtDestinoRn.setText(d.getDestinoRn());
+        edtProfissionalDesfecho.setText(d.getProfissionalResponsavel());
+        edtCorenDesfecho.setText(d.getCoren());
+        edtObservacoesFinais.setText(d.getObservacoesFinais());
     }
 
-    private int indiceTema(String tema) {
-        if (AppPreferences.TEMA_ESCURO.equals(tema)) return 1;
-        if (AppPreferences.TEMA_AUTOMATICO.equals(tema)) return 2;
-        return 0;
-    }
-
-    private int indiceFonte(float escala) {
-        if (escala == AppPreferences.ESCALA_FONTE_MENOR) return 0;
-        if (escala == AppPreferences.ESCALA_FONTE_MAIOR) return 2;
-        return 1;
-    }
-
-    private void aplicarSelecaoSegmento(View[] botoes, int indiceSelecionado) {
-        for (int i = 0; i < botoes.length; i++) {
-            TextView texto = (TextView) botoes[i];
-            boolean selecionado = i == indiceSelecionado;
-            texto.setBackgroundResource(selecionado ? R.drawable.bg_segment_selected : R.drawable.bg_segment_unselected);
-            texto.setTextColor(ContextCompat.getColor(this, selecionado ? R.color.primaryPink : R.color.textSecondary));
-            texto.setTypeface(null, selecionado ? android.graphics.Typeface.BOLD : android.graphics.Typeface.NORMAL);
-        }
-    }
-
-    private void limparCache() {
-        try {
-            deleteCacheDir(getCacheDir());
-            Toast.makeText(this, R.string.config_limpar_cache_sucesso, Toast.LENGTH_SHORT).show();
-        } catch (Exception e) {
-            Toast.makeText(this, R.string.config_limpar_cache_sucesso, Toast.LENGTH_SHORT).show();
-        }
-    }
-
-    private void deleteCacheDir(java.io.File dir) {
-        java.io.File[] arquivos = dir.listFiles();
-        if (arquivos == null) {
+    private void selecionarValorSpinner(Spinner spinner, @Nullable String valor) {
+        if (valor == null || spinner.getAdapter() == null) {
             return;
         }
-        for (java.io.File arquivo : arquivos) {
-            if (arquivo.isDirectory()) {
-                deleteCacheDir(arquivo);
-            } else {
-                arquivo.delete();
+        for (int i = 0; i < spinner.getAdapter().getCount(); i++) {
+            if (valor.equals(spinner.getAdapter().getItem(i))) {
+                spinner.setSelection(i);
+                return;
             }
         }
     }
 
-    private void mostrarSobre() {
-        String versao;
+    private void salvarDesfecho() {
+        DesfechoParto desfecho = new DesfechoParto();
+        desfecho.setViaDeParto(viaDePartoEscolhida);
+        desfecho.setDataParto(textoOuNulo(edtDataParto));
+        desfecho.setApresentacaoFetal(textoOuNulo(edtApresentacaoFetal));
+        desfecho.setPosicaoVariedade(textoOuNulo(edtPosicaoVariedade));
+        desfecho.setLaceracaoPerineal((String) spinnerLaceracaoPerineal.getSelectedItem());
+        desfecho.setDequitacao((String) spinnerDequitacao.getSelectedItem());
+        desfecho.setPlacenta((String) spinnerPlacenta.getSelectedItem());
+        desfecho.setIntercorrencias(textoOuNulo(edtIntercorrenciasParto));
+        desfecho.setObservacoes(textoOuNulo(edtObservacoesParto));
+        desfecho.setSexoRn(sexoRnEscolhido);
+        desfecho.setPesoRn(inteiroOuNulo(edtPesoRn));
+        desfecho.setComprimentoRn(doubleOuNulo(edtComprimentoRn));
+        desfecho.setPerimetroCefalicoRn(doubleOuNulo(edtPerimetroCefalico));
+        desfecho.setHorarioNascimento(textoOuNulo(edtHorarioNascimento));
+        desfecho.setApgar1(inteiroOuNulo(edtApgar1));
+        desfecho.setApgar5(inteiroOuNulo(edtApgar5));
+        desfecho.setApgar10(inteiroOuNulo(edtApgar10));
+        desfecho.setContatoPeleAPele(contatoPeleEscolhido);
+        desfecho.setAmamentacaoPrimeiraHora(amamentacaoEscolhida);
+        desfecho.setIntercorrenciasRn(textoOuNulo(edtIntercorrenciasRn));
+        desfecho.setCondicaoMaterna(textoOuNulo(edtCondicaoMaterna));
+        desfecho.setCondicaoRn(textoOuNulo(edtCondicaoRn));
+        desfecho.setDestinoPuerpera(textoOuNulo(edtDestinoPuerpera));
+        desfecho.setDestinoRn(textoOuNulo(edtDestinoRn));
+        desfecho.setProfissionalResponsavel(textoOuNulo(edtProfissionalDesfecho));
+        desfecho.setCoren(textoOuNulo(edtCorenDesfecho));
+        desfecho.setObservacoesFinais(textoOuNulo(edtObservacoesFinais));
+
+        progressDesfecho.setVisibility(View.VISIBLE);
+        btnSalvarDesfecho.setEnabled(false);
+        repositorio.salvarDesfecho(pacienteId, desfecho, new FirestorePatientRepository.OperacaoCallback() {
+            @Override
+            public void onSucesso() {
+                progressDesfecho.setVisibility(View.GONE);
+                btnSalvarDesfecho.setEnabled(true);
+                Toast.makeText(PacienteDetalhesActivity.this, R.string.desfecho_sucesso, Toast.LENGTH_LONG).show();
+                preencherResumoDesfecho(desfecho);
+            }
+
+            @Override
+            public void onErro(Exception erro) {
+                progressDesfecho.setVisibility(View.GONE);
+                btnSalvarDesfecho.setEnabled(true);
+                Toast.makeText(PacienteDetalhesActivity.this, R.string.desfecho_erro_salvar, Toast.LENGTH_LONG).show();
+            }
+        });
+    }
+
+    private String textoOuNulo(android.widget.EditText campo) {
+        String texto = campo.getText().toString().trim();
+        return texto.isEmpty() ? null : texto;
+    }
+
+    private Integer inteiroOuNulo(android.widget.EditText campo) {
         try {
-            versao = getPackageManager().getPackageInfo(getPackageName(), 0).versionName;
-        } catch (Exception e) {
-            versao = "1.0";
+            String texto = campo.getText().toString().trim();
+            return texto.isEmpty() ? null : Integer.parseInt(texto);
+        } catch (NumberFormatException e) {
+            return null;
         }
-        new AlertDialog.Builder(this)
-                .setTitle(R.string.app_name)
-                .setMessage("Partograma Digital\nVersão " + versao + "\n\nO apoio que o enfermeiro precisa para um parto seguro e humanizado.")
-                .setPositiveButton(android.R.string.ok, null)
-                .create()
-                .show();
+    }
+
+    private Double doubleOuNulo(android.widget.EditText campo) {
+        try {
+            String texto = campo.getText().toString().trim().replace(",", ".");
+            return texto.isEmpty() ? null : Double.parseDouble(texto);
+        } catch (NumberFormatException e) {
+            return null;
+        }
     }
 
     @Override
     protected void onDestroy() {
         if (listenerRegistros != null) {
             listenerRegistros.remove();
+        }
+        if (listenerSinaisVitais != null) {
+            listenerSinaisVitais.remove();
         }
         super.onDestroy();
     }

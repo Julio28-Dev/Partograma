@@ -101,7 +101,7 @@
     <!-- Aba Partograma -->
     <string name="partograma_titulo">Partograma</string>
     <string name="partograma_card_dilatacao">Dilatação</string>
-    <string name="partograma_card_rotatividade">Rotatividade do bebê</string>
+    <string name="partograma_card_rotatividade">Posição do bebê</string>
     <string name="partograma_ultima_afericao">Última aferição</string>
     <string name="partograma_hora_ultima_avaliacao">Hora da última avaliação</string>
     <string name="partograma_ver_grafico">Ver gráfico completo</string>
@@ -114,13 +114,13 @@
     <string name="nova_avaliacao_horario">Horário (HH:mm) *</string>
     <string name="nova_avaliacao_dilatacao">Dilatação (cm) *</string>
     <string name="nova_avaliacao_posicao_lee">Rotatividade do bebê (posição)</string>
-    <string name="nova_avaliacao_batimentos">Batimentos cardíacos fetais (bpm)</string>
+    <string name="nova_avaliacao_batimentos">BCF (bpm)</string>
     <string name="nova_avaliacao_integridade">Integridade da bolsa</string>
     <string name="nova_avaliacao_liquido">Líquido amniótico</string>
-    <string name="nova_avaliacao_freq_contracao">Frequência de contração</string>
+    <string name="nova_avaliacao_freq_contracao">Frequência de contração (10 min)</string>
     <string name="nova_avaliacao_ocitocina">Ocitocina</string>
     <string name="nova_avaliacao_mesoprostol">Misoprostol</string>
-    <string name="nova_avaliacao_remedios">Outros remédios</string>
+    <string name="nova_avaliacao_remedios">Outras medicações</string>
     <string name="nova_avaliacao_examinador">Examinador</string>
     <string name="nova_avaliacao_intercorrencia">Intercorrência (opcional)</string>
     <string name="nova_avaliacao_salvar">Salvar avaliação</string>
@@ -184,14 +184,177 @@
         <item>Sanguinolento</item>
     </string-array>
 
-    <string-array name="opcoes_posicao_lee">
-        <item>Posição 1</item>
-        <item>Posição 2</item>
-        <item>Posição 3</item>
-        <item>Posição 4</item>
-        <item>Posição 5</item>
-        <item>Posição 6</item>
-        <item>Posição 7</item>
-        <item>Posição 8</item>
+    <!-- Dados da gestante (admissao) -->
+    <string name="adicionar_paciente_comorbidades">Comorbidades da gestante</string>
+    <string name="adicionar_paciente_comorbidades_outras">Descreva a(s) outra(s) comorbidade(s)</string>
+    <string name="adicionar_paciente_classificacao_risco">Classificação de risco</string>
+    <string name="paciente_dados_rotulo_comorbidades">Comorbidades</string>
+    <string name="paciente_dados_rotulo_classificacao_risco">Classificação de risco</string>
+
+    <string-array name="opcoes_comorbidades">
+        <item>HAS</item>
+        <item>Diabetes gestacional</item>
+        <item>Diabetes mellitus</item>
+        <item>Pré-eclâmpsia</item>
+        <item>Obesidade</item>
+        <item>Infecção urinária</item>
+        <item>Anemia</item>
+        <item>Outras</item>
     </string-array>
+
+    <string-array name="opcoes_classificacao_risco">
+        <item>Gestação de risco habitual</item>
+        <item>Gestação de alto risco</item>
+    </string-array>
+
+    <!-- Nova avaliacao (Partograma) -->
+    <string name="nova_avaliacao_posicao_bebe">Posição do bebê</string>
+    <string name="nova_avaliacao_fase_trabalho_parto">Fase do trabalho de parto</string>
+    <string name="nova_avaliacao_plano_de_lee">Plano de De Lee</string>
+    <string name="nova_avaliacao_saiba_mais">Saiba mais</string>
+    <string name="nova_avaliacao_metodos_nao_farmacologicos">Métodos não farmacológicos para alívio da dor</string>
+    <string name="nova_avaliacao_teve_intercorrencia">Intercorrências</string>
+    <string name="nova_avaliacao_intercorrencia_sim">Sim</string>
+    <string name="nova_avaliacao_intercorrencia_nao">Não</string>
+    <string name="nova_avaliacao_descricao_intercorrencia">Descreva a intercorrência</string>
+    <string name="nova_avaliacao_observacao_adicional">Observação adicional</string>
+
+    <string-array name="opcoes_posicao_bebe">
+        <item>Cefálico</item>
+        <item>Pélvico</item>
+        <item>Oblíquo</item>
+        <item>Transversal</item>
+    </string-array>
+
+    <string-array name="opcoes_fase_trabalho_parto">
+        <item>Em avaliação</item>
+        <item>Fase latente</item>
+        <item>Fase ativa</item>
+        <item>Período expulsivo</item>
+        <item>Dequitação</item>
+        <item>Período de Greenberg</item>
+    </string-array>
+
+    <string-array name="opcoes_metodos_nao_farmacologicos">
+        <item>Deambulação e livre movimentação</item>
+        <item>Mudança de posição</item>
+        <item>Bola suíça</item>
+        <item>Banho morno</item>
+        <item>Imersão em água morna</item>
+        <item>Massagem</item>
+        <item>Compressa morna</item>
+        <item>Relaxamento</item>
+        <item>Técnicas de respiração</item>
+        <item>Musicoterapia</item>
+        <item>Aromaterapia</item>
+        <item>Cromoterapia</item>
+        <item>Acupuntura</item>
+        <item>Rebozo (movimentos pélvicos com tecido)</item>
+        <item>Estimulação elétrica nervosa transcutânea (TENS)</item>
+    </string-array>
+
+    <!-- Plano de De Lee - explicacao ("Saiba mais") -->
+    <string name="delee_titulo">Plano de De Lee</string>
+    <string name="delee_explicacao">O plano de De Lee indica o nível de descida da apresentação fetal em relação às espinhas isquiáticas.</string>
+    <string name="delee_referencia_zero">0 = nível das espinhas isquiáticas</string>
+    <string name="delee_referencia_positivo">Valores positivos (+1 a +5) = apresentação abaixo das espinhas, mais próxima do períneo</string>
+    <string name="delee_referencia_negativo">Valores negativos (-1 a -5) = apresentação acima das espinhas, mais alta na pelve</string>
+    <string name="delee_placeholder_aviso">Ilustração provisória para cada nível — será substituída pelas imagens definitivas.</string>
+
+    <!-- Sinais vitais -->
+    <string name="sinais_vitais_titulo">Sinais vitais</string>
+    <string name="sinais_vitais_subtitulo">Acompanhe e registre os sinais vitais da paciente durante todo o trabalho de parto.</string>
+    <string name="sinais_vitais_nova_afericao">Nova aferição</string>
+    <string name="sinais_vitais_historico">Histórico de sinais vitais</string>
+    <string name="sinais_vitais_historico_vazio">Nenhuma aferição registrada ainda.</string>
+    <string name="sinais_vitais_data_afericao">Data da aferição</string>
+    <string name="sinais_vitais_horario">Horário</string>
+    <string name="sinais_vitais_pa">Pressão arterial (mmHg)</string>
+    <string name="sinais_vitais_fc">Frequência cardíaca (bpm)</string>
+    <string name="sinais_vitais_fr">Frequência respiratória (irpm)</string>
+    <string name="sinais_vitais_temperatura">Temperatura (°C)</string>
+    <string name="sinais_vitais_spo2">Saturação de O₂ / SpO2 (%)</string>
+    <string name="sinais_vitais_dor">Dor (escala de 0 a 10)</string>
+    <string name="sinais_vitais_hgt">HGT/dL (glicemia)</string>
+    <string name="sinais_vitais_observacoes">Observações</string>
+    <string name="sinais_vitais_examinador">Nome do examinador</string>
+    <string name="sinais_vitais_cancelar">Cancelar</string>
+    <string name="sinais_vitais_salvar">Salvar</string>
+    <string name="sinais_vitais_erro_obrigatorio">Preencha data e horário da aferição</string>
+    <string name="sinais_vitais_erro_salvar">Não foi possível salvar. Verifique sua conexão e tente novamente</string>
+
+    <!-- Desfecho do parto -->
+    <string name="desfecho_titulo">Desfecho do parto</string>
+    <string name="desfecho_subtitulo">Registre todas as informações finais do parto.</string>
+    <string name="desfecho_via_parto">Via de parto</string>
+    <string name="desfecho_via_vaginal">Parto vaginal</string>
+    <string name="desfecho_via_cesarea">Cesárea</string>
+    <string name="desfecho_secao_informacoes">Informações do parto</string>
+    <string name="desfecho_data_parto">Data do parto</string>
+    <string name="desfecho_apresentacao_fetal">Apresentação fetal</string>
+    <string name="desfecho_posicao_variedade">Posição / variedade de posição</string>
+    <string name="desfecho_laceracao_perineal">Laceração perineal</string>
+    <string name="desfecho_dequitacao">Dequitação</string>
+    <string name="desfecho_placenta">Placenta</string>
+    <string name="desfecho_intercorrencias">Intercorrências</string>
+    <string name="desfecho_observacoes">Observações</string>
+    <string name="desfecho_secao_rn">Recém-nascido</string>
+    <string name="desfecho_sexo">Sexo</string>
+    <string name="desfecho_sexo_masculino">Masculino</string>
+    <string name="desfecho_sexo_feminino">Feminino</string>
+    <string name="desfecho_peso">Peso (g)</string>
+    <string name="desfecho_comprimento">Comprimento (cm)</string>
+    <string name="desfecho_perimetro_cefalico">Perímetro cefálico (cm)</string>
+    <string name="desfecho_horario_nascimento">Horário do nascimento</string>
+    <string name="desfecho_apgar1">Apgar 1º minuto</string>
+    <string name="desfecho_apgar5">Apgar 5º minuto</string>
+    <string name="desfecho_apgar10">Apgar 10º minuto</string>
+    <string name="desfecho_contato_pele">Contato pele a pele</string>
+    <string name="desfecho_amamentacao">Amamentação na 1ª hora</string>
+    <string name="desfecho_intercorrencias_rn">Intercorrências com o RN</string>
+    <string name="desfecho_sim">Sim</string>
+    <string name="desfecho_nao">Não</string>
+    <string name="desfecho_secao_encerramento">Encerramento</string>
+    <string name="desfecho_condicao_materna">Condição materna após o parto</string>
+    <string name="desfecho_condicao_rn">Condição do recém-nascido</string>
+    <string name="desfecho_destino_puerpera">Destino da puérpera</string>
+    <string name="desfecho_destino_rn">Destino do RN</string>
+    <string name="desfecho_profissional">Nome do profissional responsável</string>
+    <string name="desfecho_coren">COREN</string>
+    <string name="desfecho_observacoes_finais">Observações finais</string>
+    <string name="desfecho_salvar">Salvar desfecho</string>
+    <string name="desfecho_registrado">Desfecho registrado</string>
+    <string name="desfecho_sucesso">Desfecho salvo com sucesso</string>
+    <string name="desfecho_erro_obrigatorio">Selecione a via de parto</string>
+    <string name="desfecho_erro_salvar">Não foi possível salvar o desfecho. Verifique sua conexão e tente novamente</string>
+
+    <string-array name="opcoes_laceracao_perineal">
+        <item>Sem laceração</item>
+        <item>Grau I</item>
+        <item>Grau II</item>
+        <item>Grau III</item>
+        <item>Grau IV</item>
+    </string-array>
+
+    <string-array name="opcoes_dequitacao">
+        <item>Espontânea</item>
+        <item>Manual</item>
+    </string-array>
+
+    <string-array name="opcoes_placenta">
+        <item>Íntegra</item>
+        <item>Incompleta</item>
+    </string-array>
+
+    <!-- Relatorio: itens novos -->
+    <string name="relatorio_sinais_vitais">Sinais vitais</string>
+    <string name="relatorio_desfecho">Desfecho do parto</string>
+
+    <!-- Home ("Splash" na referencia do cliente) -->
+    <string name="home_card_pronto_titulo">Você está pronto(a) para começar?</string>
+    <string name="home_card_pronto_subtitulo">Acesse as pacientes cadastradas e acompanhe cada fase do parto.</string>
+
+    <!-- Configuracoes (agora tela propria, acessada a partir de Pacientes) -->
+    <string name="configuracoes_titulo">Configurações</string>
+
 </resources>

@@ -10,8 +10,10 @@ import android.text.TextUtils;
 
 import androidx.core.content.FileProvider;
 
+import com.jninfo.partograma.partograma.data.DesfechoParto;
 import com.jninfo.partograma.partograma.data.Paciente;
 import com.jninfo.partograma.partograma.data.RegistroPartograma;
+import com.jninfo.partograma.partograma.data.SinalVital;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -61,7 +63,8 @@ public class PdfRelatorioGenerator {
     }
 
     /** Gera o arquivo e retorna um content:// Uri (FileProvider) pronto para compartilhar. */
-    public Uri gerar(Paciente paciente, List<RegistroPartograma> registros, List<String> observacoes) throws IOException {
+    public Uri gerar(Paciente paciente, List<RegistroPartograma> registros, List<String> observacoes,
+                      List<SinalVital> sinaisVitais, DesfechoParto desfecho) throws IOException {
         documento = new PdfDocument();
         numeroPagina = 0;
         novaPagina();
@@ -80,6 +83,10 @@ public class PdfRelatorioGenerator {
         desenharCampo("Data de nascimento", paciente.getDataNascimento());
         desenharCampo("Tipo sanguíneo", paciente.getTipoSanguineo());
         desenharCampo("Alergias", paciente.getAlergias());
+        if (!paciente.getComorbidades().isEmpty()) {
+            desenharCampo("Comorbidades", TextUtils.join(", ", paciente.getComorbidades()));
+        }
+        desenharCampo("Classificação de risco", paciente.getClassificacaoRisco());
         desenharCampo("Profissional responsável", paciente.getProfissionalResponsavel());
         desenharCampo("Queixa principal", paciente.getQueixaPrincipal());
         desenharCampo("Conduta", paciente.getConduta());
@@ -90,8 +97,10 @@ public class PdfRelatorioGenerator {
             desenharLinhaTexto("Nenhuma avaliação registrada.");
         }
         for (RegistroPartograma r : registros) {
-            desenharLinhaTexto(safe(r.getHorario()) + " — Dilatação: " + (r.getDilatacao() != null ? r.getDilatacao() + " cm" : "-")
-                    + " | Rotatividade: " + r.getRotuloPosicaoLee()
+            desenharLinhaTexto(safe(r.getHorario()) + " — " + safe(r.getFaseTrabalhoParto())
+                    + " | Dilatação: " + (r.getDilatacao() != null ? r.getDilatacao() + " cm" : "-")
+                    + " | Posição: " + safe(r.getPosicaoBebe())
+                    + " | De Lee: " + r.getRotuloPlanoDeLee()
                     + (r.getBatimentos() != null ? " | BCF: " + r.getBatimentos() + " bpm" : ""));
         }
         espacar(10);
@@ -99,7 +108,7 @@ public class PdfRelatorioGenerator {
         desenharSecao("Intercorrências");
         boolean algumaIntercorrencia = false;
         for (RegistroPartograma r : registros) {
-            if (!TextUtils.isEmpty(r.getIntercorrencia())) {
+            if (Boolean.TRUE.equals(r.getTeveIntercorrencia()) && !TextUtils.isEmpty(r.getIntercorrencia())) {
                 desenharLinhaTexto(safe(r.getHorario()) + " — " + r.getIntercorrencia());
                 algumaIntercorrencia = true;
             }
@@ -115,7 +124,7 @@ public class PdfRelatorioGenerator {
             StringBuilder linha = new StringBuilder();
             if (!TextUtils.isEmpty(r.getOcitocina())) linha.append("Ocitocina: ").append(r.getOcitocina()).append("  ");
             if (!TextUtils.isEmpty(r.getMesoprostol())) linha.append("Misoprostol: ").append(r.getMesoprostol()).append("  ");
-            if (!TextUtils.isEmpty(r.getRemedios())) linha.append("Outros: ").append(r.getRemedios());
+            if (!TextUtils.isEmpty(r.getRemedios())) linha.append("Outras: ").append(r.getRemedios());
             if (linha.length() > 0) {
                 desenharLinhaTexto(safe(r.getHorario()) + " — " + linha);
                 algumaMedicacao = true;
@@ -132,6 +141,47 @@ public class PdfRelatorioGenerator {
         }
         for (String observacao : observacoes) {
             desenharLinhaTexto(observacao);
+        }
+        espacar(10);
+
+        desenharSecao("Sinais vitais (" + sinaisVitais.size() + " aferições)");
+        if (sinaisVitais.isEmpty()) {
+            desenharLinhaTexto("Nenhuma aferição registrada.");
+        }
+        for (SinalVital s : sinaisVitais) {
+            desenharLinhaTexto(safe(s.getHorario()) + " · " + safe(s.getDataAfericao()) + " — " + s.getResumo());
+        }
+        espacar(10);
+
+        desenharSecao("Desfecho do parto");
+        if (desfecho == null) {
+            desenharLinhaTexto("Desfecho ainda não registrado.");
+        } else {
+            desenharCampo("Via de parto", desfecho.getViaDeParto());
+            desenharCampo("Data do parto", desfecho.getDataParto());
+            desenharCampo("Apresentação fetal", desfecho.getApresentacaoFetal());
+            desenharCampo("Posição/variedade", desfecho.getPosicaoVariedade());
+            desenharCampo("Laceração perineal", desfecho.getLaceracaoPerineal());
+            desenharCampo("Dequitação", desfecho.getDequitacao());
+            desenharCampo("Placenta", desfecho.getPlacenta());
+            desenharCampo("Intercorrências", desfecho.getIntercorrencias());
+            desenharCampo("Observações", desfecho.getObservacoes());
+            desenharCampo("Sexo do RN", desfecho.getSexoRn());
+            desenharCampo("Peso do RN", desfecho.getPesoRn() != null ? desfecho.getPesoRn() + " g" : null);
+            desenharCampo("Comprimento do RN", desfecho.getComprimentoRn() != null ? desfecho.getComprimentoRn() + " cm" : null);
+            desenharCampo("Perímetro cefálico", desfecho.getPerimetroCefalicoRn() != null ? desfecho.getPerimetroCefalicoRn() + " cm" : null);
+            desenharCampo("Horário do nascimento", desfecho.getHorarioNascimento());
+            desenharCampo("Apgar", formatarApgar(desfecho));
+            desenharCampo("Contato pele a pele", formatarSimNao(desfecho.getContatoPeleAPele()));
+            desenharCampo("Amamentação na 1ª hora", formatarSimNao(desfecho.getAmamentacaoPrimeiraHora()));
+            desenharCampo("Intercorrências com o RN", desfecho.getIntercorrenciasRn());
+            desenharCampo("Condição materna", desfecho.getCondicaoMaterna());
+            desenharCampo("Condição do RN", desfecho.getCondicaoRn());
+            desenharCampo("Destino da puérpera", desfecho.getDestinoPuerpera());
+            desenharCampo("Destino do RN", desfecho.getDestinoRn());
+            desenharCampo("Profissional responsável", desfecho.getProfissionalResponsavel());
+            desenharCampo("COREN", desfecho.getCoren());
+            desenharCampo("Observações finais", desfecho.getObservacoesFinais());
         }
 
         documento.finishPage(pagina);
@@ -201,6 +251,22 @@ public class PdfRelatorioGenerator {
 
     private String safe(String valor) {
         return valor != null ? valor : "-";
+    }
+
+    private String formatarApgar(DesfechoParto d) {
+        return safeInt(d.getApgar1()) + " / " + safeInt(d.getApgar5()) + " / " + safeInt(d.getApgar10())
+                + " (1º / 5º / 10º minuto)";
+    }
+
+    private String safeInt(Integer valor) {
+        return valor != null ? String.valueOf(valor) : "-";
+    }
+
+    private String formatarSimNao(Boolean valor) {
+        if (valor == null) {
+            return null;
+        }
+        return valor ? "Sim" : "Não";
     }
 
     private String safeArquivo(String nome) {

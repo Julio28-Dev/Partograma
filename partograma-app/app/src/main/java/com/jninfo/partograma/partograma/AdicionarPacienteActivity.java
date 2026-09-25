@@ -2,9 +2,12 @@ package com.jninfo.partograma.partograma;
 
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.ArrayAdapter;
+import android.widget.CheckBox;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.Spinner;
 import android.widget.Toast;
@@ -14,6 +17,8 @@ import com.jninfo.partograma.partograma.data.Paciente;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
 
 /**
@@ -31,11 +36,15 @@ public class AdicionarPacienteActivity extends BaseActivity {
     private EditText edtDum;
     private Spinner spinnerTipoSanguineo;
     private EditText edtAlergias;
+    private LinearLayout containerComorbidades;
+    private EditText edtComorbidadesOutras;
+    private Spinner spinnerClassificacaoRisco;
     private EditText edtProfissional;
     private EditText edtQueixa;
     private EditText edtConduta;
     private View btnSalvar;
     private ProgressBar progressSalvando;
+    private final List<CheckBox> checkboxesComorbidades = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -50,6 +59,9 @@ public class AdicionarPacienteActivity extends BaseActivity {
         edtDum = findViewById(R.id.edtDum);
         spinnerTipoSanguineo = findViewById(R.id.spinnerTipoSanguineo);
         edtAlergias = findViewById(R.id.edtAlergias);
+        containerComorbidades = findViewById(R.id.containerComorbidades);
+        edtComorbidadesOutras = findViewById(R.id.edtComorbidadesOutras);
+        spinnerClassificacaoRisco = findViewById(R.id.spinnerClassificacaoRisco);
         edtProfissional = findViewById(R.id.edtProfissional);
         edtQueixa = findViewById(R.id.edtQueixa);
         edtConduta = findViewById(R.id.edtConduta);
@@ -61,9 +73,32 @@ public class AdicionarPacienteActivity extends BaseActivity {
         adapterTipos.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spinnerTipoSanguineo.setAdapter(adapterTipos);
 
+        ArrayAdapter<CharSequence> adapterRisco = ArrayAdapter.createFromResource(
+                this, R.array.opcoes_classificacao_risco, android.R.layout.simple_spinner_item);
+        adapterRisco.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spinnerClassificacaoRisco.setAdapter(adapterRisco);
+
+        montarCheckboxesComorbidades();
+
         findViewById(R.id.btnVoltar).setOnClickListener(v -> finish());
         findViewById(R.id.btnCancelar).setOnClickListener(v -> finish());
         btnSalvar.setOnClickListener(v -> validarESalvar());
+    }
+
+    private void montarCheckboxesComorbidades() {
+        String[] opcoes = getResources().getStringArray(R.array.opcoes_comorbidades);
+        String opcaoOutras = opcoes[opcoes.length - 1];
+        for (String opcao : opcoes) {
+            CheckBox checkbox = (CheckBox) LayoutInflater.from(this)
+                    .inflate(R.layout.item_checkbox_opcao, containerComorbidades, false);
+            checkbox.setText(opcao);
+            if (opcao.equals(opcaoOutras)) {
+                checkbox.setOnCheckedChangeListener((buttonView, isChecked) ->
+                        edtComorbidadesOutras.setVisibility(isChecked ? View.VISIBLE : View.GONE));
+            }
+            containerComorbidades.addView(checkbox);
+            checkboxesComorbidades.add(checkbox);
+        }
     }
 
     private void validarESalvar() {
@@ -89,6 +124,18 @@ public class AdicionarPacienteActivity extends BaseActivity {
         paciente.setTipoSanguineo((String) spinnerTipoSanguineo.getSelectedItem());
         String alergias = edtAlergias.getText().toString().trim();
         paciente.setAlergias(alergias.isEmpty() ? "Nega" : alergias);
+
+        List<String> comorbidadesSelecionadas = new ArrayList<>();
+        for (CheckBox checkbox : checkboxesComorbidades) {
+            if (checkbox.isChecked()) {
+                comorbidadesSelecionadas.add(checkbox.getText().toString());
+            }
+        }
+        paciente.setComorbidades(comorbidadesSelecionadas);
+        paciente.setComorbidadesOutras(edtComorbidadesOutras.getVisibility() == View.VISIBLE
+                ? edtComorbidadesOutras.getText().toString().trim() : null);
+        paciente.setClassificacaoRisco((String) spinnerClassificacaoRisco.getSelectedItem());
+
         paciente.setProfissionalResponsavel(edtProfissional.getText().toString().trim());
         paciente.setQueixaPrincipal(edtQueixa.getText().toString().trim());
         paciente.setConduta(edtConduta.getText().toString().trim());

@@ -30,6 +30,11 @@ service cloud.firestore {
       match /evolucoes/{evolucaoId} {
         allow read, write: if estaAutenticado();
       }
+
+      // Afericoes de sinais vitais (aba "Sinais vitais", independente do partograma).
+      match /sinaisVitais/{sinalVitalId} {
+        allow read, write: if estaAutenticado();
+      }
     }
 
     // Qualquer outra colecao nao prevista acima fica bloqueada por padrao.

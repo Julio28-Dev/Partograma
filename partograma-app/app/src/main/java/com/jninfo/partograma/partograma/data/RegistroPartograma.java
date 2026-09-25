@@ -4,38 +4,50 @@ import com.google.firebase.firestore.Exclude;
 import com.google.firebase.firestore.IgnoreExtraProperties;
 import com.google.firebase.firestore.ServerTimestamp;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 /**
  * Uma avaliacao/registro do partograma de uma paciente (documento em
- * {@code pacientes/{pacienteId}/registros}). Equivalente, em conteudo, ao registro por
- * hora do APK original ("pessoa{slot}{campo}{hora}"): mesmos campos clinicos
- * (dilatacao, posicao de Lee, batimentos, integridade da bolsa, liquido amniotico,
- * frequencia de contracao, ocitocina, mesoprostol, remedios, examinador), apenas
- * persistidos no Firestore em vez de SharedPreferences e sem o limite fixo de 16
- * horas/slots do esquema antigo -- aqui cada avaliacao e um documento com ID proprio,
- * ordenado por {@link #dataHora} (timestamp do servidor).
+ * {@code pacientes/{pacienteId}/registros}).
  *
- * Campo novo em relacao ao original: {@link #intercorrencia}, usado pela aba
- * "Relatório" (Intercorrências) -- texto livre, opcional.
+ * Nomenclatura corrigida nesta etapa (pedido explicito do cliente): o que antes estava
+ * como um unico campo generico "posicao (1..8)" foi separado em dois conceitos clinicos
+ * reais e distintos:
+ *  - {@link #posicaoBebe}: apresentacao/situacao fetal (Cefalico/Pelvico/Oblíquo/
+ *    Transversal) -- era chamado erroneamente de "Rotatividade do bebê" antes.
+ *  - {@link #planoDeLee}: plano de De Lee de verdade (-5..+5), que nao existia antes.
+ *
+ * Compatibilidade: documentos antigos (criados antes desta correcao) tinham um campo
+ * "posicaoLee" numerico 1..8 sem nenhuma correspondencia clinica valida com nenhum dos
+ * dois campos novos -- inventar um mapeamento entre eles seria dado clinico incorreto,
+ * entao NAO fazemos nenhuma conversao automatica. Esses registros antigos (todos de
+ * teste, nenhum paciente real usou o app em producao ainda) simplesmente aparecem com
+ * "Posição do bebê" e "Plano de De Lee" em branco -- sem erro, sem dado inventado.
  */
 @IgnoreExtraProperties
 public class RegistroPartograma {
 
     private String id;
 
-    private String horario;          // "HH:mm", informado pelo usuario no momento do registro
-    private Double dilatacao;        // cm
-    private Integer posicaoLee;      // 1..8, mesmo esquema de posicoes do APK original
-    private Integer batimentos;      // bpm
-    private String integridade;
-    private String liquido;
+    private String horario;              // "HH:mm", informado pelo usuario no momento do registro
+    private Double dilatacao;            // cm
+    private String posicaoBebe;          // Cefalico | Pelvico | Oblíquo | Transversal
+    private Integer planoDeLee;          // -5..+5
+    private Integer batimentos;          // BCF, bpm
+    private String integridade;          // Íntegra | Rota
+    private String liquido;              // so relevante quando integridade == Rota
     private String freqContracao;
     private String ocitocina;
     private String mesoprostol;
-    private String remedios;
+    private String remedios;             // "Outras medicações"
     private String examinador;
-    private String intercorrencia;
+    private String faseTrabalhoParto;    // Em avaliação | Fase latente | Fase ativa | Período expulsivo | Dequitação | Período de Greenberg
+    private List<String> metodosNaoFarmacologicos;
+    private Boolean teveIntercorrencia;
+    private String intercorrencia;       // so preenchido quando teveIntercorrencia == true
+    private String observacaoAdicional;
 
     @ServerTimestamp
     private Date dataHora;
@@ -70,12 +82,20 @@ public class RegistroPartograma {
         this.dilatacao = dilatacao;
     }
 
-    public Integer getPosicaoLee() {
-        return posicaoLee;
+    public String getPosicaoBebe() {
+        return posicaoBebe;
     }
 
-    public void setPosicaoLee(Integer posicaoLee) {
-        this.posicaoLee = posicaoLee;
+    public void setPosicaoBebe(String posicaoBebe) {
+        this.posicaoBebe = posicaoBebe;
+    }
+
+    public Integer getPlanoDeLee() {
+        return planoDeLee;
+    }
+
+    public void setPlanoDeLee(Integer planoDeLee) {
+        this.planoDeLee = planoDeLee;
     }
 
     public Integer getBatimentos() {
@@ -142,12 +162,44 @@ public class RegistroPartograma {
         this.examinador = examinador;
     }
 
+    public String getFaseTrabalhoParto() {
+        return faseTrabalhoParto;
+    }
+
+    public void setFaseTrabalhoParto(String faseTrabalhoParto) {
+        this.faseTrabalhoParto = faseTrabalhoParto;
+    }
+
+    public List<String> getMetodosNaoFarmacologicos() {
+        return metodosNaoFarmacologicos != null ? metodosNaoFarmacologicos : new ArrayList<>();
+    }
+
+    public void setMetodosNaoFarmacologicos(List<String> metodosNaoFarmacologicos) {
+        this.metodosNaoFarmacologicos = metodosNaoFarmacologicos;
+    }
+
+    public Boolean getTeveIntercorrencia() {
+        return teveIntercorrencia;
+    }
+
+    public void setTeveIntercorrencia(Boolean teveIntercorrencia) {
+        this.teveIntercorrencia = teveIntercorrencia;
+    }
+
     public String getIntercorrencia() {
         return intercorrencia;
     }
 
     public void setIntercorrencia(String intercorrencia) {
         this.intercorrencia = intercorrencia;
+    }
+
+    public String getObservacaoAdicional() {
+        return observacaoAdicional;
+    }
+
+    public void setObservacaoAdicional(String observacaoAdicional) {
+        this.observacaoAdicional = observacaoAdicional;
     }
 
     public Date getDataHora() {
@@ -158,10 +210,12 @@ public class RegistroPartograma {
         this.dataHora = dataHora;
     }
 
-    /** Rotulo de exibicao da posicao de Lee ("Posição N"), sem inventar codigos obstetricos
-     *  (ROP/OEA/etc.) que nao existem no esquema de imagens do APK original. */
+    /** Rotulo de exibicao do plano de De Lee ("+2", "-3", "0"), ou "-" se nao informado. */
     @Exclude
-    public String getRotuloPosicaoLee() {
-        return posicaoLee != null ? "Posição " + posicaoLee : "-";
+    public String getRotuloPlanoDeLee() {
+        if (planoDeLee == null) {
+            return "-";
+        }
+        return planoDeLee > 0 ? "+" + planoDeLee : String.valueOf(planoDeLee);
     }
 }
