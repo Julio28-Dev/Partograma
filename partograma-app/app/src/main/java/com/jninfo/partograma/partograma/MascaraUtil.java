@@ -5,6 +5,8 @@ import android.text.TextWatcher;
 import android.text.method.DigitsKeyListener;
 import android.widget.EditText;
 
+import java.util.Calendar;
+
 /**
  * Mascaras de digitacao para campos de data e horario: o usuario digita so os numeros e as
  * barras/dois-pontos aparecem sozinhas. Pedido do cliente para reduzir erro de digitacao
@@ -114,13 +116,20 @@ final class MascaraUtil {
         return sb.toString();
     }
 
-    /** Ao sair do campo, "28/04/05" (6 digitos) vira "28/04/2005". */
+    /**
+     * Ao sair do campo, "28/04/05" (6 digitos) vira "28/04/2005" -- ou "28/04/1905" se o
+     * ano de 2 digitos, com "20" na frente, cair no futuro (nenhuma data deste app -- data
+     * de nascimento, DUM, data do parto, data da afericao -- pode ser no futuro).
+     */
     private static void expandirAnoCurto(EditText campo) {
         String digitos = somenteDigitos(campo.getText().toString());
         if (digitos.length() == 6) {
             String diaEMes = digitos.substring(0, 4);
             String anoCurto = digitos.substring(4, 6);
-            String textoFinal = formatarData(diaEMes + "20" + anoCurto);
+            int anoDigitado = Integer.parseInt(anoCurto);
+            int anoAtualCurto = Calendar.getInstance().get(Calendar.YEAR) % 100;
+            String seculo = anoDigitado > anoAtualCurto ? "19" : "20";
+            String textoFinal = formatarData(diaEMes + seculo + anoCurto);
             campo.setText(textoFinal);
             campo.setSelection(textoFinal.length());
         }
