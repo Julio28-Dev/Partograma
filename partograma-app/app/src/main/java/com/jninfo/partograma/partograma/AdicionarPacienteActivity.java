@@ -57,6 +57,8 @@ public class AdicionarPacienteActivity extends BaseActivity {
         edtProntuario = findViewById(R.id.edtProntuario);
         edtDataNascimento = findViewById(R.id.edtDataNascimento);
         edtDum = findViewById(R.id.edtDum);
+        MascaraUtil.aplicarMascaraData(edtDataNascimento);
+        MascaraUtil.aplicarMascaraData(edtDum);
         spinnerTipoSanguineo = findViewById(R.id.spinnerTipoSanguineo);
         edtAlergias = findViewById(R.id.edtAlergias);
         containerComorbidades = findViewById(R.id.containerComorbidades);

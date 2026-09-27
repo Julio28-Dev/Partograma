@@ -548,7 +548,7 @@
                     android:textStyle="bold" />
 
                 <TextView style="@style/CampoLabel" android:text="@string/desfecho_data_parto" />
-                <EditText android:id="@+id/edtDataParto" style="@style/CampoInput" android:hint="dd/mm/aaaa" android:inputType="date" />
+                <EditText android:id="@+id/edtDataParto" style="@style/CampoInput" android:hint="dd/mm/aaaa" android:inputType="number" />
 
                 <TextView style="@style/CampoLabel" android:text="@string/desfecho_apresentacao_fetal" />
                 <Spinner android:id="@+id/spinnerApresentacaoFetal" android:layout_width="match_parent" android:layout_height="wrap_content"
@@ -611,7 +611,7 @@
                 <EditText android:id="@+id/edtPerimetroCefalico" style="@style/CampoInput" android:inputType="numberDecimal" />
 
                 <TextView style="@style/CampoLabel" android:text="@string/desfecho_horario_nascimento" />
-                <EditText android:id="@+id/edtHorarioNascimento" style="@style/CampoInput" android:hint="HH:mm" android:inputType="datetime" />
+                <EditText android:id="@+id/edtHorarioNascimento" style="@style/CampoInput" android:hint="HH:mm" android:inputType="number" />
 
                 <TextView style="@style/CampoLabel" android:text="@string/desfecho_apgar1" />
                 <EditText android:id="@+id/edtApgar1" style="@style/CampoInput" android:inputType="number" />

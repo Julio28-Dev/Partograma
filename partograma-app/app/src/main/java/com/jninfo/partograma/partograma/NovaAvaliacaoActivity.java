@@ -99,6 +99,7 @@ public class NovaAvaliacaoActivity extends BaseActivity {
         progressSalvando = findViewById(R.id.progressSalvando);
 
         edtHorario.setText(new SimpleDateFormat("HH:mm", Locale.getDefault()).format(new java.util.Date()));
+        MascaraUtil.aplicarMascaraHorario(edtHorario);
 
         configurarSpinner(spinnerFaseTrabalhoParto, R.array.opcoes_fase_trabalho_parto);
         configurarSpinner(spinnerPosicaoBebe, R.array.opcoes_posicao_bebe);

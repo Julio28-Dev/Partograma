@@ -65,14 +65,14 @@
                 android:id="@+id/edtDataNascimento"
                 style="@style/CampoInput"
                 android:hint="dd/mm/aaaa"
-                android:inputType="date" />
+                android:inputType="number" />
 
             <TextView style="@style/CampoLabel" android:text="@string/adicionar_paciente_dum" />
             <EditText
                 android:id="@+id/edtDum"
                 style="@style/CampoInput"
                 android:hint="dd/mm/aaaa"
-                android:inputType="date" />
+                android:inputType="number" />
 
             <TextView style="@style/CampoLabel" android:text="@string/adicionar_paciente_tipo_sanguineo" />
             <Spinner

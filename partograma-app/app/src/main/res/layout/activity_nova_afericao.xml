@@ -53,10 +53,10 @@
             android:paddingBottom="24dp">
 
             <TextView style="@style/CampoLabel" android:text="@string/sinais_vitais_data_afericao" />
-            <EditText android:id="@+id/edtDataAfericao" style="@style/CampoInput" android:hint="dd/mm/aaaa" android:inputType="date" />
+            <EditText android:id="@+id/edtDataAfericao" style="@style/CampoInput" android:hint="dd/mm/aaaa" android:inputType="number" />
 
             <TextView style="@style/CampoLabel" android:text="@string/sinais_vitais_horario" />
-            <EditText android:id="@+id/edtHorarioAfericao" style="@style/CampoInput" android:hint="HH:mm" android:inputType="datetime" />
+            <EditText android:id="@+id/edtHorarioAfericao" style="@style/CampoInput" android:hint="HH:mm" android:inputType="number" />
 
             <TextView style="@style/CampoLabel" android:text="@string/sinais_vitais_pa" />
             <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginBottom="14dp" android:gravity="center_vertical" android:orientation="horizontal">

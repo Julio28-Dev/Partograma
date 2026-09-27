@@ -53,7 +53,7 @@
                 android:id="@+id/edtHorario"
                 style="@style/CampoInput"
                 android:hint="HH:mm"
-                android:inputType="datetime" />
+                android:inputType="number" />
 
             <TextView style="@style/CampoLabel" android:text="@string/nova_avaliacao_fase_trabalho_parto" />
             <Spinner

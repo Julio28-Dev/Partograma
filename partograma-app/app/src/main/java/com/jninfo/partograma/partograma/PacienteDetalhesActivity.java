@@ -625,6 +625,7 @@ public class PacienteDetalhesActivity extends BaseActivity {
         btnViaVaginal = findViewById(R.id.btnViaVaginal);
         btnViaCesarea = findViewById(R.id.btnViaCesarea);
         edtDataParto = findViewById(R.id.edtDataParto);
+        MascaraUtil.aplicarMascaraData(edtDataParto);
         spinnerApresentacaoFetal = findViewById(R.id.spinnerApresentacaoFetal);
         spinnerPosicaoVariedade = findViewById(R.id.spinnerPosicaoVariedade);
         spinnerLaceracaoPerineal = findViewById(R.id.spinnerLaceracaoPerineal);
@@ -638,6 +639,7 @@ public class PacienteDetalhesActivity extends BaseActivity {
         edtComprimentoRn = findViewById(R.id.edtComprimentoRn);
         edtPerimetroCefalico = findViewById(R.id.edtPerimetroCefalico);
         edtHorarioNascimento = findViewById(R.id.edtHorarioNascimento);
+        MascaraUtil.aplicarMascaraHorario(edtHorarioNascimento);
         edtApgar1 = findViewById(R.id.edtApgar1);
         edtApgar5 = findViewById(R.id.edtApgar5);
         edtApgar10 = findViewById(R.id.edtApgar10);
