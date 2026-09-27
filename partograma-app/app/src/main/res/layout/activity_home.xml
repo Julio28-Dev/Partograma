@@ -42,10 +42,11 @@
 
             <ImageView
                 android:id="@+id/logoMaternidade"
-                android:layout_width="112dp"
-                android:layout_height="112dp"
+                android:layout_width="140dp"
+                android:layout_height="140dp"
                 android:importantForAccessibility="no"
-                android:src="@drawable/ic_logo_maternidade" />
+                android:scaleType="fitCenter"
+                android:src="@drawable/img_logo_maternidade" />
 
             <TextView
                 android:layout_width="wrap_content"
@@ -258,12 +259,12 @@
             </LinearLayout>
 
             <ImageView
-                android:layout_width="230dp"
-                android:layout_height="184dp"
+                android:layout_width="280dp"
+                android:layout_height="138dp"
                 android:layout_marginTop="18dp"
                 android:importantForAccessibility="no"
                 android:scaleType="fitCenter"
-                android:src="@drawable/ic_illustration_gestante" />
+                android:src="@drawable/img_illustration_gestante" />
 
             <com.jninfo.partograma.partograma.ui.BlobButton
                 android:id="@+id/btnIniciar"
