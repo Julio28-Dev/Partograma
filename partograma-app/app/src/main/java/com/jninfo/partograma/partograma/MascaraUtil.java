@@ -2,6 +2,7 @@ package com.jninfo.partograma.partograma;
 
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.text.method.DigitsKeyListener;
 import android.widget.EditText;
 
 /**
@@ -13,6 +14,13 @@ import android.widget.EditText;
  * quando o campo perde o foco -- nao da para saber, digito a digito, se o usuario vai parar
  * em 2 digitos de ano ou ainda vai completar para 4, entao expandir cedo demais quebraria
  * quem estivesse digitando o ano completo.
+ *
+ * IMPORTANTE: "android:inputType=number" sozinho nao basta -- ele anexa um KeyListener que
+ * filtra qualquer caractere fora de 0-9, e esse filtro vale tambem para o texto que o
+ * TextWatcher tenta inserir programaticamente (a "/" e o ":" da mascara), nao so para o que
+ * o usuario digita. Por isso e preciso trocar o KeyListener aqui por um DigitsKeyListener que
+ * aceita explicitamente o separador, senao a barra/dois-pontos e sempre descartada em
+ * silencio e so os digitos aparecem.
  */
 final class MascaraUtil {
 
@@ -20,6 +28,7 @@ final class MascaraUtil {
     }
 
     static void aplicarMascaraData(EditText campo) {
+        campo.setKeyListener(DigitsKeyListener.getInstance("0123456789/"));
         campo.addTextChangedListener(new TextWatcher() {
             private boolean aplicando = false;
 
@@ -57,6 +66,7 @@ final class MascaraUtil {
     }
 
     static void aplicarMascaraHorario(EditText campo) {
+        campo.setKeyListener(DigitsKeyListener.getInstance("0123456789:"));
         campo.addTextChangedListener(new TextWatcher() {
             private boolean aplicando = false;
 

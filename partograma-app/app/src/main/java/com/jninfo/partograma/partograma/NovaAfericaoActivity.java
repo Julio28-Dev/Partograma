@@ -71,11 +71,11 @@ public class NovaAfericaoActivity extends BaseActivity {
         btnSalvar = findViewById(R.id.btnSalvarAfericao);
         progressAfericao = findViewById(R.id.progressAfericao);
 
+        MascaraUtil.aplicarMascaraData(edtDataAfericao);
+        MascaraUtil.aplicarMascaraHorario(edtHorarioAfericao);
         Date agora = new Date();
         edtDataAfericao.setText(new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault()).format(agora));
         edtHorarioAfericao.setText(new SimpleDateFormat("HH:mm", Locale.getDefault()).format(agora));
-        MascaraUtil.aplicarMascaraData(edtDataAfericao);
-        MascaraUtil.aplicarMascaraHorario(edtHorarioAfericao);
 
         findViewById(R.id.btnVoltar).setOnClickListener(v -> finish());
         findViewById(R.id.btnCancelarAfericao).setOnClickListener(v -> finish());
