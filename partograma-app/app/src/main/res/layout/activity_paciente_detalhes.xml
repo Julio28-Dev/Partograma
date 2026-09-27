@@ -62,16 +62,19 @@
             android:orientation="horizontal">
 
             <FrameLayout
+                xmlns:app="http://schemas.android.com/apk/res-auto"
                 android:layout_width="46dp"
                 android:layout_height="46dp"
                 android:background="@drawable/bg_avatar_circle">
 
                 <ImageView
-                    android:layout_width="24dp"
-                    android:layout_height="24dp"
+                    android:layout_width="27dp"
+                    android:layout_height="36dp"
                     android:layout_gravity="center"
                     android:importantForAccessibility="no"
-                    android:src="@drawable/ic_patient" />
+                    android:scaleType="fitCenter"
+                    android:src="@drawable/img_avatar_gestante"
+                    app:tint="@color/primaryPink" />
             </FrameLayout>
 
             <LinearLayout

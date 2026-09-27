@@ -113,11 +113,10 @@
                 android:padding="12dp">
 
                 <ImageView
-                    android:layout_width="20dp"
-                    android:layout_height="20dp"
+                    android:layout_width="22dp"
+                    android:layout_height="22dp"
                     android:importantForAccessibility="no"
-                    android:src="@drawable/ic_patient"
-                    app:tint="@color/primaryPink" />
+                    android:src="@drawable/ic_grupo_pacientes" />
 
                 <LinearLayout
                     android:layout_width="wrap_content"

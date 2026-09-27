@@ -12,6 +12,14 @@
     android:paddingTop="8dp"
     android:paddingBottom="8dp">
 
+    <ImageView
+        android:id="@+id/imgAba"
+        android:layout_width="20dp"
+        android:layout_height="20dp"
+        android:layout_marginBottom="4dp"
+        android:importantForAccessibility="no"
+        tools:src="@drawable/ic_tab_relatorio" />
+
     <TextView
         android:id="@+id/txtAba"
         android:layout_width="wrap_content"

@@ -1,6 +1,7 @@
 package com.jninfo.partograma.partograma;
 
 import android.content.Context;
+import android.graphics.drawable.Drawable;
 import android.widget.TextView;
 
 import androidx.core.content.ContextCompat;
@@ -45,6 +46,15 @@ final class StatusPacienteUtil {
         }
 
         badge.setBackgroundResource(corFundo);
-        badge.setTextColor(ContextCompat.getColor(context, corTexto));
+        int corTextoResolvida = ContextCompat.getColor(context, corTexto);
+        badge.setTextColor(corTextoResolvida);
+
+        Drawable ponto = ContextCompat.getDrawable(context, R.drawable.dot_indicador_status);
+        if (ponto != null) {
+            ponto = ponto.mutate();
+            ponto.setTint(corTextoResolvida);
+            badge.setCompoundDrawablesWithIntrinsicBounds(ponto, null, null, null);
+            badge.setCompoundDrawablePadding((int) (5 * context.getResources().getDisplayMetrics().density));
+        }
     }
 }

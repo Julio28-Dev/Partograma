@@ -154,11 +154,11 @@ public class PacienteDetalhesActivity extends BaseActivity {
         View tabDesfecho = findViewById(R.id.tabDesfecho);
         abas = new View[]{tabDados, tabPartograma, tabRelatorio, tabSinaisVitais, tabDesfecho};
 
-        configurarAba(tabDados, R.string.paciente_detalhes_aba_dados);
-        configurarAba(tabPartograma, R.string.paciente_detalhes_aba_partograma);
-        configurarAba(tabRelatorio, R.string.paciente_detalhes_aba_relatorio);
-        configurarAba(tabSinaisVitais, R.string.sinais_vitais_titulo);
-        configurarAba(tabDesfecho, R.string.desfecho_titulo);
+        configurarAba(tabDados, R.string.paciente_detalhes_aba_dados, R.drawable.ic_feature_chart);
+        configurarAba(tabPartograma, R.string.paciente_detalhes_aba_partograma, R.drawable.ic_tab_partograma);
+        configurarAba(tabRelatorio, R.string.paciente_detalhes_aba_relatorio, R.drawable.ic_tab_relatorio);
+        configurarAba(tabSinaisVitais, R.string.sinais_vitais_titulo, R.drawable.ic_feature_pulse);
+        configurarAba(tabDesfecho, R.string.desfecho_titulo, R.drawable.ic_tab_desfecho);
 
         for (int i = 0; i < abas.length; i++) {
             int indice = i;
@@ -185,18 +185,22 @@ public class PacienteDetalhesActivity extends BaseActivity {
         carregarDesfecho();
     }
 
-    private void configurarAba(View aba, int textoRes) {
+    private void configurarAba(View aba, int textoRes, int iconeRes) {
         TextView texto = aba.findViewById(R.id.txtAba);
         texto.setText(textoRes);
+        android.widget.ImageView icone = aba.findViewById(R.id.imgAba);
+        icone.setImageResource(iconeRes);
     }
 
     private void selecionarAba(int indiceSelecionado) {
         for (int i = 0; i < abas.length; i++) {
             TextView texto = abas[i].findViewById(R.id.txtAba);
+            android.widget.ImageView icone = abas[i].findViewById(R.id.imgAba);
             View indicador = abas[i].findViewById(R.id.indicadorAba);
             boolean selecionada = i == indiceSelecionado;
-            texto.setTextColor(ContextCompat.getColor(this,
-                    selecionada ? R.color.primaryPink : R.color.textSecondary));
+            int cor = ContextCompat.getColor(this, selecionada ? R.color.primaryPink : R.color.textSecondary);
+            texto.setTextColor(cor);
+            icone.setColorFilter(cor);
             texto.setTypeface(null, selecionada ? android.graphics.Typeface.BOLD : android.graphics.Typeface.NORMAL);
             indicador.setVisibility(selecionada ? View.VISIBLE : View.INVISIBLE);
             conteudos[i].setVisibility(selecionada ? View.VISIBLE : View.GONE);
