@@ -79,8 +79,10 @@ public class PacientesActivity extends BaseActivity {
             public void afterTextChanged(Editable s) { }
         });
 
-        findViewById(R.id.btnAdicionarPaciente).setOnClickListener(v ->
-                startActivity(new Intent(PacientesActivity.this, AdicionarPacienteActivity.class)));
+        View.OnClickListener abrirCadastro = v ->
+                startActivity(new Intent(PacientesActivity.this, AdicionarPacienteActivity.class));
+        findViewById(R.id.btnAdicionarPaciente).setOnClickListener(abrirCadastro);
+        findViewById(R.id.btnAdicionarPacienteFab).setOnClickListener(abrirCadastro);
         findViewById(R.id.btnConfiguracoes).setOnClickListener(v ->
                 startActivity(new Intent(PacientesActivity.this, ConfiguracoesActivity.class)));
 

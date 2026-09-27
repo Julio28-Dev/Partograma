@@ -27,14 +27,16 @@
 
     <!-- Pacientes -->
     <string name="pacientes_titulo">Pacientes</string>
-    <string name="pacientes_subtitulo">Total de pacientes cadastradas</string>
-    <string name="pacientes_busca_hint">Buscar por nome ou prontuário…</string>
-    <string name="pacientes_adicionar">Adicionar nova paciente</string>
+    <string name="pacientes_subtitulo">Gerencie e acompanhe os partogramas.</string>
+    <string name="pacientes_contagem_legenda">Cadastradas</string>
+    <string name="pacientes_busca_hint">Buscar paciente pelo nome ou prontuário…</string>
+    <string name="pacientes_adicionar">Nova paciente</string>
     <string name="pacientes_vazio">Nenhuma paciente cadastrada ainda.\nToque em \"Adicionar nova paciente\" para começar.</string>
     <string name="pacientes_erro_carregar">Não foi possível carregar as pacientes. Verifique sua conexão.</string>
     <string name="pacientes_status_avaliacao">Em avaliação</string>
     <string name="pacientes_status_fase_latente">Fase latente</string>
     <string name="pacientes_status_trabalho_ativo">Trabalho de parto ativo</string>
+    <string name="pacientes_alerta_intercorrencia">⚠ Intercorrência registrada</string>
 
     <!-- Adicionar paciente -->
     <string name="adicionar_paciente_titulo">Nova paciente</string>
@@ -55,6 +57,10 @@
     <string name="adicionar_paciente_erro_salvar">Não foi possível salvar. Verifique sua conexão e tente novamente</string>
 
     <!-- Detalhes da paciente (novo) -->
+    <string name="paciente_detalhes_titulo_registro">Registro da Paciente</string>
+    <string name="paciente_detalhes_metrica_ultima_data">Última Data</string>
+    <string name="paciente_detalhes_metrica_hora_registro">Hora de Registro</string>
+    <string name="paciente_detalhes_metrica_ig">Idade Gestacional</string>
     <string name="paciente_detalhes_aba_dados">Dados</string>
     <string name="paciente_detalhes_aba_partograma">Partograma</string>
     <string name="paciente_detalhes_aba_relatorio">Relatório</string>
@@ -114,7 +120,7 @@
     <string name="nova_avaliacao_horario">Horário (HH:mm) *</string>
     <string name="nova_avaliacao_dilatacao">Dilatação (cm) *</string>
     <string name="nova_avaliacao_posicao_lee">Rotatividade do bebê (posição)</string>
-    <string name="nova_avaliacao_batimentos">BCF (bpm)</string>
+    <string name="nova_avaliacao_batimentos">Batimentos cardíacos fetais (BCF)</string>
     <string name="nova_avaliacao_integridade">Integridade da bolsa</string>
     <string name="nova_avaliacao_liquido">Líquido amniótico</string>
     <string name="nova_avaliacao_freq_contracao">Frequência de contração (10 min)</string>
@@ -344,6 +350,70 @@
     <string-array name="opcoes_placenta">
         <item>Íntegra</item>
         <item>Incompleta</item>
+    </string-array>
+
+    <!-- Apresentacao fetal e variedade de posicao (Desfecho): a variedade disponivel
+         depende da apresentacao selecionada. Ver atualizarOpcoesVariedade() em
+         PacienteDetalhesActivity. Cada array abaixo corresponde a uma apresentacao.
+         Os 3 valores tambem existem como strings avulsas para a comparacao em codigo. -->
+    <string name="desfecho_apresentacao_cefalica">Cefálica</string>
+    <string name="desfecho_apresentacao_pelvica">Pélvica</string>
+    <string name="desfecho_apresentacao_cormica">Córmica (transversa)</string>
+    <string-array name="opcoes_apresentacao_fetal">
+        <item>@string/desfecho_apresentacao_cefalica</item>
+        <item>@string/desfecho_apresentacao_pelvica</item>
+        <item>@string/desfecho_apresentacao_cormica</item>
+    </string-array>
+
+    <string-array name="opcoes_variedade_cefalica">
+        <item>OEA - Occipitoesquerda anterior</item>
+        <item>ODA - Occipitodireita anterior</item>
+        <item>OEP - Occipitoesquerda posterior</item>
+        <item>ODP - Occipitodireita posterior</item>
+        <item>OE - Occipitoesquerda transversa</item>
+        <item>OD - Occipitodireita transversa</item>
+    </string-array>
+
+    <string-array name="opcoes_variedade_pelvica">
+        <item>Sacro anterior esquerdo</item>
+        <item>Sacro anterior direito</item>
+        <item>Sacro posterior esquerdo</item>
+        <item>Sacro posterior direito</item>
+    </string-array>
+
+    <string-array name="opcoes_variedade_cormica">
+        <item>Dorso anterior</item>
+        <item>Dorso posterior</item>
+        <item>Dorso à direita</item>
+        <item>Dorso à esquerda</item>
+    </string-array>
+
+    <!-- Condicao materna e do RN no encerramento: mesmo conjunto de opcoes para as duas,
+         por isso compartilham um unico array. -->
+    <string-array name="opcoes_condicao_saude">
+        <item>Estável</item>
+        <item>Instável</item>
+        <item>Grave</item>
+        <item>Óbito</item>
+    </string-array>
+
+    <string-array name="opcoes_destino_puerpera">
+        <item>Alojamento conjunto</item>
+        <item>Unidade de internação obstétrica</item>
+        <item>UTI</item>
+        <item>Transferência para outra unidade</item>
+        <item>Alta hospitalar</item>
+        <item>Óbito</item>
+    </string-array>
+
+    <string-array name="opcoes_destino_rn">
+        <item>Alojamento conjunto</item>
+        <item>Unidade neonatal</item>
+        <item>UTI neonatal</item>
+        <item>UCI neonatal</item>
+        <item>Transferência para outra unidade</item>
+        <item>Alta hospitalar</item>
+        <item>Óbito</item>
     </string-array>
 
     <!-- Relatorio: itens novos -->

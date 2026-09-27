@@ -77,6 +77,22 @@
             android:textColor="@color/textSecondary"
             android:textSize="11sp"
             tools:text="Último acesso: 14/09/2026 - 09:32" />
+
+        <TextView
+            android:id="@+id/txtAlertaIntercorrencia"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="6dp"
+            android:background="@drawable/bg_badge_alerta"
+            android:paddingStart="10dp"
+            android:paddingEnd="10dp"
+            android:paddingTop="3dp"
+            android:paddingBottom="3dp"
+            android:text="@string/pacientes_alerta_intercorrencia"
+            android:textColor="@color/colorAlerta"
+            android:textSize="11sp"
+            android:textStyle="bold"
+            android:visibility="gone" />
     </LinearLayout>
 
     <ImageView

@@ -1,9 +1,9 @@
 package com.jninfo.partograma.partograma.data;
 
 /**
- * Ponto de extensao para as regras de vigilancia/alerta pedidas pelo cliente (secao 11
- * do briefing): reavaliacao apos tempo sem novo registro, parametros fora do esperado, e
- * futuramente notificacoes push.
+ * Ponto de extensao para as regras de vigilancia/alerta pedidas pelo cliente: reavaliacao
+ * apos tempo sem novo registro, parametros fora do esperado, e futuramente notificacoes
+ * push.
  *
  * NAO HA NENHUM LIMITE CLINICO IMPLEMENTADO AQUI DE PROPOSITO. O cliente foi explicito:
  * "NAO INVENTE limites clinicos, tempos clinicos ou valores de referencia" -- esses
@@ -11,8 +11,16 @@ package com.jninfo.partograma.partograma.data;
  * bpm", "PA sistolica > X e alerta") precisam ser definidos pela equipe clinica do
  * cliente antes de qualquer alerta poder ser implementado com seguranca.
  *
- * O que existe hoje: os dados que uma regra futura vai precisar ja estao disponiveis e
- * com timestamp real --
+ * JA IMPLEMENTADO (nao depende de nenhum limite clinico, so reflete o que o profissional
+ * registrou explicitamente): quando uma avaliacao do partograma e salva com
+ * "teveIntercorrencia" = true, o documento da paciente recebe "temIntercorrenciaAtiva" =
+ * true (ver {@code FirestorePatientRepository#adicionarRegistro}), e a lista de Pacientes
+ * mostra um selo "Intercorrência registrada" no card correspondente (ver
+ * {@code PacientesAdapter}). Isso e apenas eco de um evento que o profissional ja marcou,
+ * nao um diagnostico nem uma regra automatica.
+ *
+ * O que existe hoje para as regras futuras: os dados que elas vao precisar ja estao
+ * disponiveis e com timestamp real --
  *   - {@link RegistroPartograma#getDataHora()} (avaliacoes do partograma)
  *   - {@link SinalVital#getDataHora()} (sinais vitais)
  *   - {@link Paciente#getUltimoAcesso()} (ultima interacao com a paciente)
@@ -20,9 +28,19 @@ package com.jninfo.partograma.partograma.data;
  * Quando as regras forem definidas pelo cliente, o lugar natural para implementa-las e
  * aqui: um metodo por regra, recebendo os dados ja carregados (nunca fazendo a UI
  * decidir "e hora de alertar"), retornando um resultado que a tela so precisa exibir.
- * Notificacoes push (FCM) exigiriam, alem disso, uma Cloud Function ou um job de
- * servidor observando o Firestore -- o app sozinho (cliente movel) nao consegue
- * notificar outros profissionais enquanto estiver fechado.
+ *
+ * Notificacoes push (FCM) -- avaliacao tecnica: o app sozinho (cliente movel, sem processo
+ * em segundo plano proprio) nao consegue notificar outros profissionais enquanto estiver
+ * fechado. Seria necessario, adicionalmente:
+ *   1. Uma Cloud Function (ou outro servico de servidor) inscrita nas escritas do
+ *      Firestore em "registros" e "sinaisVitais", aplicando as regras clinicas quando
+ *      definidas;
+ *   2. Cada aparelho/profissional inscrito em um topico FCM (ex.: por paciente ou por
+ *      unidade/setor) para receber a notificacao correspondente;
+ *   3. Um SDK de mensageria (Firebase Cloud Messaging) integrado ao app para exibir a
+ *      notificacao recebida.
+ * Nada disso foi implementado nesta etapa porque depende das regras clinicas (item 1) e
+ * de infraestrutura de servidor fora do escopo de um app cliente (itens 2 e 3).
  */
 public final class RegrasClinicas {
 

@@ -45,6 +45,13 @@ public class Paciente {
     private String conduta;
     private String status;              // reflete faseTrabalhoParto do ultimo registro do partograma
 
+    // Sinalizacao visual de intercorrencia (secao "Alertas" do briefing): reflete o campo
+    // "teveIntercorrencia" do ultimo registro do partograma, denormalizado aqui para a lista
+    // de Pacientes poder mostrar o alerta sem buscar a subcolecao "registros" de cada uma.
+    // Nao e um alerta clinico automatico -- so espelha um evento que o profissional marcou
+    // explicitamente ao salvar uma avaliacao. Ver RegrasClinicas.java.
+    private Boolean temIntercorrenciaAtiva;
+
     // ---- Dados da gestante (admissao), pedidos nesta etapa --------------------------------
     private List<String> comorbidades;
     private String comorbidadesOutras;   // texto livre, so preenchido quando "Outras" selecionado
@@ -180,6 +187,14 @@ public class Paciente {
 
     public void setStatus(String status) {
         this.status = status;
+    }
+
+    public Boolean getTemIntercorrenciaAtiva() {
+        return temIntercorrenciaAtiva;
+    }
+
+    public void setTemIntercorrenciaAtiva(Boolean temIntercorrenciaAtiva) {
+        this.temIntercorrenciaAtiva = temIntercorrenciaAtiva;
     }
 
     public List<String> getComorbidades() {

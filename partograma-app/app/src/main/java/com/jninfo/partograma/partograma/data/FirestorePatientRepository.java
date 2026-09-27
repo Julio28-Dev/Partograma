@@ -258,6 +258,8 @@ public class FirestorePatientRepository {
                     if (registro.getFaseTrabalhoParto() != null) {
                         atualizacaoPaciente.put("status", registro.getFaseTrabalhoParto());
                     }
+                    atualizacaoPaciente.put("temIntercorrenciaAtiva",
+                            Boolean.TRUE.equals(registro.getTeveIntercorrencia()));
                     db.collection(COLECAO_PACIENTES).document(pacienteId).update(atualizacaoPaciente);
                     callback.onSucesso();
                 })

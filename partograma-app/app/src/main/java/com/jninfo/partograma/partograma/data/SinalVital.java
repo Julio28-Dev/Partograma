@@ -151,29 +151,41 @@ public class SinalVital {
         this.dataHora = dataHora;
     }
 
-    /** Resumo em uma linha (PA/FC/FR/T/SpO2/Dor), igual ao mostrado na lista de historico. */
+    /**
+     * Resumo em varias linhas (uma por sinal vital: PA, FC, FR, T, SpO2, Dor e, se
+     * preenchido, HGT), no formato pedido pela referencia visual da aba Sinais vitais.
+     */
     @Exclude
     public String getResumo() {
         StringBuilder sb = new StringBuilder();
         if (paSistolica != null && paDiastolica != null) {
-            sb.append("PA: ").append(paSistolica).append("/").append(paDiastolica).append(" mmHg  |  ");
+            adicionarLinha(sb, "PA " + paSistolica + "/" + paDiastolica + " mmHg");
         }
         if (frequenciaCardiaca != null) {
-            sb.append("FC: ").append(frequenciaCardiaca).append(" bpm  |  ");
+            adicionarLinha(sb, "FC " + frequenciaCardiaca + " bpm");
         }
         if (frequenciaRespiratoria != null) {
-            sb.append("FR: ").append(frequenciaRespiratoria).append(" irpm  |  ");
+            adicionarLinha(sb, "FR " + frequenciaRespiratoria + " irpm");
         }
         if (temperatura != null) {
-            sb.append("T: ").append(temperatura).append(" °C  |  ");
+            adicionarLinha(sb, "T " + temperatura + " °C");
         }
         if (spo2 != null) {
-            sb.append("SpO2: ").append(spo2).append("%  |  ");
+            adicionarLinha(sb, "SpO2 " + spo2 + "%");
         }
         if (dor != null) {
-            sb.append("Dor: ").append(dor).append("/10");
+            adicionarLinha(sb, "Dor " + dor + "/10");
         }
-        String resultado = sb.toString();
-        return resultado.endsWith("  |  ") ? resultado.substring(0, resultado.length() - 5) : resultado;
+        if (hgt != null) {
+            adicionarLinha(sb, "HGT " + hgt + " mg/dL");
+        }
+        return sb.toString();
+    }
+
+    private void adicionarLinha(StringBuilder sb, String linha) {
+        if (sb.length() > 0) {
+            sb.append('\n');
+        }
+        sb.append(linha);
     }
 }

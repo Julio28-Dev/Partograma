@@ -50,6 +50,10 @@ public class PacienteDetalhesActivity extends BaseActivity {
 
     private TextView txtNomeCabecalho;
     private TextView txtSubtituloCabecalho;
+    private TextView txtStatusCabecalho;
+    private TextView txtUltimaDataCabecalho;
+    private TextView txtHoraRegistroCabecalho;
+    private TextView txtIgCabecalho;
     private LinearLayout containerDadosPaciente;
     private LinearLayout containerEvolucao;
     private ProgressBar progressDetalhes;
@@ -78,8 +82,8 @@ public class PacienteDetalhesActivity extends BaseActivity {
     private View btnViaCesarea;
     private String viaDePartoEscolhida = "Parto vaginal";
     private android.widget.EditText edtDataParto;
-    private android.widget.EditText edtApresentacaoFetal;
-    private android.widget.EditText edtPosicaoVariedade;
+    private Spinner spinnerApresentacaoFetal;
+    private Spinner spinnerPosicaoVariedade;
     private Spinner spinnerLaceracaoPerineal;
     private Spinner spinnerDequitacao;
     private Spinner spinnerPlacenta;
@@ -102,10 +106,10 @@ public class PacienteDetalhesActivity extends BaseActivity {
     private View btnAmamentacaoNao;
     private boolean amamentacaoEscolhida = true;
     private android.widget.EditText edtIntercorrenciasRn;
-    private android.widget.EditText edtCondicaoMaterna;
-    private android.widget.EditText edtCondicaoRn;
-    private android.widget.EditText edtDestinoPuerpera;
-    private android.widget.EditText edtDestinoRn;
+    private Spinner spinnerCondicaoMaterna;
+    private Spinner spinnerCondicaoRn;
+    private Spinner spinnerDestinoPuerpera;
+    private Spinner spinnerDestinoRn;
     private android.widget.EditText edtProfissionalDesfecho;
     private android.widget.EditText edtCorenDesfecho;
     private android.widget.EditText edtObservacoesFinais;
@@ -122,6 +126,10 @@ public class PacienteDetalhesActivity extends BaseActivity {
 
         txtNomeCabecalho = findViewById(R.id.txtNomeCabecalho);
         txtSubtituloCabecalho = findViewById(R.id.txtSubtituloCabecalho);
+        txtStatusCabecalho = findViewById(R.id.txtStatusCabecalho);
+        txtUltimaDataCabecalho = findViewById(R.id.txtUltimaDataCabecalho);
+        txtHoraRegistroCabecalho = findViewById(R.id.txtHoraRegistroCabecalho);
+        txtIgCabecalho = findViewById(R.id.txtIgCabecalho);
         containerDadosPaciente = findViewById(R.id.containerDadosPaciente);
         containerEvolucao = findViewById(R.id.containerEvolucao);
         progressDetalhes = findViewById(R.id.progressDetalhes);
@@ -272,6 +280,13 @@ public class PacienteDetalhesActivity extends BaseActivity {
             subtitulo += "  •  " + idade + " anos";
         }
         txtSubtituloCabecalho.setText(subtitulo);
+
+        String status = paciente.getStatus() != null ? paciente.getStatus() : getString(R.string.pacientes_status_avaliacao);
+        txtStatusCabecalho.setText(status);
+        StatusPacienteUtil.aplicar(txtStatusCabecalho, status);
+
+        String ig = paciente.getIdadeGestacional();
+        txtIgCabecalho.setText(ig != null ? ig : "-");
     }
 
     private void preencherDados(Paciente paciente) {
@@ -373,7 +388,26 @@ public class PacienteDetalhesActivity extends BaseActivity {
         });
     }
 
+    /** "Última Data" e "Hora de Registro" no cartao do cabecalho, a partir do registro mais recente. */
+    private void atualizarMetricasCabecalho(List<RegistroPartograma> registros) {
+        if (registros.isEmpty()) {
+            txtUltimaDataCabecalho.setText("-");
+            txtHoraRegistroCabecalho.setText("-");
+            return;
+        }
+        RegistroPartograma ultimo = registros.get(0);
+        String horario = ultimo.getHorario() != null ? ultimo.getHorario() : "-";
+        txtHoraRegistroCabecalho.setText(horario);
+        if (ultimo.getDataHora() != null) {
+            String data = new SimpleDateFormat("dd/MM", Locale.getDefault()).format(ultimo.getDataHora());
+            txtUltimaDataCabecalho.setText(data + ", " + horario);
+        } else {
+            txtUltimaDataCabecalho.setText(horario);
+        }
+    }
+
     private void preencherPartograma(List<RegistroPartograma> registros) {
+        atualizarMetricasCabecalho(registros);
         preencherIndicador(indicadorDilatacao, R.drawable.ic_feature_chart, R.string.partograma_card_dilatacao,
                 registros.isEmpty() || registros.get(0).getDilatacao() == null ? getString(R.string.partograma_sem_dados)
                         : formatarDilatacao(registros.get(0).getDilatacao()),
@@ -465,6 +499,8 @@ public class PacienteDetalhesActivity extends BaseActivity {
             vazio.setText(R.string.sinais_vitais_historico_vazio);
             vazio.setTextColor(ContextCompat.getColor(this, R.color.textSecondary));
             vazio.setTextSize(13f);
+            vazio.setBackgroundResource(R.drawable.bg_card_surface);
+            vazio.setPadding(16, 16, 16, 16);
             containerHistoricoSinaisVitais.addView(vazio);
             return;
         }
@@ -474,7 +510,7 @@ public class PacienteDetalhesActivity extends BaseActivity {
             TextView txtResumo = linha.findViewById(R.id.txtResumoSinal);
             String horario = sinal.getHorario() != null ? sinal.getHorario() : "";
             String data = sinal.getDataAfericao() != null ? sinal.getDataAfericao() : "";
-            txtDataHora.setText(horario + (data.isEmpty() ? "" : " · " + data));
+            txtDataHora.setText(horario + (data.isEmpty() ? "" : " - " + data));
             txtResumo.setText(sinal.getResumo());
             containerHistoricoSinaisVitais.addView(linha);
         }
@@ -589,8 +625,8 @@ public class PacienteDetalhesActivity extends BaseActivity {
         btnViaVaginal = findViewById(R.id.btnViaVaginal);
         btnViaCesarea = findViewById(R.id.btnViaCesarea);
         edtDataParto = findViewById(R.id.edtDataParto);
-        edtApresentacaoFetal = findViewById(R.id.edtApresentacaoFetal);
-        edtPosicaoVariedade = findViewById(R.id.edtPosicaoVariedade);
+        spinnerApresentacaoFetal = findViewById(R.id.spinnerApresentacaoFetal);
+        spinnerPosicaoVariedade = findViewById(R.id.spinnerPosicaoVariedade);
         spinnerLaceracaoPerineal = findViewById(R.id.spinnerLaceracaoPerineal);
         spinnerDequitacao = findViewById(R.id.spinnerDequitacao);
         spinnerPlacenta = findViewById(R.id.spinnerPlacenta);
@@ -610,19 +646,37 @@ public class PacienteDetalhesActivity extends BaseActivity {
         btnAmamentacaoSim = findViewById(R.id.btnAmamentacaoSim);
         btnAmamentacaoNao = findViewById(R.id.btnAmamentacaoNao);
         edtIntercorrenciasRn = findViewById(R.id.edtIntercorrenciasRn);
-        edtCondicaoMaterna = findViewById(R.id.edtCondicaoMaterna);
-        edtCondicaoRn = findViewById(R.id.edtCondicaoRn);
-        edtDestinoPuerpera = findViewById(R.id.edtDestinoPuerpera);
-        edtDestinoRn = findViewById(R.id.edtDestinoRn);
+        spinnerCondicaoMaterna = findViewById(R.id.spinnerCondicaoMaterna);
+        spinnerCondicaoRn = findViewById(R.id.spinnerCondicaoRn);
+        spinnerDestinoPuerpera = findViewById(R.id.spinnerDestinoPuerpera);
+        spinnerDestinoRn = findViewById(R.id.spinnerDestinoRn);
         edtProfissionalDesfecho = findViewById(R.id.edtProfissionalDesfecho);
         edtCorenDesfecho = findViewById(R.id.edtCorenDesfecho);
         edtObservacoesFinais = findViewById(R.id.edtObservacoesFinais);
         btnSalvarDesfecho = findViewById(R.id.btnSalvarDesfecho);
         progressDesfecho = findViewById(R.id.progressDesfecho);
 
+        configurarSpinnerSimples(spinnerApresentacaoFetal, R.array.opcoes_apresentacao_fetal);
         configurarSpinnerSimples(spinnerLaceracaoPerineal, R.array.opcoes_laceracao_perineal);
         configurarSpinnerSimples(spinnerDequitacao, R.array.opcoes_dequitacao);
         configurarSpinnerSimples(spinnerPlacenta, R.array.opcoes_placenta);
+        configurarSpinnerSimples(spinnerCondicaoMaterna, R.array.opcoes_condicao_saude);
+        configurarSpinnerSimples(spinnerCondicaoRn, R.array.opcoes_condicao_saude);
+        configurarSpinnerSimples(spinnerDestinoPuerpera, R.array.opcoes_destino_puerpera);
+        configurarSpinnerSimples(spinnerDestinoRn, R.array.opcoes_destino_rn);
+        atualizarOpcoesVariedade();
+
+        spinnerApresentacaoFetal.setOnItemSelectedListener(new android.widget.AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(android.widget.AdapterView<?> parent, View view, int position, long id) {
+                atualizarOpcoesVariedade();
+            }
+
+            @Override
+            public void onNothingSelected(android.widget.AdapterView<?> parent) {
+                // Sem selecao nao ha apresentacao definida ainda -- nada a atualizar.
+            }
+        });
 
         btnViaVaginal.setOnClickListener(v -> selecionarVia(getString(R.string.desfecho_via_vaginal)));
         btnViaCesarea.setOnClickListener(v -> selecionarVia(getString(R.string.desfecho_via_cesarea)));
@@ -641,6 +695,26 @@ public class PacienteDetalhesActivity extends BaseActivity {
                 this, arrayRes, android.R.layout.simple_spinner_item);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spinner.setAdapter(adapter);
+    }
+
+    /**
+     * As opcoes de "Posicao/variedade de posicao" dependem da apresentacao fetal escolhida
+     * (pedido explicito do cliente). Ao trocar a apresentacao, o adapter da variedade e
+     * reconstruido do zero com o array correspondente -- isso automaticamente "limpa"
+     * qualquer selecao anterior incompativel, ja que a variedade volta para a primeira
+     * opcao valida do novo conjunto, nunca mantendo um valor da apresentacao anterior.
+     */
+    private void atualizarOpcoesVariedade() {
+        String apresentacao = (String) spinnerApresentacaoFetal.getSelectedItem();
+        int arrayRes;
+        if (getString(R.string.desfecho_apresentacao_pelvica).equals(apresentacao)) {
+            arrayRes = R.array.opcoes_variedade_pelvica;
+        } else if (getString(R.string.desfecho_apresentacao_cormica).equals(apresentacao)) {
+            arrayRes = R.array.opcoes_variedade_cormica;
+        } else {
+            arrayRes = R.array.opcoes_variedade_cefalica;
+        }
+        configurarSpinnerSimples(spinnerPosicaoVariedade, arrayRes);
     }
 
     private void selecionarVia(String via) {
@@ -723,8 +797,9 @@ public class PacienteDetalhesActivity extends BaseActivity {
             selecionarVia(d.getViaDeParto());
         }
         edtDataParto.setText(d.getDataParto());
-        edtApresentacaoFetal.setText(d.getApresentacaoFetal());
-        edtPosicaoVariedade.setText(d.getPosicaoVariedade());
+        selecionarValorSpinner(spinnerApresentacaoFetal, d.getApresentacaoFetal());
+        atualizarOpcoesVariedade();
+        selecionarValorSpinner(spinnerPosicaoVariedade, d.getPosicaoVariedade());
         selecionarValorSpinner(spinnerLaceracaoPerineal, d.getLaceracaoPerineal());
         selecionarValorSpinner(spinnerDequitacao, d.getDequitacao());
         selecionarValorSpinner(spinnerPlacenta, d.getPlacenta());
@@ -743,10 +818,10 @@ public class PacienteDetalhesActivity extends BaseActivity {
         if (d.getContatoPeleAPele() != null) selecionarContatoPele(d.getContatoPeleAPele());
         if (d.getAmamentacaoPrimeiraHora() != null) selecionarAmamentacao(d.getAmamentacaoPrimeiraHora());
         edtIntercorrenciasRn.setText(d.getIntercorrenciasRn());
-        edtCondicaoMaterna.setText(d.getCondicaoMaterna());
-        edtCondicaoRn.setText(d.getCondicaoRn());
-        edtDestinoPuerpera.setText(d.getDestinoPuerpera());
-        edtDestinoRn.setText(d.getDestinoRn());
+        selecionarValorSpinner(spinnerCondicaoMaterna, d.getCondicaoMaterna());
+        selecionarValorSpinner(spinnerCondicaoRn, d.getCondicaoRn());
+        selecionarValorSpinner(spinnerDestinoPuerpera, d.getDestinoPuerpera());
+        selecionarValorSpinner(spinnerDestinoRn, d.getDestinoRn());
         edtProfissionalDesfecho.setText(d.getProfissionalResponsavel());
         edtCorenDesfecho.setText(d.getCoren());
         edtObservacoesFinais.setText(d.getObservacoesFinais());
@@ -768,8 +843,8 @@ public class PacienteDetalhesActivity extends BaseActivity {
         DesfechoParto desfecho = new DesfechoParto();
         desfecho.setViaDeParto(viaDePartoEscolhida);
         desfecho.setDataParto(textoOuNulo(edtDataParto));
-        desfecho.setApresentacaoFetal(textoOuNulo(edtApresentacaoFetal));
-        desfecho.setPosicaoVariedade(textoOuNulo(edtPosicaoVariedade));
+        desfecho.setApresentacaoFetal((String) spinnerApresentacaoFetal.getSelectedItem());
+        desfecho.setPosicaoVariedade((String) spinnerPosicaoVariedade.getSelectedItem());
         desfecho.setLaceracaoPerineal((String) spinnerLaceracaoPerineal.getSelectedItem());
         desfecho.setDequitacao((String) spinnerDequitacao.getSelectedItem());
         desfecho.setPlacenta((String) spinnerPlacenta.getSelectedItem());
@@ -786,10 +861,10 @@ public class PacienteDetalhesActivity extends BaseActivity {
         desfecho.setContatoPeleAPele(contatoPeleEscolhido);
         desfecho.setAmamentacaoPrimeiraHora(amamentacaoEscolhida);
         desfecho.setIntercorrenciasRn(textoOuNulo(edtIntercorrenciasRn));
-        desfecho.setCondicaoMaterna(textoOuNulo(edtCondicaoMaterna));
-        desfecho.setCondicaoRn(textoOuNulo(edtCondicaoRn));
-        desfecho.setDestinoPuerpera(textoOuNulo(edtDestinoPuerpera));
-        desfecho.setDestinoRn(textoOuNulo(edtDestinoRn));
+        desfecho.setCondicaoMaterna((String) spinnerCondicaoMaterna.getSelectedItem());
+        desfecho.setCondicaoRn((String) spinnerCondicaoRn.getSelectedItem());
+        desfecho.setDestinoPuerpera((String) spinnerDestinoPuerpera.getSelectedItem());
+        desfecho.setDestinoRn((String) spinnerDestinoRn.getSelectedItem());
         desfecho.setProfissionalResponsavel(textoOuNulo(edtProfissionalDesfecho));
         desfecho.setCoren(textoOuNulo(edtCorenDesfecho));
         desfecho.setObservacoesFinais(textoOuNulo(edtObservacoesFinais));

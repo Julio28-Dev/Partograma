@@ -1,28 +1,47 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    android:layout_marginBottom="10dp"
+    android:background="@drawable/bg_card_surface"
+    android:elevation="2dp"
     android:orientation="vertical"
-    android:paddingTop="10dp"
-    android:paddingBottom="10dp">
+    android:padding="14dp">
 
-    <TextView
-        android:id="@+id/txtDataHoraSinal"
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:textColor="@color/textPrimary"
-        android:textSize="13sp"
-        android:textStyle="bold"
-        tools:text="14:20 · 14/09/2026" />
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
+
+        <ImageView
+            android:layout_width="16dp"
+            android:layout_height="16dp"
+            android:importantForAccessibility="no"
+            android:src="@drawable/ic_feature_pulse"
+            app:tint="@color/softTeal" />
+
+        <TextView
+            android:id="@+id/txtDataHoraSinal"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="6dp"
+            android:textColor="@color/textPrimary"
+            android:textSize="13sp"
+            android:textStyle="bold"
+            tools:text="14:20 - 14/09/2026" />
+    </LinearLayout>
 
     <TextView
         android:id="@+id/txtResumoSinal"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="2dp"
+        android:layout_marginTop="6dp"
+        android:lineSpacingExtra="3dp"
         android:textColor="@color/textSecondary"
-        android:textSize="12sp"
-        tools:text="PA: 118/76 mmHg | FC: 82 bpm | FR: 18 irpm" />
+        android:textSize="12.5sp"
+        tools:text="PA 118/76 mmHg\nFC 82 bpm\nFR 18 irpm\nT 36.6 °C\nSpO2 98%\nDor 2/10" />
 
 </LinearLayout>

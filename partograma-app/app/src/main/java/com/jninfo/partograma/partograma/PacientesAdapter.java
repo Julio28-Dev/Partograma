@@ -7,7 +7,6 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
-import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.jninfo.partograma.partograma.data.Paciente;
@@ -70,6 +69,7 @@ public class PacientesAdapter extends RecyclerView.Adapter<PacientesAdapter.Paci
         private final TextView txtProntuarioIdade;
         private final TextView txtStatus;
         private final TextView txtUltimoAcesso;
+        private final TextView txtAlertaIntercorrencia;
 
         PacienteViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -77,6 +77,7 @@ public class PacientesAdapter extends RecyclerView.Adapter<PacientesAdapter.Paci
             txtProntuarioIdade = itemView.findViewById(R.id.txtProntuarioIdade);
             txtStatus = itemView.findViewById(R.id.txtStatusPaciente);
             txtUltimoAcesso = itemView.findViewById(R.id.txtUltimoAcesso);
+            txtAlertaIntercorrencia = itemView.findViewById(R.id.txtAlertaIntercorrencia);
         }
 
         void bind(Paciente paciente, OnPacienteClickListener listener, OnPacienteLongClickListener longClickListener) {
@@ -94,7 +95,10 @@ public class PacientesAdapter extends RecyclerView.Adapter<PacientesAdapter.Paci
                     ? paciente.getStatus()
                     : itemView.getContext().getString(R.string.pacientes_status_avaliacao);
             txtStatus.setText(status);
-            aplicarCorStatus(status);
+            StatusPacienteUtil.aplicar(txtStatus, status);
+
+            txtAlertaIntercorrencia.setVisibility(
+                    Boolean.TRUE.equals(paciente.getTemIntercorrenciaAtiva()) ? View.VISIBLE : View.GONE);
 
             if (paciente.getUltimoAcesso() != null) {
                 CharSequence dataFormatada = DateFormat.format("dd/MM/yyyy - HH:mm", paciente.getUltimoAcesso());
@@ -117,31 +121,5 @@ public class PacientesAdapter extends RecyclerView.Adapter<PacientesAdapter.Paci
             });
         }
 
-        /**
-         * O status vem de "Fase do trabalho de parto" (6 valores definidos pelo cliente:
-         * Em avaliação / Fase latente / Fase ativa / Período expulsivo / Dequitação /
-         * Período de Greenberg). Agrupamos essas 6 fases em 3 cores ja existentes no app
-         * (rosa = fase mais critica/ativa, lilas = fase intermediaria, teal = inicial/
-         * neutra) -- e mantemos o antigo "Trabalho de parto ativo" (status padrao usado
-         * antes desta etapa) mapeado como rosa, para pacientes cadastradas antes dela.
-         */
-        private void aplicarCorStatus(String status) {
-            android.content.Context context = itemView.getContext();
-            boolean fasePink = "Fase ativa".equals(status)
-                    || "Período expulsivo".equals(status)
-                    || context.getString(R.string.pacientes_status_trabalho_ativo).equals(status);
-            boolean faseLilac = "Fase latente".equals(status) || "Dequitação".equals(status);
-
-            if (fasePink) {
-                txtStatus.setBackgroundResource(R.drawable.bg_badge_pink);
-                txtStatus.setTextColor(ContextCompat.getColor(context, R.color.primaryPink));
-            } else if (faseLilac) {
-                txtStatus.setBackgroundResource(R.drawable.bg_badge_lilac);
-                txtStatus.setTextColor(ContextCompat.getColor(context, R.color.softPurple));
-            } else {
-                txtStatus.setBackgroundResource(R.drawable.bg_badge_teal);
-                txtStatus.setTextColor(ContextCompat.getColor(context, R.color.softTeal));
-            }
-        }
     }
 }

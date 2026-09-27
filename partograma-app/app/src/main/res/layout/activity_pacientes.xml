@@ -22,46 +22,48 @@
             android:gravity="center_vertical"
             android:orientation="horizontal">
 
-            <TextView
+            <ImageView
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:importantForAccessibility="no"
+                android:scaleType="fitCenter"
+                android:src="@drawable/img_logo_maternidade" />
+
+            <LinearLayout
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="@string/pacientes_titulo"
-                android:textColor="@color/textPrimary"
-                android:textSize="26sp"
-                android:textStyle="bold" />
+                android:layout_marginStart="10dp"
+                android:orientation="vertical">
 
-            <TextView
-                android:id="@+id/txtTotalPacientes"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:background="@drawable/bg_badge_teal"
-                android:paddingStart="14dp"
-                android:paddingEnd="14dp"
-                android:paddingTop="5dp"
-                android:paddingBottom="5dp"
-                android:textColor="@color/softTeal"
-                android:textStyle="bold"
-                tools:text="12" />
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/pacientes_titulo"
+                    android:textColor="@color/textPrimary"
+                    android:textSize="24sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="1dp"
+                    android:text="@string/pacientes_subtitulo"
+                    android:textColor="@color/textSecondary"
+                    android:textSize="12.5sp" />
+            </LinearLayout>
 
             <ImageView
                 android:id="@+id/btnConfiguracoes"
                 android:layout_width="40dp"
                 android:layout_height="40dp"
-                android:layout_marginStart="4dp"
-                android:background="?android:attr/selectableItemBackgroundBorderless"
-                android:padding="8dp"
+                android:layout_marginStart="6dp"
+                android:background="@drawable/bg_avatar_circle"
+                android:foreground="?android:attr/selectableItemBackgroundBorderless"
+                android:padding="9dp"
                 android:src="@drawable/ic_settings"
                 android:contentDescription="@string/configuracoes_titulo" />
         </LinearLayout>
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="2dp"
-            android:text="@string/pacientes_subtitulo"
-            android:textColor="@color/textSecondary"
-            android:textSize="13sp" />
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -94,32 +96,81 @@
         </LinearLayout>
 
         <LinearLayout
-            android:id="@+id/btnAdicionarPaciente"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="14dp"
-            android:background="@drawable/bg_button_primary"
-            android:clickable="true"
-            android:focusable="true"
-            android:gravity="center"
-            android:orientation="horizontal"
-            android:paddingTop="13dp"
-            android:paddingBottom="13dp">
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
 
-            <ImageView
-                android:layout_width="18dp"
-                android:layout_height="18dp"
-                android:importantForAccessibility="no"
-                android:src="@drawable/ic_add" />
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:background="@drawable/bg_card_surface"
+                android:elevation="2dp"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:padding="12dp">
 
-            <TextView
+                <ImageView
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:importantForAccessibility="no"
+                    android:src="@drawable/ic_patient"
+                    app:tint="@color/primaryPink" />
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:id="@+id/txtTotalPacientes"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textColor="@color/textPrimary"
+                        android:textSize="16sp"
+                        android:textStyle="bold"
+                        tools:text="12" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/pacientes_contagem_legenda"
+                        android:textColor="@color/textSecondary"
+                        android:textSize="11sp" />
+                </LinearLayout>
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/btnAdicionarPaciente"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="8dp"
-                android:text="@string/pacientes_adicionar"
-                android:textColor="#FFFFFFFF"
-                android:textSize="14.5sp"
-                android:textStyle="bold" />
+                android:layout_height="match_parent"
+                android:layout_marginStart="10dp"
+                android:background="@drawable/bg_button_primary"
+                android:clickable="true"
+                android:focusable="true"
+                android:gravity="center"
+                android:orientation="horizontal"
+                android:paddingStart="16dp"
+                android:paddingEnd="16dp">
+
+                <ImageView
+                    android:layout_width="16dp"
+                    android:layout_height="16dp"
+                    android:importantForAccessibility="no"
+                    android:src="@drawable/ic_add" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="6dp"
+                    android:text="@string/pacientes_adicionar"
+                    android:textColor="#FFFFFFFF"
+                    android:textSize="13.5sp"
+                    android:textStyle="bold" />
+            </LinearLayout>
         </LinearLayout>
     </LinearLayout>
 
@@ -177,6 +228,18 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:indeterminateTint="@color/primaryPink" />
+
+        <ImageView
+            android:id="@+id/btnAdicionarPacienteFab"
+            android:layout_width="56dp"
+            android:layout_height="56dp"
+            android:layout_gravity="bottom|end"
+            android:layout_margin="20dp"
+            android:background="@drawable/bg_fab_primary"
+            android:contentDescription="@string/pacientes_adicionar"
+            android:elevation="6dp"
+            android:padding="16dp"
+            android:src="@drawable/ic_add" />
     </FrameLayout>
 
 </LinearLayout>
