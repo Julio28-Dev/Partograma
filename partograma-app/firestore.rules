@@ -11,6 +11,23 @@
 // dado, porque o app original tambem nunca teve login: toda a equipe usa o mesmo
 // aplicativo igualmente. Autenticacao anonima bloqueia scripts aleatorios na internet
 // sem exigir nenhuma tela de login nova.
+//
+// Login institucional (LoginActivity, Firebase Auth email/senha): cada instituicao tem uma
+// conta propria (criada manualmente no Firebase Console, sem tela de cadastro publico).
+// Fazer login com e-mail/senha substitui a sessao anonima do aparelho -- "estaAutenticado()"
+// continua valendo para os dois casos, entao "pacientes" (colecao antiga, sem conceito de
+// instituicao) nao foi restringida por instituicao aqui: os poucos documentos ja existentes
+// nao tem o campo "institutionId" e uma regra que exigisse esse campo bateria de frente com
+// a limitacao do Firestore de nao conseguir filtrar consultas de lista parcialmente por
+// regra (ou a consulta inteira e permitida, ou inteira negada) -- ou seja, teria feito os
+// cadastros antigos desaparecerem da lista de Pacientes para todo mundo, o que o cliente
+// pediu explicitamente para nao acontecer. Fica documentado como pendente: para isolamento
+// completo entre instituicoes na colecao "pacientes", seria necessario decidir a quem
+// atribuir os cadastros antigos (ou aceitar que continuem compartilhados) e so entao trocar
+// a consulta do app para filtrar por institutionId com a regra correspondente.
+//
+// A colecao nova "instituicoes" (mensagem padrao de alerta, destinatarios, historico de
+// alertas) e isolada de verdade desde o primeiro dia, sem esse problema de dado legado.
 rules_version = '2';
 
 service cloud.firestore {
@@ -34,6 +51,22 @@ service cloud.firestore {
       // Afericoes de sinais vitais (aba "Sinais vitais", independente do partograma).
       match /sinaisVitais/{sinalVitalId} {
         allow read, write: if estaAutenticado();
+      }
+    }
+
+    // Dados da instituicao logada: mensagem padrao de alerta, destinatarios autorizados e
+    // historico de alertas emitidos. institutionId e sempre o uid do Firebase Auth de quem
+    // fez login (LoginActivity) -- por isso da para isolar de verdade aqui, diferente de
+    // "pacientes" (ver comentario no topo do arquivo).
+    match /instituicoes/{institutionId} {
+      allow read, write: if estaAutenticado() && request.auth.uid == institutionId;
+
+      match /destinatarios/{destinatarioId} {
+        allow read, write: if estaAutenticado() && request.auth.uid == institutionId;
+      }
+
+      match /alertas/{alertaId} {
+        allow read, write: if estaAutenticado() && request.auth.uid == institutionId;
       }
     }
 

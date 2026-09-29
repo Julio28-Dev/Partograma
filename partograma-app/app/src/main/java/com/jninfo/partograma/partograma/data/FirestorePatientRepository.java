@@ -128,6 +128,7 @@ public class FirestorePatientRepository {
         dados.put("comorbidades", paciente.getComorbidades());
         dados.put("comorbidadesOutras", paciente.getComorbidadesOutras());
         dados.put("classificacaoRisco", paciente.getClassificacaoRisco());
+        dados.put("institutionId", InstituicaoRepository.instituicaoIdAtual());
         dados.put("horaAtual", "ainda sem");
         dados.put("avisoBatimento", "ainda sem");
         dados.put("avisoLee", "ainda sem");

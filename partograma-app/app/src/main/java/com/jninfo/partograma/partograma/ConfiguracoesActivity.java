@@ -87,6 +87,26 @@ public class ConfiguracoesActivity extends BaseActivity {
         findViewById(R.id.btnLimparCache).setOnClickListener(v -> limparCache());
         findViewById(R.id.btnSobreApp).setOnClickListener(v -> mostrarSobre());
         findViewById(R.id.btnAjudaSuporte).setOnClickListener(v -> startActivity(new Intent(this, TelaInicial.class)));
+        findViewById(R.id.btnGerenciarAlertas).setOnClickListener(v -> startActivity(new Intent(this, AlertasActivity.class)));
+        findViewById(R.id.btnSair).setOnClickListener(v -> confirmarSaida());
+    }
+
+    private void confirmarSaida() {
+        new AlertDialog.Builder(this)
+                .setTitle(R.string.config_sair_confirmar_titulo)
+                .setMessage(R.string.config_sair_confirmar_mensagem)
+                .setNegativeButton(android.R.string.cancel, null)
+                .setPositiveButton(R.string.config_sair, (dialog, which) -> sair())
+                .create()
+                .show();
+    }
+
+    private void sair() {
+        com.google.firebase.auth.FirebaseAuth.getInstance().signOut();
+        Intent intent = new Intent(this, HomeActivity.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        startActivity(intent);
+        finish();
     }
 
     private int indiceTema(String tema) {

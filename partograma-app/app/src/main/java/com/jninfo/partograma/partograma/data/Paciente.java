@@ -45,6 +45,13 @@ public class Paciente {
     private String conduta;
     private String status;              // reflete faseTrabalhoParto do ultimo registro do partograma
 
+    // Instituicao (login institucional) que cadastrou esta paciente -- e o uid do Firebase
+    // Auth de quem estava logado no momento do cadastro. So existe em pacientes cadastradas
+    // depois da introducao do login institucional; pacientes antigas (cadastradas quando o
+    // app so tinha autenticacao anonima) ficam com este campo nulo. Ver InstituicaoRepository
+    // e o comentario sobre isolamento entre instituicoes em firestore.rules.
+    private String institutionId;
+
     // Sinalizacao visual de intercorrencia (secao "Alertas" do briefing): reflete o campo
     // "teveIntercorrencia" do ultimo registro do partograma, denormalizado aqui para a lista
     // de Pacientes poder mostrar o alerta sem buscar a subcolecao "registros" de cada uma.
@@ -187,6 +194,14 @@ public class Paciente {
 
     public void setStatus(String status) {
         this.status = status;
+    }
+
+    public String getInstitutionId() {
+        return institutionId;
+    }
+
+    public void setInstitutionId(String institutionId) {
+        this.institutionId = institutionId;
     }
 
     public Boolean getTemIntercorrenciaAtiva() {

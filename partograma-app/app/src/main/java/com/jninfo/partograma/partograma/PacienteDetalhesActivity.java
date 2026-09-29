@@ -225,12 +225,116 @@ public class PacienteDetalhesActivity extends BaseActivity {
 
     private void abrirMenuPaciente(View ancora) {
         PopupMenu menu = new PopupMenu(this, ancora);
-        menu.getMenu().add(getString(R.string.excluir_paciente_menu));
+        menu.getMenu().add(0, 1, 0, getString(R.string.alerta_emitir_menu));
+        menu.getMenu().add(0, 2, 1, getString(R.string.excluir_paciente_menu));
         menu.setOnMenuItemClickListener(item -> {
-            confirmarExclusao();
+            if (item.getItemId() == 1) {
+                abrirEmitirAlerta();
+            } else {
+                confirmarExclusao();
+            }
             return true;
         });
         menu.show();
+    }
+
+    // ---- Alertas -------------------------------------------------------------------------
+
+    private void abrirEmitirAlerta() {
+        String institutionId = com.jninfo.partograma.partograma.data.InstituicaoRepository.instituicaoIdAtual();
+        if (institutionId == null) {
+            Toast.makeText(this, R.string.login_erro_generico, Toast.LENGTH_LONG).show();
+            return;
+        }
+        com.jninfo.partograma.partograma.data.InstituicaoRepository instituicaoRepositorio =
+                new com.jninfo.partograma.partograma.data.InstituicaoRepository();
+
+        // Escuta so o primeiro retorno (um "get" pontual) -- esta lista e usada uma unica vez
+        // para montar o dialogo, nao precisa de um listener continuo como no AlertasActivity.
+        final com.google.firebase.firestore.ListenerRegistration[] listenerRef = new com.google.firebase.firestore.ListenerRegistration[1];
+        listenerRef[0] = instituicaoRepositorio.observarDestinatarios(institutionId,
+                new com.jninfo.partograma.partograma.data.InstituicaoRepository.ListaDestinatariosCallback() {
+                    @Override
+                    public void onAtualizados(List<com.jninfo.partograma.partograma.data.Destinatario> destinatarios) {
+                        if (listenerRef[0] != null) {
+                            listenerRef[0].remove();
+                        }
+                        if (destinatarios.isEmpty()) {
+                            new AlertDialog.Builder(PacienteDetalhesActivity.this)
+                                    .setTitle(R.string.alerta_emitir_titulo)
+                                    .setMessage(R.string.alerta_emitir_sem_destinatarios)
+                                    .setPositiveButton(android.R.string.ok, null)
+                                    .show();
+                            return;
+                        }
+                        instituicaoRepositorio.carregarMensagemPadrao(institutionId,
+                                new com.jninfo.partograma.partograma.data.InstituicaoRepository.TextoCallback() {
+                                    @Override
+                                    public void onCarregado(@Nullable String mensagemPadrao) {
+                                        mostrarDialogoEmitirAlerta(instituicaoRepositorio, institutionId, destinatarios, mensagemPadrao);
+                                    }
+
+                                    @Override
+                                    public void onErro(Exception erro) {
+                                        mostrarDialogoEmitirAlerta(instituicaoRepositorio, institutionId, destinatarios, null);
+                                    }
+                                });
+                    }
+
+                    @Override
+                    public void onErro(Exception erro) {
+                        if (listenerRef[0] != null) {
+                            listenerRef[0].remove();
+                        }
+                        Toast.makeText(PacienteDetalhesActivity.this, R.string.alerta_emitir_erro, Toast.LENGTH_LONG).show();
+                    }
+                });
+    }
+
+    private void mostrarDialogoEmitirAlerta(com.jninfo.partograma.partograma.data.InstituicaoRepository instituicaoRepositorio,
+                                             String institutionId,
+                                             List<com.jninfo.partograma.partograma.data.Destinatario> destinatarios,
+                                             @Nullable String mensagemPadrao) {
+        android.widget.EditText campoMensagem = new android.widget.EditText(this);
+        campoMensagem.setHint(getString(R.string.alerta_emitir_mensagem_label));
+        campoMensagem.setMinLines(2);
+        if (mensagemPadrao != null) {
+            campoMensagem.setText(mensagemPadrao);
+        }
+        int paddingPx = (int) (20 * getResources().getDisplayMetrics().density);
+        campoMensagem.setPadding(paddingPx, paddingPx, paddingPx, paddingPx);
+
+        List<String> nomes = new ArrayList<>();
+        for (com.jninfo.partograma.partograma.data.Destinatario destinatario : destinatarios) {
+            nomes.add(destinatario.getNome());
+        }
+
+        new AlertDialog.Builder(this)
+                .setTitle(R.string.alerta_emitir_titulo)
+                .setMessage((nomePaciente != null ? nomePaciente : "") + "\n\n"
+                        + getString(R.string.alertas_destinatarios_titulo) + ": " + TextUtils.join(", ", nomes))
+                .setView(campoMensagem)
+                .setNegativeButton(R.string.excluir_paciente_cancelar, null)
+                .setPositiveButton(R.string.alerta_emitir_confirmar, (dialog, which) -> {
+                    com.jninfo.partograma.partograma.data.RegistroAlerta alerta = new com.jninfo.partograma.partograma.data.RegistroAlerta();
+                    alerta.setPacienteId(pacienteId);
+                    alerta.setPacienteNome(nomePaciente);
+                    alerta.setMensagem(campoMensagem.getText().toString().trim());
+                    alerta.setDestinatariosNomes(nomes);
+                    instituicaoRepositorio.registrarAlerta(institutionId, alerta,
+                            new com.jninfo.partograma.partograma.data.InstituicaoRepository.OperacaoCallback() {
+                                @Override
+                                public void onSucesso() {
+                                    Toast.makeText(PacienteDetalhesActivity.this, R.string.alerta_emitir_sucesso, Toast.LENGTH_LONG).show();
+                                }
+
+                                @Override
+                                public void onErro(Exception erro) {
+                                    Toast.makeText(PacienteDetalhesActivity.this, R.string.alerta_emitir_erro, Toast.LENGTH_LONG).show();
+                                }
+                            });
+                })
+                .show();
     }
 
     private void confirmarExclusao() {
