@@ -196,11 +196,11 @@
     <string name="alertas_salvar_mensagem">Salvar mensagem</string>
     <string name="alertas_mensagem_salva">Mensagem padrão salva</string>
     <string name="alertas_destinatarios_titulo">Destinatários autorizados</string>
-    <string name="alertas_destinatarios_subtitulo">Pessoas que devem ser avisadas quando um alerta for emitido.</string>
+    <string name="alertas_destinatarios_subtitulo">Pessoas que devem ser avisadas quando um alerta for emitido. Cadastre o e-mail para que o app abra o envio automaticamente ao emitir um alerta.</string>
     <string name="alertas_destinatarios_vazio">Nenhum destinatário cadastrado ainda.</string>
     <string name="alertas_novo_destinatario_nome">Nome</string>
     <string name="alertas_novo_destinatario_contato">Contato</string>
-    <string name="alertas_novo_destinatario_contato_hint">E-mail ou telefone</string>
+    <string name="alertas_novo_destinatario_contato_hint">E-mail (recomendado) ou telefone</string>
     <string name="alertas_adicionar_destinatario">Adicionar destinatário</string>
     <string name="alertas_remover_destinatario">Remover destinatário</string>
     <string name="alertas_erro_nome_obrigatorio">Informe o nome do destinatário</string>
@@ -211,7 +211,9 @@
     <string name="alerta_emitir_mensagem_label">Mensagem do alerta</string>
     <string name="alerta_emitir_sem_destinatarios">Nenhum destinatário cadastrado. Cadastre destinatários em Configurações → Gerenciar alertas da instituição antes de emitir um alerta.</string>
     <string name="alerta_emitir_confirmar">Emitir alerta</string>
-    <string name="alerta_emitir_sucesso">Alerta registrado. O envio automático aos destinatários ainda depende de um canal de notificação a ser definido.</string>
+    <string name="alerta_emitir_sucesso">Alerta registrado. Nenhum destinatário com e-mail cadastrado para abrir o envio automaticamente.</string>
+    <string name="alerta_emitir_sucesso_email">Alerta registrado. Confira o e-mail que foi aberto e envie aos destinatários.</string>
+    <string name="alerta_email_assunto">Alerta - Paciente %1$s</string>
     <string name="alerta_emitir_erro">Não foi possível registrar o alerta. Verifique sua conexão e tente novamente</string>
     <string name="config_reiniciar_aviso">Algumas mudanças de aparência têm efeito completo ao reabrir o app</string>
 
