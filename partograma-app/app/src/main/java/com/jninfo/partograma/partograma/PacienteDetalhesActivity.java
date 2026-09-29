@@ -513,6 +513,7 @@ public class PacienteDetalhesActivity extends BaseActivity {
     }
 
     private void preencherSinaisVitais(List<SinalVital> sinaisVitais) {
+        ((TextView) findViewById(R.id.txtContagemSinaisVitais)).setText(String.valueOf(sinaisVitais.size()));
         containerHistoricoSinaisVitais.removeAllViews();
         if (sinaisVitais.isEmpty()) {
             TextView vazio = new TextView(this);
