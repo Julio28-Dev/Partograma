@@ -51,8 +51,14 @@ public class NovaAvaliacaoActivity extends BaseActivity {
     private View containerLiquido;
     private Spinner spinnerLiquido;
     private EditText edtFreqContracao;
-    private EditText edtOcitocina;
-    private EditText edtMesoprostol;
+    private View btnOcitocinaSim;
+    private View btnOcitocinaNao;
+    private View containerDosagemOcitocina;
+    private EditText edtDosagemOcitocina;
+    private View btnMisoprostolSim;
+    private View btnMisoprostolNao;
+    private View containerDosagemMisoprostol;
+    private EditText edtDosagemMisoprostol;
     private EditText edtRemedios;
     private EditText edtExaminador;
     private LinearLayout containerMetodos;
@@ -66,6 +72,8 @@ public class NovaAvaliacaoActivity extends BaseActivity {
 
     private final List<CheckBox> checkboxesMetodos = new ArrayList<>();
     private String intercorrenciaEscolhida = OPCAO_INTERCORRENCIA_NAO;
+    private boolean ocitocinaUtilizada = false;
+    private boolean misoprostolUtilizado = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -85,8 +93,14 @@ public class NovaAvaliacaoActivity extends BaseActivity {
         containerLiquido = findViewById(R.id.containerLiquido);
         spinnerLiquido = findViewById(R.id.spinnerLiquido);
         edtFreqContracao = findViewById(R.id.edtFreqContracao);
-        edtOcitocina = findViewById(R.id.edtOcitocina);
-        edtMesoprostol = findViewById(R.id.edtMesoprostol);
+        btnOcitocinaSim = findViewById(R.id.btnOcitocinaSim);
+        btnOcitocinaNao = findViewById(R.id.btnOcitocinaNao);
+        containerDosagemOcitocina = findViewById(R.id.containerDosagemOcitocina);
+        edtDosagemOcitocina = findViewById(R.id.edtDosagemOcitocina);
+        btnMisoprostolSim = findViewById(R.id.btnMisoprostolSim);
+        btnMisoprostolNao = findViewById(R.id.btnMisoprostolNao);
+        containerDosagemMisoprostol = findViewById(R.id.containerDosagemMisoprostol);
+        edtDosagemMisoprostol = findViewById(R.id.edtDosagemMisoprostol);
         edtRemedios = findViewById(R.id.edtRemedios);
         edtExaminador = findViewById(R.id.edtExaminador);
         containerMetodos = findViewById(R.id.containerMetodosNaoFarmacologicos);
@@ -123,6 +137,11 @@ public class NovaAvaliacaoActivity extends BaseActivity {
 
         btnIntercorrenciaNao.setOnClickListener(v -> selecionarIntercorrencia(OPCAO_INTERCORRENCIA_NAO));
         btnIntercorrenciaSim.setOnClickListener(v -> selecionarIntercorrencia(OPCAO_INTERCORRENCIA_SIM));
+
+        btnOcitocinaSim.setOnClickListener(v -> selecionarOcitocina(true));
+        btnOcitocinaNao.setOnClickListener(v -> selecionarOcitocina(false));
+        btnMisoprostolSim.setOnClickListener(v -> selecionarMisoprostol(true));
+        btnMisoprostolNao.setOnClickListener(v -> selecionarMisoprostol(false));
 
         findViewById(R.id.btnSaibaMaisDeLee).setOnClickListener(v -> {
             Intent intent = new Intent(this, PlanoDeLeeExplicacaoActivity.class);
@@ -172,6 +191,26 @@ public class NovaAvaliacaoActivity extends BaseActivity {
         containerDescricaoIntercorrencia.setVisibility(sim ? View.VISIBLE : View.GONE);
     }
 
+    private void selecionarOcitocina(boolean sim) {
+        ocitocinaUtilizada = sim;
+        aplicarEstiloSegmento((TextView) btnOcitocinaSim, sim);
+        aplicarEstiloSegmento((TextView) btnOcitocinaNao, !sim);
+        containerDosagemOcitocina.setVisibility(sim ? View.VISIBLE : View.GONE);
+        if (!sim) {
+            edtDosagemOcitocina.setText("");
+        }
+    }
+
+    private void selecionarMisoprostol(boolean sim) {
+        misoprostolUtilizado = sim;
+        aplicarEstiloSegmento((TextView) btnMisoprostolSim, sim);
+        aplicarEstiloSegmento((TextView) btnMisoprostolNao, !sim);
+        containerDosagemMisoprostol.setVisibility(sim ? View.VISIBLE : View.GONE);
+        if (!sim) {
+            edtDosagemMisoprostol.setText("");
+        }
+    }
+
     private void aplicarEstiloSegmento(TextView botao, boolean selecionado) {
         botao.setBackgroundResource(selecionado ? R.drawable.bg_segment_selected : R.drawable.bg_segment_unselected);
         botao.setTextColor(ContextCompat.getColor(this, selecionado ? R.color.primaryPink : R.color.textSecondary));
@@ -214,8 +253,10 @@ public class NovaAvaliacaoActivity extends BaseActivity {
             }
         }
         registro.setFreqContracao(vazioParaNulo(edtFreqContracao));
-        registro.setOcitocina(vazioParaNulo(edtOcitocina));
-        registro.setMesoprostol(vazioParaNulo(edtMesoprostol));
+        registro.setOcitocinaUtilizada(ocitocinaUtilizada);
+        registro.setOcitocinaDosagem(ocitocinaUtilizada ? vazioParaNulo(edtDosagemOcitocina) : null);
+        registro.setMisoprostolUtilizado(misoprostolUtilizado);
+        registro.setMisoprostolDosagem(misoprostolUtilizado ? vazioParaNulo(edtDosagemMisoprostol) : null);
         registro.setRemedios(vazioParaNulo(edtRemedios));
         registro.setExaminador(vazioParaNulo(edtExaminador));
 

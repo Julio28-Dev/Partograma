@@ -28,9 +28,11 @@ public class DesfechoParto {
     private String apresentacaoFetal;
     private String posicaoVariedade;
     private String laceracaoPerineal;       // Sem laceração | Grau I..IV
+    private String observacoesLaceracao;    // so preenchido quando ha laceracao (grau selecionado)
     private String dequitacao;              // Espontânea | Manual
     private String placenta;                // Íntegra | Incompleta
-    private String intercorrencias;
+    private Boolean teveIntercorrenciaMae;
+    private String intercorrencias;         // so preenchido quando teveIntercorrenciaMae == true
     private String observacoes;
 
     // ---- Recem-nascido ------------------------------------------------------------------
@@ -43,8 +45,10 @@ public class DesfechoParto {
     private Integer apgar5;
     private Integer apgar10;
     private Boolean contatoPeleAPele;
+    private String motivoSemContatoPeleAPele;   // so preenchido quando contatoPeleAPele == false
     private Boolean amamentacaoPrimeiraHora;
-    private String intercorrenciasRn;
+    private Boolean teveIntercorrenciaRn;
+    private String intercorrenciasRn;           // so preenchido quando teveIntercorrenciaRn == true
 
     // ---- Encerramento ---------------------------------------------------------------------
     private String condicaoMaterna;
@@ -102,6 +106,14 @@ public class DesfechoParto {
         this.laceracaoPerineal = laceracaoPerineal;
     }
 
+    public String getObservacoesLaceracao() {
+        return observacoesLaceracao;
+    }
+
+    public void setObservacoesLaceracao(String observacoesLaceracao) {
+        this.observacoesLaceracao = observacoesLaceracao;
+    }
+
     public String getDequitacao() {
         return dequitacao;
     }
@@ -116,6 +128,14 @@ public class DesfechoParto {
 
     public void setPlacenta(String placenta) {
         this.placenta = placenta;
+    }
+
+    public Boolean getTeveIntercorrenciaMae() {
+        return teveIntercorrenciaMae;
+    }
+
+    public void setTeveIntercorrenciaMae(Boolean teveIntercorrenciaMae) {
+        this.teveIntercorrenciaMae = teveIntercorrenciaMae;
     }
 
     public String getIntercorrencias() {
@@ -206,12 +226,28 @@ public class DesfechoParto {
         this.contatoPeleAPele = contatoPeleAPele;
     }
 
+    public String getMotivoSemContatoPeleAPele() {
+        return motivoSemContatoPeleAPele;
+    }
+
+    public void setMotivoSemContatoPeleAPele(String motivoSemContatoPeleAPele) {
+        this.motivoSemContatoPeleAPele = motivoSemContatoPeleAPele;
+    }
+
     public Boolean getAmamentacaoPrimeiraHora() {
         return amamentacaoPrimeiraHora;
     }
 
     public void setAmamentacaoPrimeiraHora(Boolean amamentacaoPrimeiraHora) {
         this.amamentacaoPrimeiraHora = amamentacaoPrimeiraHora;
+    }
+
+    public Boolean getTeveIntercorrenciaRn() {
+        return teveIntercorrenciaRn;
+    }
+
+    public void setTeveIntercorrenciaRn(Boolean teveIntercorrenciaRn) {
+        this.teveIntercorrenciaRn = teveIntercorrenciaRn;
     }
 
     public String getIntercorrenciasRn() {

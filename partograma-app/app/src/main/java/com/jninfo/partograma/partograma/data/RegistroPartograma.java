@@ -39,8 +39,12 @@ public class RegistroPartograma {
     private String integridade;          // Íntegra | Rota
     private String liquido;              // so relevante quando integridade == Rota
     private String freqContracao;
-    private String ocitocina;
-    private String mesoprostol;
+    private String ocitocina;            // legado (texto livre) -- registros criados antes da mudanca para Sim/Não + Dosagem
+    private String mesoprostol;          // legado (texto livre) -- idem
+    private Boolean ocitocinaUtilizada;
+    private String ocitocinaDosagem;     // so preenchido quando ocitocinaUtilizada == true
+    private Boolean misoprostolUtilizado;
+    private String misoprostolDosagem;   // so preenchido quando misoprostolUtilizado == true
     private String remedios;             // "Outras medicações"
     private String examinador;
     private String faseTrabalhoParto;    // Em avaliação | Fase latente | Fase ativa | Período expulsivo | Dequitação | Período de Greenberg
@@ -146,6 +150,38 @@ public class RegistroPartograma {
         this.mesoprostol = mesoprostol;
     }
 
+    public Boolean getOcitocinaUtilizada() {
+        return ocitocinaUtilizada;
+    }
+
+    public void setOcitocinaUtilizada(Boolean ocitocinaUtilizada) {
+        this.ocitocinaUtilizada = ocitocinaUtilizada;
+    }
+
+    public String getOcitocinaDosagem() {
+        return ocitocinaDosagem;
+    }
+
+    public void setOcitocinaDosagem(String ocitocinaDosagem) {
+        this.ocitocinaDosagem = ocitocinaDosagem;
+    }
+
+    public Boolean getMisoprostolUtilizado() {
+        return misoprostolUtilizado;
+    }
+
+    public void setMisoprostolUtilizado(Boolean misoprostolUtilizado) {
+        this.misoprostolUtilizado = misoprostolUtilizado;
+    }
+
+    public String getMisoprostolDosagem() {
+        return misoprostolDosagem;
+    }
+
+    public void setMisoprostolDosagem(String misoprostolDosagem) {
+        this.misoprostolDosagem = misoprostolDosagem;
+    }
+
     public String getRemedios() {
         return remedios;
     }
@@ -208,6 +244,34 @@ public class RegistroPartograma {
 
     public void setDataHora(Date dataHora) {
         this.dataHora = dataHora;
+    }
+
+    /**
+     * Rotulo de exibicao da ocitocina ("Não", "Sim - 10 UI em BI", ...). Registros antigos
+     * (antes da mudanca para Sim/Não + Dosagem) so tinham o campo de texto livre
+     * {@link #ocitocina} -- usado aqui como fallback para nao perder o historico deles.
+     */
+    @Exclude
+    public String getRotuloOcitocina() {
+        if (ocitocinaUtilizada != null) {
+            if (!ocitocinaUtilizada) {
+                return "Não";
+            }
+            return ocitocinaDosagem != null && !ocitocinaDosagem.isEmpty() ? "Sim - " + ocitocinaDosagem : "Sim";
+        }
+        return ocitocina;
+    }
+
+    /** Mesma logica de {@link #getRotuloOcitocina()}, para o misoprostol. */
+    @Exclude
+    public String getRotuloMisoprostol() {
+        if (misoprostolUtilizado != null) {
+            if (!misoprostolUtilizado) {
+                return "Não";
+            }
+            return misoprostolDosagem != null && !misoprostolDosagem.isEmpty() ? "Sim - " + misoprostolDosagem : "Sim";
+        }
+        return mesoprostol;
     }
 
     /** Rotulo de exibicao do plano de De Lee ("+2", "-3", "0"), ou "-" se nao informado. */

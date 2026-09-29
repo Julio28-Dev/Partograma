@@ -1,0 +1,14 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+    <!-- Icone generico de gota, reaproveitado (via app:tint no layout) para SpO2, Dor e
+         HGT, cada um com uma cor de destaque diferente. -->
+    <path
+        android:pathData="M12,2.5 C12,2.5 5.5,10.5 5.5,15 C5.5,18.6 8.4,21.5 12,21.5 C15.6,21.5 18.5,18.6 18.5,15 C18.5,10.5 12,2.5 12,2.5 Z"
+        android:strokeColor="#5FB8AE"
+        android:strokeWidth="1.6"
+        android:strokeLineJoin="round"
+        android:fillColor="#00000000" />
+</vector>

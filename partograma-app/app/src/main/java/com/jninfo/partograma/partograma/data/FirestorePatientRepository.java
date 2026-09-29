@@ -239,8 +239,10 @@ public class FirestorePatientRepository {
         dados.put("integridade", registro.getIntegridade());
         dados.put("liquido", registro.getLiquido());
         dados.put("freqContracao", registro.getFreqContracao());
-        dados.put("ocitocina", registro.getOcitocina());
-        dados.put("mesoprostol", registro.getMesoprostol());
+        dados.put("ocitocinaUtilizada", registro.getOcitocinaUtilizada());
+        dados.put("ocitocinaDosagem", registro.getOcitocinaDosagem());
+        dados.put("misoprostolUtilizado", registro.getMisoprostolUtilizado());
+        dados.put("misoprostolDosagem", registro.getMisoprostolDosagem());
         dados.put("remedios", registro.getRemedios());
         dados.put("examinador", registro.getExaminador());
         dados.put("faseTrabalhoParto", registro.getFaseTrabalhoParto());
@@ -333,8 +335,10 @@ public class FirestorePatientRepository {
         dados.put("apresentacaoFetal", desfecho.getApresentacaoFetal());
         dados.put("posicaoVariedade", desfecho.getPosicaoVariedade());
         dados.put("laceracaoPerineal", desfecho.getLaceracaoPerineal());
+        dados.put("observacoesLaceracao", desfecho.getObservacoesLaceracao());
         dados.put("dequitacao", desfecho.getDequitacao());
         dados.put("placenta", desfecho.getPlacenta());
+        dados.put("teveIntercorrenciaMae", desfecho.getTeveIntercorrenciaMae());
         dados.put("intercorrencias", desfecho.getIntercorrencias());
         dados.put("observacoes", desfecho.getObservacoes());
         dados.put("sexoRn", desfecho.getSexoRn());
@@ -346,7 +350,9 @@ public class FirestorePatientRepository {
         dados.put("apgar5", desfecho.getApgar5());
         dados.put("apgar10", desfecho.getApgar10());
         dados.put("contatoPeleAPele", desfecho.getContatoPeleAPele());
+        dados.put("motivoSemContatoPeleAPele", desfecho.getMotivoSemContatoPeleAPele());
         dados.put("amamentacaoPrimeiraHora", desfecho.getAmamentacaoPrimeiraHora());
+        dados.put("teveIntercorrenciaRn", desfecho.getTeveIntercorrenciaRn());
         dados.put("intercorrenciasRn", desfecho.getIntercorrenciasRn());
         dados.put("condicaoMaterna", desfecho.getCondicaoMaterna());
         dados.put("condicaoRn", desfecho.getCondicaoRn());
@@ -378,8 +384,10 @@ public class FirestorePatientRepository {
                     desfecho.setApresentacaoFetal((String) mapa.get("apresentacaoFetal"));
                     desfecho.setPosicaoVariedade((String) mapa.get("posicaoVariedade"));
                     desfecho.setLaceracaoPerineal((String) mapa.get("laceracaoPerineal"));
+                    desfecho.setObservacoesLaceracao((String) mapa.get("observacoesLaceracao"));
                     desfecho.setDequitacao((String) mapa.get("dequitacao"));
                     desfecho.setPlacenta((String) mapa.get("placenta"));
+                    desfecho.setTeveIntercorrenciaMae((Boolean) mapa.get("teveIntercorrenciaMae"));
                     desfecho.setIntercorrencias((String) mapa.get("intercorrencias"));
                     desfecho.setObservacoes((String) mapa.get("observacoes"));
                     desfecho.setSexoRn((String) mapa.get("sexoRn"));
@@ -391,7 +399,9 @@ public class FirestorePatientRepository {
                     desfecho.setApgar5(paraInteiro(mapa.get("apgar5")));
                     desfecho.setApgar10(paraInteiro(mapa.get("apgar10")));
                     desfecho.setContatoPeleAPele((Boolean) mapa.get("contatoPeleAPele"));
+                    desfecho.setMotivoSemContatoPeleAPele((String) mapa.get("motivoSemContatoPeleAPele"));
                     desfecho.setAmamentacaoPrimeiraHora((Boolean) mapa.get("amamentacaoPrimeiraHora"));
+                    desfecho.setTeveIntercorrenciaRn((Boolean) mapa.get("teveIntercorrenciaRn"));
                     desfecho.setIntercorrenciasRn((String) mapa.get("intercorrenciasRn"));
                     desfecho.setCondicaoMaterna((String) mapa.get("condicaoMaterna"));
                     desfecho.setCondicaoRn((String) mapa.get("condicaoRn"));

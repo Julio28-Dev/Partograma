@@ -93,6 +93,8 @@ public class RelatorioListaActivity extends BaseActivity {
                 continue;
             }
             if (MODO_MEDICACOES.equals(modo)
+                    && !Boolean.TRUE.equals(registro.getOcitocinaUtilizada())
+                    && !Boolean.TRUE.equals(registro.getMisoprostolUtilizado())
                     && TextUtils.isEmpty(registro.getOcitocina())
                     && TextUtils.isEmpty(registro.getMesoprostol())
                     && TextUtils.isEmpty(registro.getRemedios())) {
@@ -134,8 +136,8 @@ public class RelatorioListaActivity extends BaseActivity {
         } else if (MODO_INTERCORRENCIAS.equals(modo)) {
             adicionarLinha("Intercorrência", registro.getIntercorrencia());
         } else if (MODO_MEDICACOES.equals(modo)) {
-            adicionarLinha("Ocitocina", registro.getOcitocina());
-            adicionarLinha("Misoprostol", registro.getMesoprostol());
+            adicionarLinha("Ocitocina", registro.getRotuloOcitocina());
+            adicionarLinha("Misoprostol", registro.getRotuloMisoprostol());
             adicionarLinha("Outras medicações", registro.getRemedios());
         }
     }

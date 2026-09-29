@@ -126,6 +126,7 @@
     <string name="nova_avaliacao_freq_contracao">Frequência de contração (10 min)</string>
     <string name="nova_avaliacao_ocitocina">Ocitocina</string>
     <string name="nova_avaliacao_mesoprostol">Misoprostol</string>
+    <string name="nova_avaliacao_dosagem">Dosagem</string>
     <string name="nova_avaliacao_remedios">Outras medicações</string>
     <string name="nova_avaliacao_examinador">Examinador</string>
     <string name="nova_avaliacao_intercorrencia">Intercorrência (opcional)</string>
@@ -271,6 +272,7 @@
     <string name="sinais_vitais_titulo">Sinais vitais</string>
     <string name="sinais_vitais_subtitulo">Acompanhe e registre os sinais vitais da paciente durante todo o trabalho de parto.</string>
     <string name="sinais_vitais_nova_afericao">Nova aferição</string>
+    <string name="nova_afericao_subtitulo">Registre os sinais vitais da paciente.</string>
     <string name="sinais_vitais_historico">Histórico de sinais vitais</string>
     <string name="sinais_vitais_historico_vazio">Nenhuma aferição registrada ainda.</string>
     <string name="sinais_vitais_data_afericao">Data da aferição</string>
@@ -300,9 +302,11 @@
     <string name="desfecho_apresentacao_fetal">Apresentação fetal</string>
     <string name="desfecho_posicao_variedade">Posição / variedade de posição</string>
     <string name="desfecho_laceracao_perineal">Laceração perineal</string>
+    <string name="desfecho_observacoes_laceracao">Observações da laceração</string>
     <string name="desfecho_dequitacao">Dequitação</string>
     <string name="desfecho_placenta">Placenta</string>
-    <string name="desfecho_intercorrencias">Intercorrências</string>
+    <string name="desfecho_intercorrencias">Intercorrência da Mãe</string>
+    <string name="desfecho_motivo_sem_contato_pele">Qual o motivo de não ter realizado o contato pele a pele?</string>
     <string name="desfecho_observacoes">Observações</string>
     <string name="desfecho_secao_rn">Recém-nascido</string>
     <string name="desfecho_sexo">Sexo</string>

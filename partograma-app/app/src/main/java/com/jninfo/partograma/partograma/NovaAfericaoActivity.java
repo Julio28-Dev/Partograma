@@ -23,6 +23,7 @@ public class NovaAfericaoActivity extends BaseActivity {
 
     public static final String EXTRA_PACIENTE_ID = "extra_paciente_id";
     public static final String EXTRA_NOME_PACIENTE = "extra_nome_paciente";
+    public static final String EXTRA_SUBTITULO_PACIENTE = "extra_subtitulo_paciente";
 
     private FirestorePatientRepository repositorio;
     private String pacienteId;
@@ -49,11 +50,14 @@ public class NovaAfericaoActivity extends BaseActivity {
 
         pacienteId = getIntent().getStringExtra(EXTRA_PACIENTE_ID);
         String nomePaciente = getIntent().getStringExtra(EXTRA_NOME_PACIENTE);
+        String subtituloPaciente = getIntent().getStringExtra(EXTRA_SUBTITULO_PACIENTE);
         repositorio = new FirestorePatientRepository();
 
         if (nomePaciente != null) {
-            ((TextView) findViewById(R.id.txtNomePacienteAfericao)).setText(
-                    getString(R.string.sinais_vitais_nova_afericao) + " — " + nomePaciente);
+            ((TextView) findViewById(R.id.txtNomePacienteAfericao)).setText(nomePaciente);
+        }
+        if (subtituloPaciente != null) {
+            ((TextView) findViewById(R.id.txtSubtituloPacienteAfericao)).setText(subtituloPaciente);
         }
 
         edtDataAfericao = findViewById(R.id.edtDataAfericao);

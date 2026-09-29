@@ -122,8 +122,8 @@ public class PdfRelatorioGenerator {
         boolean algumaMedicacao = false;
         for (RegistroPartograma r : registros) {
             StringBuilder linha = new StringBuilder();
-            if (!TextUtils.isEmpty(r.getOcitocina())) linha.append("Ocitocina: ").append(r.getOcitocina()).append("  ");
-            if (!TextUtils.isEmpty(r.getMesoprostol())) linha.append("Misoprostol: ").append(r.getMesoprostol()).append("  ");
+            if (!TextUtils.isEmpty(r.getRotuloOcitocina())) linha.append("Ocitocina: ").append(r.getRotuloOcitocina()).append("  ");
+            if (!TextUtils.isEmpty(r.getRotuloMisoprostol())) linha.append("Misoprostol: ").append(r.getRotuloMisoprostol()).append("  ");
             if (!TextUtils.isEmpty(r.getRemedios())) linha.append("Outras: ").append(r.getRemedios());
             if (linha.length() > 0) {
                 desenharLinhaTexto(safe(r.getHorario()) + " — " + linha);
@@ -162,6 +162,7 @@ public class PdfRelatorioGenerator {
             desenharCampo("Apresentação fetal", desfecho.getApresentacaoFetal());
             desenharCampo("Posição/variedade", desfecho.getPosicaoVariedade());
             desenharCampo("Laceração perineal", desfecho.getLaceracaoPerineal());
+            desenharCampo("Observações da laceração", desfecho.getObservacoesLaceracao());
             desenharCampo("Dequitação", desfecho.getDequitacao());
             desenharCampo("Placenta", desfecho.getPlacenta());
             desenharCampo("Intercorrências", desfecho.getIntercorrencias());
@@ -173,6 +174,7 @@ public class PdfRelatorioGenerator {
             desenharCampo("Horário do nascimento", desfecho.getHorarioNascimento());
             desenharCampo("Apgar", formatarApgar(desfecho));
             desenharCampo("Contato pele a pele", formatarSimNao(desfecho.getContatoPeleAPele()));
+            desenharCampo("Motivo (sem contato pele a pele)", desfecho.getMotivoSemContatoPeleAPele());
             desenharCampo("Amamentação na 1ª hora", formatarSimNao(desfecho.getAmamentacaoPrimeiraHora()));
             desenharCampo("Intercorrências com o RN", desfecho.getIntercorrenciasRn());
             desenharCampo("Condição materna", desfecho.getCondicaoMaterna());

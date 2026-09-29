@@ -39,10 +39,12 @@ import java.util.Locale;
 public class PacienteDetalhesActivity extends BaseActivity {
 
     public static final String EXTRA_PACIENTE_ID = "extra_paciente_id";
+    private static final String OPCAO_SEM_LACERACAO = "Sem laceração";
 
     private FirestorePatientRepository repositorio;
     private String pacienteId;
     private String nomePaciente;
+    private String subtituloPacienteAtual;
     private ListenerRegistration listenerRegistros;
     private ListenerRegistration listenerSinaisVitais;
     private List<RegistroPartograma> registrosAtuais = new ArrayList<>();
@@ -85,9 +87,15 @@ public class PacienteDetalhesActivity extends BaseActivity {
     private Spinner spinnerApresentacaoFetal;
     private Spinner spinnerPosicaoVariedade;
     private Spinner spinnerLaceracaoPerineal;
+    private View containerObservacoesLaceracao;
+    private android.widget.EditText edtObservacoesLaceracao;
     private Spinner spinnerDequitacao;
     private Spinner spinnerPlacenta;
-    private android.widget.EditText edtIntercorrenciasParto;
+    private View btnIntercorrenciaMaeSim;
+    private View btnIntercorrenciaMaeNao;
+    private boolean intercorrenciaMaeEscolhida = false;
+    private View containerDescricaoIntercorrenciaMae;
+    private android.widget.EditText edtDescricaoIntercorrenciaMae;
     private android.widget.EditText edtObservacoesParto;
     private View btnSexoMasculino;
     private View btnSexoFeminino;
@@ -102,10 +110,16 @@ public class PacienteDetalhesActivity extends BaseActivity {
     private View btnContatoPeleSim;
     private View btnContatoPeleNao;
     private boolean contatoPeleEscolhido = true;
+    private View containerMotivoSemContatoPele;
+    private android.widget.EditText edtMotivoSemContatoPele;
     private View btnAmamentacaoSim;
     private View btnAmamentacaoNao;
     private boolean amamentacaoEscolhida = true;
-    private android.widget.EditText edtIntercorrenciasRn;
+    private View btnIntercorrenciaRnSim;
+    private View btnIntercorrenciaRnNao;
+    private boolean intercorrenciaRnEscolhida = false;
+    private View containerDescricaoIntercorrenciaRn;
+    private android.widget.EditText edtDescricaoIntercorrenciaRn;
     private Spinner spinnerCondicaoMaterna;
     private Spinner spinnerCondicaoRn;
     private Spinner spinnerDestinoPuerpera;
@@ -139,7 +153,7 @@ public class PacienteDetalhesActivity extends BaseActivity {
         conteudoRelatorio = findViewById(R.id.conteudoRelatorio);
         conteudoSinaisVitais = findViewById(R.id.conteudoSinaisVitais);
         conteudoDesfecho = findViewById(R.id.conteudoDesfecho);
-        conteudos = new View[]{conteudoDados, conteudoPartograma, conteudoRelatorio, conteudoSinaisVitais, conteudoDesfecho};
+        conteudos = new View[]{conteudoDados, conteudoSinaisVitais, conteudoPartograma, conteudoRelatorio, conteudoDesfecho};
 
         indicadorDilatacao = findViewById(R.id.indicadorDilatacao);
         indicadorRotatividade = findViewById(R.id.indicadorRotatividade);
@@ -152,12 +166,12 @@ public class PacienteDetalhesActivity extends BaseActivity {
         View tabRelatorio = findViewById(R.id.tabRelatorio);
         View tabSinaisVitais = findViewById(R.id.tabSinaisVitais);
         View tabDesfecho = findViewById(R.id.tabDesfecho);
-        abas = new View[]{tabDados, tabPartograma, tabRelatorio, tabSinaisVitais, tabDesfecho};
+        abas = new View[]{tabDados, tabSinaisVitais, tabPartograma, tabRelatorio, tabDesfecho};
 
         configurarAba(tabDados, R.string.paciente_detalhes_aba_dados, R.drawable.ic_feature_chart);
+        configurarAba(tabSinaisVitais, R.string.sinais_vitais_titulo, R.drawable.ic_feature_pulse);
         configurarAba(tabPartograma, R.string.paciente_detalhes_aba_partograma, R.drawable.ic_tab_partograma);
         configurarAba(tabRelatorio, R.string.paciente_detalhes_aba_relatorio, R.drawable.ic_tab_relatorio);
-        configurarAba(tabSinaisVitais, R.string.sinais_vitais_titulo, R.drawable.ic_feature_pulse);
         configurarAba(tabDesfecho, R.string.desfecho_titulo, R.drawable.ic_tab_desfecho);
 
         for (int i = 0; i < abas.length; i++) {
@@ -284,6 +298,7 @@ public class PacienteDetalhesActivity extends BaseActivity {
             subtitulo += "  •  " + idade + " anos";
         }
         txtSubtituloCabecalho.setText(subtitulo);
+        subtituloPacienteAtual = subtitulo;
 
         String status = paciente.getStatus() != null ? paciente.getStatus() : getString(R.string.pacientes_status_avaliacao);
         txtStatusCabecalho.setText(status);
@@ -477,6 +492,7 @@ public class PacienteDetalhesActivity extends BaseActivity {
             Intent intent = new Intent(this, NovaAfericaoActivity.class);
             intent.putExtra(NovaAfericaoActivity.EXTRA_PACIENTE_ID, pacienteId);
             intent.putExtra(NovaAfericaoActivity.EXTRA_NOME_PACIENTE, nomePaciente);
+            intent.putExtra(NovaAfericaoActivity.EXTRA_SUBTITULO_PACIENTE, subtituloPacienteAtual);
             startActivity(intent);
         });
     }
@@ -537,7 +553,7 @@ public class PacienteDetalhesActivity extends BaseActivity {
         View linhaSinaisVitais = findViewById(R.id.itemRelatorioSinaisVitais);
         ((android.widget.ImageView) linhaSinaisVitais.findViewById(R.id.iconRelatorio)).setImageResource(R.drawable.ic_feature_pulse);
         ((TextView) linhaSinaisVitais.findViewById(R.id.txtLabelRelatorio)).setText(R.string.relatorio_sinais_vitais);
-        linhaSinaisVitais.setOnClickListener(v -> selecionarAba(3));
+        linhaSinaisVitais.setOnClickListener(v -> selecionarAba(1));
 
         View linhaDesfecho = findViewById(R.id.itemRelatorioDesfecho);
         ((android.widget.ImageView) linhaDesfecho.findViewById(R.id.iconRelatorio)).setImageResource(R.drawable.ic_patient);
@@ -633,9 +649,14 @@ public class PacienteDetalhesActivity extends BaseActivity {
         spinnerApresentacaoFetal = findViewById(R.id.spinnerApresentacaoFetal);
         spinnerPosicaoVariedade = findViewById(R.id.spinnerPosicaoVariedade);
         spinnerLaceracaoPerineal = findViewById(R.id.spinnerLaceracaoPerineal);
+        containerObservacoesLaceracao = findViewById(R.id.containerObservacoesLaceracao);
+        edtObservacoesLaceracao = findViewById(R.id.edtObservacoesLaceracao);
         spinnerDequitacao = findViewById(R.id.spinnerDequitacao);
         spinnerPlacenta = findViewById(R.id.spinnerPlacenta);
-        edtIntercorrenciasParto = findViewById(R.id.edtIntercorrenciasParto);
+        btnIntercorrenciaMaeSim = findViewById(R.id.btnIntercorrenciaMaeSim);
+        btnIntercorrenciaMaeNao = findViewById(R.id.btnIntercorrenciaMaeNao);
+        containerDescricaoIntercorrenciaMae = findViewById(R.id.containerDescricaoIntercorrenciaMae);
+        edtDescricaoIntercorrenciaMae = findViewById(R.id.edtDescricaoIntercorrenciaMae);
         edtObservacoesParto = findViewById(R.id.edtObservacoesParto);
         btnSexoMasculino = findViewById(R.id.btnSexoMasculino);
         btnSexoFeminino = findViewById(R.id.btnSexoFeminino);
@@ -649,9 +670,14 @@ public class PacienteDetalhesActivity extends BaseActivity {
         edtApgar10 = findViewById(R.id.edtApgar10);
         btnContatoPeleSim = findViewById(R.id.btnContatoPeleSim);
         btnContatoPeleNao = findViewById(R.id.btnContatoPeleNao);
+        containerMotivoSemContatoPele = findViewById(R.id.containerMotivoSemContatoPele);
+        edtMotivoSemContatoPele = findViewById(R.id.edtMotivoSemContatoPele);
         btnAmamentacaoSim = findViewById(R.id.btnAmamentacaoSim);
         btnAmamentacaoNao = findViewById(R.id.btnAmamentacaoNao);
-        edtIntercorrenciasRn = findViewById(R.id.edtIntercorrenciasRn);
+        btnIntercorrenciaRnSim = findViewById(R.id.btnIntercorrenciaRnSim);
+        btnIntercorrenciaRnNao = findViewById(R.id.btnIntercorrenciaRnNao);
+        containerDescricaoIntercorrenciaRn = findViewById(R.id.containerDescricaoIntercorrenciaRn);
+        edtDescricaoIntercorrenciaRn = findViewById(R.id.edtDescricaoIntercorrenciaRn);
         spinnerCondicaoMaterna = findViewById(R.id.spinnerCondicaoMaterna);
         spinnerCondicaoRn = findViewById(R.id.spinnerCondicaoRn);
         spinnerDestinoPuerpera = findViewById(R.id.spinnerDestinoPuerpera);
@@ -684,6 +710,18 @@ public class PacienteDetalhesActivity extends BaseActivity {
             }
         });
 
+        spinnerLaceracaoPerineal.setOnItemSelectedListener(new android.widget.AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(android.widget.AdapterView<?> parent, View view, int position, long id) {
+                atualizarVisibilidadeObservacoesLaceracao();
+            }
+
+            @Override
+            public void onNothingSelected(android.widget.AdapterView<?> parent) {
+                containerObservacoesLaceracao.setVisibility(View.GONE);
+            }
+        });
+
         btnViaVaginal.setOnClickListener(v -> selecionarVia(getString(R.string.desfecho_via_vaginal)));
         btnViaCesarea.setOnClickListener(v -> selecionarVia(getString(R.string.desfecho_via_cesarea)));
         btnSexoMasculino.setOnClickListener(v -> selecionarSexo(getString(R.string.desfecho_sexo_masculino)));
@@ -692,8 +730,43 @@ public class PacienteDetalhesActivity extends BaseActivity {
         btnContatoPeleNao.setOnClickListener(v -> selecionarContatoPele(false));
         btnAmamentacaoSim.setOnClickListener(v -> selecionarAmamentacao(true));
         btnAmamentacaoNao.setOnClickListener(v -> selecionarAmamentacao(false));
+        btnIntercorrenciaMaeSim.setOnClickListener(v -> selecionarIntercorrenciaMae(true));
+        btnIntercorrenciaMaeNao.setOnClickListener(v -> selecionarIntercorrenciaMae(false));
+        btnIntercorrenciaRnSim.setOnClickListener(v -> selecionarIntercorrenciaRn(true));
+        btnIntercorrenciaRnNao.setOnClickListener(v -> selecionarIntercorrenciaRn(false));
 
         btnSalvarDesfecho.setOnClickListener(v -> salvarDesfecho());
+    }
+
+    /** "Sem laceração" (primeira opcao do array opcoes_laceracao_perineal) oculta o campo de
+     * observacoes; qualquer grau selecionado o exibe. */
+    private void atualizarVisibilidadeObservacoesLaceracao() {
+        String valor = (String) spinnerLaceracaoPerineal.getSelectedItem();
+        boolean temLaceracao = valor != null && !OPCAO_SEM_LACERACAO.equals(valor);
+        containerObservacoesLaceracao.setVisibility(temLaceracao ? View.VISIBLE : View.GONE);
+        if (!temLaceracao) {
+            edtObservacoesLaceracao.setText("");
+        }
+    }
+
+    private void selecionarIntercorrenciaMae(boolean sim) {
+        intercorrenciaMaeEscolhida = sim;
+        aplicarEstiloSegmento((TextView) btnIntercorrenciaMaeSim, sim);
+        aplicarEstiloSegmento((TextView) btnIntercorrenciaMaeNao, !sim);
+        containerDescricaoIntercorrenciaMae.setVisibility(sim ? View.VISIBLE : View.GONE);
+        if (!sim) {
+            edtDescricaoIntercorrenciaMae.setText("");
+        }
+    }
+
+    private void selecionarIntercorrenciaRn(boolean sim) {
+        intercorrenciaRnEscolhida = sim;
+        aplicarEstiloSegmento((TextView) btnIntercorrenciaRnSim, sim);
+        aplicarEstiloSegmento((TextView) btnIntercorrenciaRnNao, !sim);
+        containerDescricaoIntercorrenciaRn.setVisibility(sim ? View.VISIBLE : View.GONE);
+        if (!sim) {
+            edtDescricaoIntercorrenciaRn.setText("");
+        }
     }
 
     private void configurarSpinnerSimples(Spinner spinner, int arrayRes) {
@@ -741,6 +814,10 @@ public class PacienteDetalhesActivity extends BaseActivity {
         contatoPeleEscolhido = sim;
         aplicarEstiloSegmento((TextView) btnContatoPeleSim, sim);
         aplicarEstiloSegmento((TextView) btnContatoPeleNao, !sim);
+        containerMotivoSemContatoPele.setVisibility(sim ? View.GONE : View.VISIBLE);
+        if (sim) {
+            edtMotivoSemContatoPele.setText("");
+        }
     }
 
     private void selecionarAmamentacao(boolean sim) {
@@ -807,9 +884,14 @@ public class PacienteDetalhesActivity extends BaseActivity {
         atualizarOpcoesVariedade();
         selecionarValorSpinner(spinnerPosicaoVariedade, d.getPosicaoVariedade());
         selecionarValorSpinner(spinnerLaceracaoPerineal, d.getLaceracaoPerineal());
+        atualizarVisibilidadeObservacoesLaceracao();
+        edtObservacoesLaceracao.setText(d.getObservacoesLaceracao());
         selecionarValorSpinner(spinnerDequitacao, d.getDequitacao());
         selecionarValorSpinner(spinnerPlacenta, d.getPlacenta());
-        edtIntercorrenciasParto.setText(d.getIntercorrencias());
+        boolean teveIntercorrenciaMae = Boolean.TRUE.equals(d.getTeveIntercorrenciaMae())
+                || (d.getTeveIntercorrenciaMae() == null && !TextUtils.isEmpty(d.getIntercorrencias()));
+        selecionarIntercorrenciaMae(teveIntercorrenciaMae);
+        edtDescricaoIntercorrenciaMae.setText(d.getIntercorrencias());
         edtObservacoesParto.setText(d.getObservacoes());
         if (!TextUtils.isEmpty(d.getSexoRn())) {
             selecionarSexo(d.getSexoRn());
@@ -822,8 +904,12 @@ public class PacienteDetalhesActivity extends BaseActivity {
         if (d.getApgar5() != null) edtApgar5.setText(String.valueOf(d.getApgar5()));
         if (d.getApgar10() != null) edtApgar10.setText(String.valueOf(d.getApgar10()));
         if (d.getContatoPeleAPele() != null) selecionarContatoPele(d.getContatoPeleAPele());
+        edtMotivoSemContatoPele.setText(d.getMotivoSemContatoPeleAPele());
         if (d.getAmamentacaoPrimeiraHora() != null) selecionarAmamentacao(d.getAmamentacaoPrimeiraHora());
-        edtIntercorrenciasRn.setText(d.getIntercorrenciasRn());
+        boolean teveIntercorrenciaRn = Boolean.TRUE.equals(d.getTeveIntercorrenciaRn())
+                || (d.getTeveIntercorrenciaRn() == null && !TextUtils.isEmpty(d.getIntercorrenciasRn()));
+        selecionarIntercorrenciaRn(teveIntercorrenciaRn);
+        edtDescricaoIntercorrenciaRn.setText(d.getIntercorrenciasRn());
         selecionarValorSpinner(spinnerCondicaoMaterna, d.getCondicaoMaterna());
         selecionarValorSpinner(spinnerCondicaoRn, d.getCondicaoRn());
         selecionarValorSpinner(spinnerDestinoPuerpera, d.getDestinoPuerpera());
@@ -852,9 +938,12 @@ public class PacienteDetalhesActivity extends BaseActivity {
         desfecho.setApresentacaoFetal((String) spinnerApresentacaoFetal.getSelectedItem());
         desfecho.setPosicaoVariedade((String) spinnerPosicaoVariedade.getSelectedItem());
         desfecho.setLaceracaoPerineal((String) spinnerLaceracaoPerineal.getSelectedItem());
+        desfecho.setObservacoesLaceracao(containerObservacoesLaceracao.getVisibility() == View.VISIBLE
+                ? textoOuNulo(edtObservacoesLaceracao) : null);
         desfecho.setDequitacao((String) spinnerDequitacao.getSelectedItem());
         desfecho.setPlacenta((String) spinnerPlacenta.getSelectedItem());
-        desfecho.setIntercorrencias(textoOuNulo(edtIntercorrenciasParto));
+        desfecho.setTeveIntercorrenciaMae(intercorrenciaMaeEscolhida);
+        desfecho.setIntercorrencias(intercorrenciaMaeEscolhida ? textoOuNulo(edtDescricaoIntercorrenciaMae) : null);
         desfecho.setObservacoes(textoOuNulo(edtObservacoesParto));
         desfecho.setSexoRn(sexoRnEscolhido);
         desfecho.setPesoRn(inteiroOuNulo(edtPesoRn));
@@ -865,8 +954,10 @@ public class PacienteDetalhesActivity extends BaseActivity {
         desfecho.setApgar5(inteiroOuNulo(edtApgar5));
         desfecho.setApgar10(inteiroOuNulo(edtApgar10));
         desfecho.setContatoPeleAPele(contatoPeleEscolhido);
+        desfecho.setMotivoSemContatoPeleAPele(!contatoPeleEscolhido ? textoOuNulo(edtMotivoSemContatoPele) : null);
         desfecho.setAmamentacaoPrimeiraHora(amamentacaoEscolhida);
-        desfecho.setIntercorrenciasRn(textoOuNulo(edtIntercorrenciasRn));
+        desfecho.setTeveIntercorrenciaRn(intercorrenciaRnEscolhida);
+        desfecho.setIntercorrenciasRn(intercorrenciaRnEscolhida ? textoOuNulo(edtDescricaoIntercorrenciaRn) : null);
         desfecho.setCondicaoMaterna((String) spinnerCondicaoMaterna.getSelectedItem());
         desfecho.setCondicaoRn((String) spinnerCondicaoRn.getSelectedItem());
         desfecho.setDestinoPuerpera((String) spinnerDestinoPuerpera.getSelectedItem());
