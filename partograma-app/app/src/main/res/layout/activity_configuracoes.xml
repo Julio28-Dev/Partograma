@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/background"
@@ -51,82 +52,11 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="14dp"
-                android:text="@string/config_aparencia"
+                android:layout_marginBottom="8dp"
+                android:text="@string/config_tamanho_fonte"
                 android:textColor="@color/textPrimary"
                 android:textSize="16sp"
                 android:textStyle="bold" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="8dp"
-                android:text="@string/config_tema"
-                android:textColor="@color/textSecondary"
-                android:textSize="12.5sp" />
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal">
-
-                <TextView
-                    android:id="@+id/btnTemaClaro"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:layout_marginEnd="6dp"
-                    android:background="@drawable/bg_segment_selected"
-                    android:clickable="true"
-                    android:focusable="true"
-                    android:gravity="center"
-                    android:paddingTop="10dp"
-                    android:paddingBottom="10dp"
-                    android:text="@string/config_tema_claro"
-                    android:textColor="@color/primaryPink"
-                    android:textSize="13sp"
-                    android:textStyle="bold" />
-
-                <TextView
-                    android:id="@+id/btnTemaEscuro"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:layout_marginEnd="6dp"
-                    android:background="@drawable/bg_segment_unselected"
-                    android:clickable="true"
-                    android:focusable="true"
-                    android:gravity="center"
-                    android:paddingTop="10dp"
-                    android:paddingBottom="10dp"
-                    android:text="@string/config_tema_escuro"
-                    android:textColor="@color/textSecondary"
-                    android:textSize="13sp" />
-
-                <TextView
-                    android:id="@+id/btnTemaAutomatico"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:background="@drawable/bg_segment_unselected"
-                    android:clickable="true"
-                    android:focusable="true"
-                    android:gravity="center"
-                    android:paddingTop="10dp"
-                    android:paddingBottom="10dp"
-                    android:text="@string/config_tema_automatico"
-                    android:textColor="@color/textSecondary"
-                    android:textSize="13sp" />
-            </LinearLayout>
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="20dp"
-                android:layout_marginBottom="8dp"
-                android:text="@string/config_tamanho_fonte"
-                android:textColor="@color/textSecondary"
-                android:textSize="12.5sp" />
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -316,18 +246,6 @@
                 <View android:layout_width="match_parent" android:layout_height="1dp" android:background="@color/border" />
 
                 <TextView
-                    android:id="@+id/btnAjudaSuporte"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:paddingTop="14dp"
-                    android:paddingBottom="14dp"
-                    android:text="@string/config_ajuda"
-                    android:textColor="@color/textPrimary"
-                    android:textSize="13.5sp" />
-
-                <View android:layout_width="match_parent" android:layout_height="1dp" android:background="@color/border" />
-
-                <TextView
                     android:id="@+id/btnGerenciarAlertas"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -336,6 +254,143 @@
                     android:text="@string/config_gerenciar_alertas"
                     android:textColor="@color/textPrimary"
                     android:textSize="13.5sp" />
+            </LinearLayout>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="24dp"
+                android:layout_marginBottom="2dp"
+                android:text="@string/config_instituicao_titulo"
+                android:textColor="@color/textPrimary"
+                android:textSize="16sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="10dp"
+                android:text="@string/config_instituicao_subtitulo"
+                android:textColor="@color/textSecondary"
+                android:textSize="12sp" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/bg_card_surface"
+                android:elevation="2dp"
+                android:orientation="vertical"
+                android:padding="16dp">
+
+                <!-- Estado: ja logada com credencial institucional real (nao anonima). -->
+                <LinearLayout
+                    android:id="@+id/containerInstituicaoConectada"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:visibility="gone">
+
+                    <TextView
+                        android:id="@+id/txtInstituicaoConectada"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="12dp"
+                        android:textColor="@color/textPrimary"
+                        android:textSize="13sp"
+                        tools:text="Conectado como admin@partogramadigital.app" />
+
+                    <TextView style="@style/CampoLabel" android:layout_marginTop="0dp" android:text="@string/config_instituicao_nova_senha" />
+                    <EditText
+                        android:id="@+id/edtNovaSenhaInstituicao"
+                        style="@style/CampoInput"
+                        android:inputType="textPassword" />
+
+                    <TextView style="@style/CampoLabel" android:text="@string/config_instituicao_confirmar_senha" />
+                    <EditText
+                        android:id="@+id/edtConfirmarSenhaInstituicao"
+                        style="@style/CampoInput"
+                        android:inputType="textPassword" />
+
+                    <LinearLayout
+                        android:id="@+id/btnSalvarSenhaInstituicao"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:background="@drawable/bg_button_primary"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:gravity="center"
+                        android:paddingTop="12dp"
+                        android:paddingBottom="12dp">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/config_instituicao_salvar_senha"
+                            android:textColor="#FFFFFFFF"
+                            android:textSize="13.5sp"
+                            android:textStyle="bold" />
+                    </LinearLayout>
+                </LinearLayout>
+
+                <!-- Estado: sem credencial institucional (sessao anonima ou nenhuma). -->
+                <LinearLayout
+                    android:id="@+id/containerInstituicaoLogin"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:visibility="visible">
+
+                    <TextView style="@style/CampoLabel" android:layout_marginTop="0dp" android:text="@string/login_email" />
+                    <EditText
+                        android:id="@+id/edtLoginInstituicao"
+                        style="@style/CampoInput"
+                        android:inputType="textEmailAddress" />
+
+                    <TextView style="@style/CampoLabel" android:text="@string/login_senha" />
+                    <EditText
+                        android:id="@+id/edtSenhaInstituicao"
+                        style="@style/CampoInput"
+                        android:inputType="textPassword" />
+
+                    <TextView
+                        android:id="@+id/txtErroInstituicao"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="4dp"
+                        android:textColor="@color/colorAlerta"
+                        android:textSize="12sp"
+                        android:visibility="gone"
+                        tools:text="E-mail ou senha inválidos." />
+
+                    <LinearLayout
+                        android:id="@+id/btnEntrarInstituicao"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:background="@drawable/bg_button_primary"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:gravity="center"
+                        android:paddingTop="12dp"
+                        android:paddingBottom="12dp">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/login_entrar"
+                            android:textColor="#FFFFFFFF"
+                            android:textSize="13.5sp"
+                            android:textStyle="bold" />
+                    </LinearLayout>
+                </LinearLayout>
+
+                <ProgressBar
+                    android:id="@+id/progressInstituicao"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:layout_marginTop="12dp"
+                    android:indeterminateTint="@color/primaryPink"
+                    android:visibility="gone" />
             </LinearLayout>
 
             <LinearLayout

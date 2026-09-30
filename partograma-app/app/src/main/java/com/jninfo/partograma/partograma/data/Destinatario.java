@@ -13,7 +13,8 @@ public class Destinatario {
 
     private String id;
     private String nome;
-    private String contato;      // e-mail ou telefone -- livre, sem inventar um canal especifico
+    private String contato;      // e-mail ou telefone, conforme tipoContato
+    private String tipoContato;  // "email" | "telefone"
     private Boolean ativo;
 
     public Destinatario() {
@@ -44,6 +45,14 @@ public class Destinatario {
 
     public void setContato(String contato) {
         this.contato = contato;
+    }
+
+    public String getTipoContato() {
+        return tipoContato;
+    }
+
+    public void setTipoContato(String tipoContato) {
+        this.tipoContato = tipoContato;
     }
 
     public Boolean getAtivo() {

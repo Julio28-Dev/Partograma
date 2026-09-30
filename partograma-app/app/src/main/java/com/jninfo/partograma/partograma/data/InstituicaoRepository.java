@@ -115,6 +115,7 @@ public class InstituicaoRepository {
         Map<String, Object> dados = new HashMap<>();
         dados.put("nome", destinatario.getNome());
         dados.put("contato", destinatario.getContato());
+        dados.put("tipoContato", destinatario.getTipoContato());
         dados.put("ativo", true);
         db.collection(COLECAO_INSTITUICOES).document(institutionId).collection(SUBCOLECAO_DESTINATARIOS)
                 .add(dados)

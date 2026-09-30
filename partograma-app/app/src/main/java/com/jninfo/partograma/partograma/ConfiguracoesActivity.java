@@ -2,15 +2,22 @@ package com.jninfo.partograma.partograma;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.view.View;
 import android.widget.CompoundButton;
+import android.widget.EditText;
+import android.widget.ProgressBar;
 import android.widget.Switch;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AlertDialog;
 import androidx.core.content.ContextCompat;
 
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.jninfo.partograma.partograma.data.AppPreferences;
+import com.jninfo.partograma.partograma.data.InstituicaoRepository;
 
 /**
  * Tela de Configurações do aplicativo. Nao e mais uma aba dentro dos detalhes de uma
@@ -22,6 +29,7 @@ import com.jninfo.partograma.partograma.data.AppPreferences;
 public class ConfiguracoesActivity extends BaseActivity {
 
     private AppPreferences preferencias;
+    private InstituicaoRepository instituicaoRepositorio;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -29,29 +37,13 @@ public class ConfiguracoesActivity extends BaseActivity {
         setContentView(R.layout.activity_configuracoes);
 
         preferencias = new AppPreferences(this);
+        instituicaoRepositorio = new InstituicaoRepository();
         findViewById(R.id.btnVoltar).setOnClickListener(v -> finish());
 
-        configurarTema();
         configurarFonte();
         configurarNotificacoes();
         configurarOutrasOpcoes();
-    }
-
-    private void configurarTema() {
-        View btnClaro = findViewById(R.id.btnTemaClaro);
-        View btnEscuro = findViewById(R.id.btnTemaEscuro);
-        View btnAutomatico = findViewById(R.id.btnTemaAutomatico);
-        View[] botoes = {btnClaro, btnEscuro, btnAutomatico};
-        String[] valores = {AppPreferences.TEMA_CLARO, AppPreferences.TEMA_ESCURO, AppPreferences.TEMA_AUTOMATICO};
-        aplicarSelecaoSegmento(botoes, indiceTema(preferencias.getTema()));
-        for (int i = 0; i < botoes.length; i++) {
-            int indice = i;
-            botoes[i].setOnClickListener(v -> {
-                preferencias.setTema(valores[indice]);
-                aplicarSelecaoSegmento(botoes, indice);
-                Toast.makeText(this, R.string.config_reiniciar_aviso, Toast.LENGTH_LONG).show();
-            });
-        }
+        configurarInstituicao();
     }
 
     private void configurarFonte() {
@@ -86,9 +78,112 @@ public class ConfiguracoesActivity extends BaseActivity {
     private void configurarOutrasOpcoes() {
         findViewById(R.id.btnLimparCache).setOnClickListener(v -> limparCache());
         findViewById(R.id.btnSobreApp).setOnClickListener(v -> mostrarSobre());
-        findViewById(R.id.btnAjudaSuporte).setOnClickListener(v -> startActivity(new Intent(this, TelaInicial.class)));
         findViewById(R.id.btnGerenciarAlertas).setOnClickListener(v -> startActivity(new Intent(this, AlertasActivity.class)));
         findViewById(R.id.btnSair).setOnClickListener(v -> confirmarSaida());
+    }
+
+    /**
+     * Login/senha da instituicao (secao 5.1 do briefing): se ja houver uma sessao
+     * institucional real (nao anonima), mostra troca de senha; senao, mostra um mini-login
+     * -- a mesma logica do LoginActivity, so que aqui a tela nao e obrigatoria para acessar
+     * Pacientes, e sim um lugar para configurar a credencial quando/se a instituicao quiser.
+     */
+    private void configurarInstituicao() {
+        View containerConectada = findViewById(R.id.containerInstituicaoConectada);
+        View containerLogin = findViewById(R.id.containerInstituicaoLogin);
+        FirebaseUser usuario = FirebaseAuth.getInstance().getCurrentUser();
+        boolean logadaInstitucionalmente = usuario != null && !usuario.isAnonymous() && usuario.getEmail() != null;
+
+        containerConectada.setVisibility(logadaInstitucionalmente ? View.VISIBLE : View.GONE);
+        containerLogin.setVisibility(logadaInstitucionalmente ? View.GONE : View.VISIBLE);
+
+        if (logadaInstitucionalmente) {
+            ((TextView) findViewById(R.id.txtInstituicaoConectada))
+                    .setText(getString(R.string.config_instituicao_conectado, usuario.getEmail()));
+            findViewById(R.id.btnSalvarSenhaInstituicao).setOnClickListener(v -> salvarNovaSenhaInstituicao());
+        } else {
+            findViewById(R.id.btnEntrarInstituicao).setOnClickListener(v -> entrarInstituicao());
+        }
+    }
+
+    private void entrarInstituicao() {
+        EditText edtEmail = findViewById(R.id.edtLoginInstituicao);
+        EditText edtSenha = findViewById(R.id.edtSenhaInstituicao);
+        TextView txtErro = findViewById(R.id.txtErroInstituicao);
+        ProgressBar progress = findViewById(R.id.progressInstituicao);
+
+        String email = edtEmail.getText().toString().trim();
+        String senha = edtSenha.getText().toString();
+        if (TextUtils.isEmpty(email) || TextUtils.isEmpty(senha)) {
+            txtErro.setText(R.string.login_erro_campos_vazios);
+            txtErro.setVisibility(View.VISIBLE);
+            return;
+        }
+
+        txtErro.setVisibility(View.GONE);
+        progress.setVisibility(View.VISIBLE);
+        FirebaseAuth.getInstance().signInWithEmailAndPassword(email, senha)
+                .addOnSuccessListener(resultado -> {
+                    String institutionId = InstituicaoRepository.instituicaoIdAtual();
+                    if (institutionId != null) {
+                        instituicaoRepositorio.garantirInstituicao(institutionId, new InstituicaoRepository.OperacaoCallback() {
+                            @Override
+                            public void onSucesso() {
+                                recreate();
+                            }
+
+                            @Override
+                            public void onErro(Exception erro) {
+                                recreate();
+                            }
+                        });
+                    } else {
+                        recreate();
+                    }
+                })
+                .addOnFailureListener(erro -> {
+                    progress.setVisibility(View.GONE);
+                    txtErro.setText(R.string.login_erro_credenciais);
+                    txtErro.setVisibility(View.VISIBLE);
+                });
+    }
+
+    private void salvarNovaSenhaInstituicao() {
+        EditText edtNova = findViewById(R.id.edtNovaSenhaInstituicao);
+        EditText edtConfirmar = findViewById(R.id.edtConfirmarSenhaInstituicao);
+        ProgressBar progress = findViewById(R.id.progressInstituicao);
+
+        String novaSenha = edtNova.getText().toString();
+        String confirmacao = edtConfirmar.getText().toString();
+        if (novaSenha.length() < 6) {
+            Toast.makeText(this, R.string.config_instituicao_senha_curta, Toast.LENGTH_LONG).show();
+            return;
+        }
+        if (!novaSenha.equals(confirmacao)) {
+            Toast.makeText(this, R.string.config_instituicao_senhas_diferentes, Toast.LENGTH_LONG).show();
+            return;
+        }
+
+        FirebaseUser usuario = FirebaseAuth.getInstance().getCurrentUser();
+        if (usuario == null) {
+            return;
+        }
+        progress.setVisibility(View.VISIBLE);
+        usuario.updatePassword(novaSenha)
+                .addOnSuccessListener(unused -> {
+                    progress.setVisibility(View.GONE);
+                    edtNova.setText("");
+                    edtConfirmar.setText("");
+                    Toast.makeText(this, R.string.config_instituicao_senha_salva, Toast.LENGTH_LONG).show();
+                })
+                .addOnFailureListener(erro -> {
+                    progress.setVisibility(View.GONE);
+                    if (erro instanceof com.google.firebase.auth.FirebaseAuthRecentLoginRequiredException) {
+                        Toast.makeText(this, R.string.config_instituicao_reautenticar, Toast.LENGTH_LONG).show();
+                    } else {
+                        Toast.makeText(this, R.string.alertas_erro_salvar, Toast.LENGTH_LONG).show();
+                    }
+                });
     }
 
     private void confirmarSaida() {
@@ -107,12 +202,6 @@ public class ConfiguracoesActivity extends BaseActivity {
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         startActivity(intent);
         finish();
-    }
-
-    private int indiceTema(String tema) {
-        if (AppPreferences.TEMA_ESCURO.equals(tema)) return 1;
-        if (AppPreferences.TEMA_AUTOMATICO.equals(tema)) return 2;
-        return 0;
     }
 
     private int indiceFonte(float escala) {

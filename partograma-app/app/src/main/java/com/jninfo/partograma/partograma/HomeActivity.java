@@ -12,15 +12,26 @@ import android.widget.TextView;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.res.ResourcesCompat;
 
+import com.google.firebase.auth.FirebaseAuth;
 import com.jninfo.partograma.partograma.ui.BlobButton;
 import com.jninfo.partograma.partograma.ui.LightRaysView;
 
 /**
  * Tela inicial de marca ("Home") do Partograma Digital, reproduzindo a composicao da
  * referencia visual (ver /refe.jpg): logo, titulo, cartao de recursos, ilustracao e o
- * botao "INICIAR". Ao tocar em "INICIAR", segue para o fluxo original do aplicativo
- * ({@link TelaInicial}), que continua decidindo sozinho se mostra o tutorial ou vai
- * direto para o {@link Menu} -- nenhuma logica existente foi alterada.
+ * botao "INICIAR".
+ *
+ * Fluxo (revisado -- a cliente pediu para nao ter mais tutorial nem login geral
+ * obrigatorio): INICIAR -> Pacientes diretamente. O tutorial antigo ({@code TelaInicial},
+ * as 3 telas que a cliente pediu para tirar) foi removido do fluxo e do projeto.
+ *
+ * A autenticacao (necessaria para o Firestore, ver firestore.rules) continua acontecendo
+ * nos bastidores: {@link PartogramaApplication} ja tenta login anonimo assim que o app
+ * abre. Se por algum motivo isso ainda nao tiver terminado (ou o provedor anonimo estiver
+ * desativado no projeto Firebase), tentamos de novo aqui na hora do toque; so se isso
+ * tambem falhar e que caímos no login institucional ({@link LoginActivity}) como rede de
+ * seguranca -- nunca removendo autenticacao, so evitando pedir login quando nao e
+ * necessario.
  */
 public class HomeActivity extends AppCompatActivity {
 
@@ -53,12 +64,39 @@ public class HomeActivity extends AppCompatActivity {
         bindFeature(R.id.feature5, R.drawable.ic_feature_pie, R.string.home_feature_graficos);
 
         BlobButton btnIniciar = findViewById(R.id.btnIniciar);
-        btnIniciar.setOnClickListener(v -> {
-            startActivity(new Intent(HomeActivity.this, TelaInicial.class));
-            finish();
-        });
+        btnIniciar.setOnClickListener(v -> iniciar(btnIniciar));
 
         playEntranceAnimation();
+    }
+
+    /**
+     * "INICIAR" vai direto para Pacientes -- sem tutorial, sem login geral obrigatorio.
+     * Se ja existe qualquer sessao Firebase (anonima do bootstrap do app, ou institucional
+     * de um login anterior), segue na hora. Se nao existe nenhuma (bootstrap anonimo ainda
+     * nao terminou, ou o provedor anonimo esta desativado no projeto), tenta autenticar
+     * anonimamente mais uma vez antes de decidir; so cai no login institucional se isso
+     * tambem falhar.
+     */
+    private void iniciar(View origem) {
+        origem.setEnabled(false);
+        FirebaseAuth auth = FirebaseAuth.getInstance();
+        if (auth.getCurrentUser() != null) {
+            irParaPacientes();
+            return;
+        }
+        auth.signInAnonymously()
+                .addOnSuccessListener(resultado -> irParaPacientes())
+                .addOnFailureListener(erro -> irParaLogin());
+    }
+
+    private void irParaPacientes() {
+        startActivity(new Intent(HomeActivity.this, PacientesActivity.class));
+        finish();
+    }
+
+    private void irParaLogin() {
+        startActivity(new Intent(HomeActivity.this, LoginActivity.class));
+        finish();
     }
 
     /** Fade + leve deslocamento vertical, em cascata por secao, ao abrir a Home. */

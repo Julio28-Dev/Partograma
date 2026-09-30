@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/background"
@@ -58,24 +59,53 @@
                 android:lineSpacingMultiplier="1.25" />
 
             <FrameLayout
-                android:layout_width="200dp"
-                android:layout_height="200dp"
+                android:layout_width="180dp"
+                android:layout_height="180dp"
                 android:layout_gravity="center"
                 android:background="@drawable/bg_card_surface"
                 android:elevation="2dp"
-                android:padding="16dp">
+                android:padding="10dp">
 
                 <ImageView
+                    android:id="@+id/imgDeLeeGrande"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
+                    android:scaleType="fitCenter"
                     android:importantForAccessibility="no"
-                    android:src="@drawable/ic_delee_placeholder" />
+                    android:src="@drawable/img_delee_0" />
             </FrameLayout>
+
+            <TextView
+                android:id="@+id/txtValorDeLeeGrande"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_marginTop="10dp"
+                android:background="@drawable/bg_badge_lilac"
+                android:paddingStart="16dp"
+                android:paddingEnd="16dp"
+                android:paddingTop="4dp"
+                android:paddingBottom="4dp"
+                android:textColor="@color/softPurple"
+                android:textSize="15sp"
+                android:textStyle="bold"
+                tools:text="0" />
+
+            <TextView
+                android:id="@+id/txtLegendaDeLeeGrande"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:gravity="center"
+                android:textColor="@color/textPrimary"
+                android:textSize="13.5sp"
+                android:lineSpacingMultiplier="1.2"
+                tools:text="A apresentação está no plano das espinhas isquiáticas." />
 
             <HorizontalScrollView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="20dp"
+                android:layout_marginTop="22dp"
                 android:scrollbars="none">
 
                 <LinearLayout
@@ -84,48 +114,6 @@
                     android:layout_height="wrap_content"
                     android:orientation="horizontal" />
             </HorizontalScrollView>
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="20dp"
-                android:background="@drawable/bg_card_surface"
-                android:elevation="2dp"
-                android:orientation="vertical"
-                android:padding="16dp">
-
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="@string/delee_referencia_zero"
-                    android:textColor="@color/textPrimary"
-                    android:textSize="13sp" />
-
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
-                    android:text="@string/delee_referencia_negativo"
-                    android:textColor="@color/textPrimary"
-                    android:textSize="13sp" />
-
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
-                    android:text="@string/delee_referencia_positivo"
-                    android:textColor="@color/textPrimary"
-                    android:textSize="13sp" />
-            </LinearLayout>
-
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
-                android:gravity="center"
-                android:text="@string/delee_placeholder_aviso"
-                android:textColor="@color/textSecondary"
-                android:textSize="11.5sp" />
 
         </LinearLayout>
     </ScrollView>

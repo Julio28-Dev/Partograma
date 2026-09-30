@@ -4,6 +4,9 @@
     android:layout_width="72dp"
     android:layout_height="wrap_content"
     android:layout_marginEnd="10dp"
+    android:clickable="true"
+    android:focusable="true"
+    android:background="?android:attr/selectableItemBackground"
     android:gravity="center"
     android:orientation="vertical">
 
@@ -15,10 +18,12 @@
         android:padding="4dp">
 
         <ImageView
+            android:id="@+id/imgValorDeLee"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
+            android:scaleType="fitCenter"
             android:importantForAccessibility="no"
-            android:src="@drawable/ic_delee_placeholder" />
+            tools:src="@drawable/img_delee_0" />
     </FrameLayout>
 
     <TextView

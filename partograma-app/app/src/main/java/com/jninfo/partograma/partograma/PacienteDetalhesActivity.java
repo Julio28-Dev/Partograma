@@ -305,34 +305,56 @@ public class PacienteDetalhesActivity extends BaseActivity {
         campoMensagem.setPadding(paddingPx, paddingPx, paddingPx, paddingPx);
 
         List<String> nomes = new ArrayList<>();
+        StringBuilder listaDestinatarios = new StringBuilder();
         for (com.jninfo.partograma.partograma.data.Destinatario destinatario : destinatarios) {
             nomes.add(destinatario.getNome());
+            boolean telefone = "telefone".equals(destinatario.getTipoContato());
+            listaDestinatarios.append("\n")
+                    .append(telefone ? "📱 " : "📧 ")
+                    .append(destinatario.getNome())
+                    .append(" (").append(telefone
+                            ? getString(R.string.alerta_canal_sms)
+                            : getString(R.string.alerta_canal_email)).append(")");
         }
 
         new AlertDialog.Builder(this)
                 .setTitle(R.string.alerta_emitir_titulo)
-                .setMessage((nomePaciente != null ? nomePaciente : "") + "\n\n"
-                        + getString(R.string.alertas_destinatarios_titulo) + ": " + TextUtils.join(", ", nomes))
+                .setMessage((nomePaciente != null ? nomePaciente : "") + "\n"
+                        + getString(R.string.alertas_destinatarios_titulo) + ":" + listaDestinatarios)
                 .setView(campoMensagem)
                 .setNegativeButton(R.string.excluir_paciente_cancelar, null)
                 .setPositiveButton(R.string.alerta_emitir_confirmar, (dialog, which) -> {
                     String mensagemFinal = campoMensagem.getText().toString().trim();
-                    List<String> emailsDestinatarios = extrairEmails(destinatarios);
+                    List<String> emails = new ArrayList<>();
+                    List<String> telefones = new ArrayList<>();
+                    for (com.jninfo.partograma.partograma.data.Destinatario destinatario : destinatarios) {
+                        String contato = destinatario.getContato();
+                        if (TextUtils.isEmpty(contato)) {
+                            continue;
+                        }
+                        if ("telefone".equals(destinatario.getTipoContato())) {
+                            telefones.add(contato);
+                        } else {
+                            emails.add(contato);
+                        }
+                    }
                     com.jninfo.partograma.partograma.data.RegistroAlerta alerta = new com.jninfo.partograma.partograma.data.RegistroAlerta();
                     alerta.setPacienteId(pacienteId);
                     alerta.setPacienteNome(nomePaciente);
                     alerta.setMensagem(mensagemFinal);
                     alerta.setDestinatariosNomes(nomes);
-                    alerta.setStatus(emailsDestinatarios.isEmpty()
-                            ? "registrado_sem_canal" : "registrado_email_aberto");
+                    alerta.setStatus(statusDoAlerta(emails, telefones));
                     instituicaoRepositorio.registrarAlerta(institutionId, alerta,
                             new com.jninfo.partograma.partograma.data.InstituicaoRepository.OperacaoCallback() {
                                 @Override
                                 public void onSucesso() {
-                                    boolean abriuEmail = enviarAlertaPorEmail(emailsDestinatarios, mensagemFinal);
-                                    Toast.makeText(PacienteDetalhesActivity.this,
-                                            abriuEmail ? R.string.alerta_emitir_sucesso_email : R.string.alerta_emitir_sucesso,
-                                            Toast.LENGTH_LONG).show();
+                                    boolean abriuEmail = enviarAlertaPorEmail(emails, mensagemFinal);
+                                    boolean abriuSms = enviarAlertaPorSms(telefones, mensagemFinal);
+                                    int mensagemResultado = abriuEmail && abriuSms ? R.string.alerta_emitir_sucesso_email_sms
+                                            : abriuEmail ? R.string.alerta_emitir_sucesso_email
+                                            : abriuSms ? R.string.alerta_emitir_sucesso_sms
+                                            : R.string.alerta_emitir_sucesso;
+                                    Toast.makeText(PacienteDetalhesActivity.this, mensagemResultado, Toast.LENGTH_LONG).show();
                                 }
 
                                 @Override
@@ -344,28 +366,30 @@ public class PacienteDetalhesActivity extends BaseActivity {
                 .show();
     }
 
+    private String statusDoAlerta(List<String> emails, List<String> telefones) {
+        if (!emails.isEmpty() && !telefones.isEmpty()) {
+            return "registrado_email_e_sms_abertos";
+        }
+        if (!emails.isEmpty()) {
+            return "registrado_email_aberto";
+        }
+        if (!telefones.isEmpty()) {
+            return "registrado_sms_aberto";
+        }
+        return "registrado_sem_canal";
+    }
+
     /**
      * Abre o app de e-mail do aparelho com a mensagem ja preenchida para os destinatarios
-     * cujo "contato" tem formato de e-mail, para o profissional revisar e enviar.
+     * cadastrados como "e-mail", para o profissional revisar e enviar.
      *
      * Por que assim e nao envio automatico "de verdade": nao existe servidor/Cloud Function
      * neste projeto para disparar push (FCM) ou e-mail (SMTP) sozinho, e colocar a chave de
      * um servico de e-mail direto no APK seria inseguro (qualquer um que descompilar o app
      * roubaria a chave). Abrir o app de e-mail do proprio profissional e a unica forma de
      * mandar um e-mail de verdade sem nenhuma infraestrutura de servidor nem credencial
-     * exposta -- e o "menos trabalho" pedido, sem inventar uma solucao insegura.
+     * exposta.
      */
-    private List<String> extrairEmails(List<com.jninfo.partograma.partograma.data.Destinatario> destinatarios) {
-        List<String> emails = new ArrayList<>();
-        for (com.jninfo.partograma.partograma.data.Destinatario destinatario : destinatarios) {
-            String contato = destinatario.getContato();
-            if (contato != null && android.util.Patterns.EMAIL_ADDRESS.matcher(contato).matches()) {
-                emails.add(contato);
-            }
-        }
-        return emails;
-    }
-
     private boolean enviarAlertaPorEmail(List<String> emails, String mensagem) {
         if (emails.isEmpty()) {
             return false;
@@ -375,6 +399,30 @@ public class PacienteDetalhesActivity extends BaseActivity {
         intent.putExtra(Intent.EXTRA_EMAIL, emails.toArray(new String[0]));
         intent.putExtra(Intent.EXTRA_SUBJECT, getString(R.string.alerta_email_assunto, nomePaciente));
         intent.putExtra(Intent.EXTRA_TEXT, mensagem);
+        if (intent.resolveActivity(getPackageManager()) != null) {
+            startActivity(intent);
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * Abre o app de SMS do aparelho com a mensagem ja preenchida para os destinatarios
+     * cadastrados como "telefone", para o profissional revisar e enviar.
+     *
+     * Isto e um SMS de verdade, enviado pelo numero do proprio profissional/aparelho -- nao
+     * existe integracao com provedor de SMS (Twilio ou similar) neste projeto, porque isso
+     * exigiria credenciais pagas e um backend seguro para guarda-las (nunca no APK), que nao
+     * fazem parte do escopo atual. Ver RegrasClinicas.java e o relatorio desta etapa para o
+     * que seria necessario para um envio automatico via provedor.
+     */
+    private boolean enviarAlertaPorSms(List<String> telefones, String mensagem) {
+        if (telefones.isEmpty()) {
+            return false;
+        }
+        Intent intent = new Intent(Intent.ACTION_SENDTO);
+        intent.setData(android.net.Uri.parse("smsto:" + TextUtils.join(",", telefones)));
+        intent.putExtra("sms_body", mensagem);
         if (intent.resolveActivity(getPackageManager()) != null) {
             startActivity(intent);
             return true;

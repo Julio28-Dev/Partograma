@@ -39,12 +39,6 @@
             android:exported="false" />
 
         <activity
-            android:name=".TelaInicial"
-            android:configChanges="orientation"
-            android:screenOrientation="portrait"
-            android:exported="false" />
-
-        <activity
             android:name=".PacientesActivity"
             android:configChanges="orientation"
             android:screenOrientation="portrait"
@@ -56,6 +50,7 @@
             android:configChanges="orientation"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme.NoActionBar"
+            android:windowSoftInputMode="adjustResize"
             android:exported="false" />
 
         <activity
@@ -63,6 +58,7 @@
             android:configChanges="orientation"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme.NoActionBar"
+            android:windowSoftInputMode="adjustResize"
             android:exported="false" />
 
         <activity
@@ -70,6 +66,7 @@
             android:configChanges="orientation"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme.NoActionBar"
+            android:windowSoftInputMode="adjustResize"
             android:exported="false" />
 
         <activity
@@ -98,6 +95,7 @@
             android:configChanges="orientation"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme.NoActionBar"
+            android:windowSoftInputMode="adjustResize"
             android:exported="false" />
 
         <activity
@@ -119,6 +117,7 @@
             android:configChanges="orientation"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme.NoActionBar"
+            android:windowSoftInputMode="adjustResize"
             android:exported="false" />
 
         <activity
@@ -126,6 +125,7 @@
             android:configChanges="orientation"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme.NoActionBar"
+            android:windowSoftInputMode="adjustResize"
             android:exported="false" />
 
         <activity
