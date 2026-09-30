@@ -121,6 +121,22 @@
             android:exported="false" />
 
         <activity
+            android:name=".SolicitarAcessoActivity"
+            android:configChanges="orientation"
+            android:screenOrientation="portrait"
+            android:theme="@style/AppTheme.NoActionBar"
+            android:windowSoftInputMode="adjustResize"
+            android:exported="false" />
+
+        <activity
+            android:name=".AutorizacoesActivity"
+            android:configChanges="orientation"
+            android:screenOrientation="portrait"
+            android:theme="@style/AppTheme.NoActionBar"
+            android:windowSoftInputMode="adjustResize"
+            android:exported="false" />
+
+        <activity
             android:name=".AlertasActivity"
             android:configChanges="orientation"
             android:screenOrientation="portrait"

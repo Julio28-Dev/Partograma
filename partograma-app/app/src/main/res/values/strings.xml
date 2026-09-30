@@ -192,6 +192,40 @@
     <string name="login_erro_campos_vazios">Preencha e-mail e senha.</string>
     <string name="login_erro_generico">Não foi possível entrar. Verifique sua conexão e tente novamente.</string>
     <string name="login_rodape">Acesso restrito às instituições cadastradas.</string>
+    <string name="login_link_solicitar_acesso">Sua instituição ainda não tem acesso? Solicitar acesso</string>
+
+    <string name="solicitar_acesso_titulo">Solicitar acesso</string>
+    <string name="solicitar_acesso_subtitulo">Preencha os dados abaixo para pedir acesso da sua instituição. Um administrador vai revisar o pedido.</string>
+    <string name="solicitar_acesso_nome_instituicao">Nome da instituição</string>
+    <string name="solicitar_acesso_responsavel">Responsável</string>
+    <string name="solicitar_acesso_email">E-mail para login</string>
+    <string name="solicitar_acesso_telefone">Telefone (opcional)</string>
+    <string name="solicitar_acesso_enviar">Solicitar acesso</string>
+    <string name="solicitar_acesso_erro_campos_vazios">Preencha nome da instituição, responsável e e-mail.</string>
+    <string name="solicitar_acesso_erro_generico">Não foi possível enviar sua solicitação. Verifique sua conexão e tente novamente.</string>
+    <string name="solicitar_acesso_sucesso_titulo">Solicitação enviada</string>
+    <string name="solicitar_acesso_sucesso_mensagem">Assim que um administrador aprovar o acesso, você poderá entrar com o e-mail informado.</string>
+    <string name="solicitar_acesso_rodape">Nenhum dado clínico é solicitado nesta etapa.</string>
+
+    <string name="config_autorizacoes">Autorizações</string>
+    <string name="config_autorizacoes_subtitulo">Aprovar ou rejeitar solicitações de acesso institucional</string>
+    <string name="autorizacoes_titulo">Autorizações</string>
+    <string name="autorizacoes_subtitulo">Solicitações de acesso institucional pendentes</string>
+    <string name="autorizacoes_vazio">Nenhuma solicitação pendente no momento.</string>
+    <string name="autorizacoes_aceitar">Aceitar</string>
+    <string name="autorizacoes_rejeitar">Rejeitar</string>
+    <string name="autorizacoes_dialogo_aceitar_titulo">Aprovar solicitação</string>
+    <string name="autorizacoes_dialogo_aceitar_mensagem">Defina uma senha inicial de acesso para %1$s. A instituição poderá trocá-la depois em Configurações.</string>
+    <string name="autorizacoes_senha_inicial_hint">Senha inicial (mín. 6 caracteres)</string>
+    <string name="autorizacoes_confirmar">Confirmar</string>
+    <string name="autorizacoes_cancelar">Cancelar</string>
+    <string name="autorizacoes_dialogo_rejeitar_titulo">Rejeitar solicitação</string>
+    <string name="autorizacoes_dialogo_rejeitar_mensagem">Motivo (opcional):</string>
+    <string name="autorizacoes_erro_senha_curta">A senha inicial precisa ter pelo menos 6 caracteres</string>
+    <string name="autorizacoes_sucesso_aceitar">Acesso aprovado e conta criada com sucesso</string>
+    <string name="autorizacoes_sucesso_rejeitar">Solicitação rejeitada</string>
+    <string name="autorizacoes_erro_generico">Não foi possível concluir a ação. Verifique sua conexão e tente novamente.</string>
+    <string name="autorizacoes_erro_email_em_uso">Já existe uma conta com esse e-mail.</string>
 
     <string name="alertas_titulo">Alertas da instituição</string>
     <string name="alertas_mensagem_padrao_titulo">Mensagem padrão de alerta</string>

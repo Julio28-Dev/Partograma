@@ -59,15 +59,50 @@ service cloud.firestore {
     // fez login (LoginActivity) -- por isso da para isolar de verdade aqui, diferente de
     // "pacientes" (ver comentario no topo do arquivo).
     match /instituicoes/{institutionId} {
-      allow read, write: if estaAutenticado() && request.auth.uid == institutionId;
+      // souAdmin() alem do dono: o admin precisa gravar o documento da instituicao no
+      // momento em que aprova uma solicitacao de acesso (ver institutionAccessRequests
+      // abaixo), antes de a propria instituicao ter feito login pela primeira vez.
+      allow read, write: if estaAutenticado() && (request.auth.uid == institutionId || souAdmin());
 
       match /destinatarios/{destinatarioId} {
-        allow read, write: if estaAutenticado() && request.auth.uid == institutionId;
+        allow read, write: if estaAutenticado() && (request.auth.uid == institutionId || souAdmin());
       }
 
       match /alertas/{alertaId} {
-        allow read, write: if estaAutenticado() && request.auth.uid == institutionId;
+        allow read, write: if estaAutenticado() && (request.auth.uid == institutionId || souAdmin());
       }
+    }
+
+    // Marcador de administrador: a existencia do documento admins/{uid} e o unico
+    // criterio que distingue um admin de uma instituicao comum (sem hardcode de
+    // e-mail/senha/uid no APK). Ninguem pode se autopromover: "write" e sempre negado
+    // pelo cliente -- o documento so e criado manualmente (Firebase Console/script
+    // administrativo), nunca pelo proprio app. "get" so pode ler o proprio uid (o app
+    // usa isso so para saber "eu sou admin?"); "list" fica bloqueado para nao expor
+    // quem mais e admin.
+    match /admins/{uid} {
+      allow get: if estaAutenticado() && request.auth.uid == uid;
+      allow list: if false;
+      allow write: if false;
+    }
+
+    // Solicitacoes de acesso institucional (tela "Solicitar acesso" -> aprovacao do
+    // admin em Configuracoes -> Autorizacoes). Qualquer usuario autenticado (inclusive
+    // sessao anonima, ja que quem solicita ainda nao tem login institucional) pode
+    // CRIAR uma solicitacao propria, sempre como "pendente" e sem poder se autoaprovar
+    // (nao pode setar status diferente de pendente, nem revisadoPor, na criacao).
+    // Ler/listar todas e mudar o status (aprovar/rejeitar) e privilegio exclusivo do
+    // admin -- uma instituicao comum nao consegue listar, aprovar, rejeitar ou alterar
+    // manualmente o proprio status.
+    match /institutionAccessRequests/{requestId} {
+      allow create: if estaAutenticado()
+        && request.resource.data.status == 'pendente'
+        && request.resource.data.keys().hasAll(['nomeInstituicao', 'responsavel', 'email', 'criadoEm'])
+        && !('revisadoPor' in request.resource.data)
+        && !('institutionUid' in request.resource.data);
+      allow read: if souAdmin();
+      allow update: if souAdmin();
+      allow delete: if false;
     }
 
     // Qualquer outra colecao nao prevista acima fica bloqueada por padrao.
@@ -78,6 +113,11 @@ service cloud.firestore {
 
   function estaAutenticado() {
     return request.auth != null;
+  }
+
+  function souAdmin() {
+    return request.auth != null
+      && exists(/databases/$(database)/documents/admins/$(request.auth.uid));
   }
 
   // Validacao minima: exige que os campos centrais existam e nao estejam vazios,

@@ -16,8 +16,10 @@ import androidx.core.content.ContextCompat;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.ListenerRegistration;
 import com.jninfo.partograma.partograma.data.AppPreferences;
 import com.jninfo.partograma.partograma.data.InstituicaoRepository;
+import com.jninfo.partograma.partograma.data.SolicitacaoAcessoRepository;
 
 /**
  * Tela de Configurações do aplicativo. Nao e mais uma aba dentro dos detalhes de uma
@@ -30,6 +32,8 @@ public class ConfiguracoesActivity extends BaseActivity {
 
     private AppPreferences preferencias;
     private InstituicaoRepository instituicaoRepositorio;
+    private SolicitacaoAcessoRepository solicitacaoAcessoRepositorio;
+    private ListenerRegistration listenerContagemPendentes;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -38,12 +42,51 @@ public class ConfiguracoesActivity extends BaseActivity {
 
         preferencias = new AppPreferences(this);
         instituicaoRepositorio = new InstituicaoRepository();
+        solicitacaoAcessoRepositorio = new SolicitacaoAcessoRepository();
         findViewById(R.id.btnVoltar).setOnClickListener(v -> finish());
 
         configurarFonte();
         configurarNotificacoes();
         configurarOutrasOpcoes();
         configurarInstituicao();
+        configurarAutorizacoes();
+    }
+
+    @Override
+    protected void onDestroy() {
+        if (listenerContagemPendentes != null) {
+            listenerContagemPendentes.remove();
+        }
+        super.onDestroy();
+    }
+
+    /**
+     * Secao "Autorizacoes" (aprovar/rejeitar acesso institucional): so aparece para quem
+     * tem papel admin (admins/{uid} no Firestore, ver firestore.rules). Nao e so cosmetico
+     * -- mesmo que essa checagem falhe por algum motivo, o Firestore recusa qualquer
+     * leitura/escrita de institutionAccessRequests para quem nao for admin.
+     */
+    private void configurarAutorizacoes() {
+        View divisor = findViewById(R.id.divisorAutorizacoes);
+        View linha = findViewById(R.id.btnAutorizacoes);
+        solicitacaoAcessoRepositorio.verificarAdmin(ehAdmin -> {
+            if (!ehAdmin) {
+                return;
+            }
+            divisor.setVisibility(View.VISIBLE);
+            linha.setVisibility(View.VISIBLE);
+            linha.setOnClickListener(v -> startActivity(new Intent(this, AutorizacoesActivity.class)));
+
+            TextView badge = findViewById(R.id.badgeAutorizacoes);
+            listenerContagemPendentes = solicitacaoAcessoRepositorio.observarContagemPendentes(quantidade -> {
+                if (quantidade > 0) {
+                    badge.setText(String.valueOf(quantidade));
+                    badge.setVisibility(View.VISIBLE);
+                } else {
+                    badge.setVisibility(View.GONE);
+                }
+            });
+        });
     }
 
     private void configurarFonte() {

@@ -9,6 +9,7 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:background="@drawable/bg_header_gradient"
         android:gravity="center_vertical"
         android:orientation="horizontal"
         android:paddingStart="16dp"
@@ -254,6 +255,50 @@
                     android:text="@string/config_gerenciar_alertas"
                     android:textColor="@color/textPrimary"
                     android:textSize="13.5sp" />
+
+                <View
+                    android:id="@+id/divisorAutorizacoes"
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:background="@color/border"
+                    android:visibility="gone" />
+
+                <LinearLayout
+                    android:id="@+id/btnAutorizacoes"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal"
+                    android:visibility="gone">
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:paddingTop="14dp"
+                        android:paddingBottom="14dp"
+                        android:text="@string/config_autorizacoes"
+                        android:textColor="@color/textPrimary"
+                        android:textSize="13.5sp" />
+
+                    <TextView
+                        android:id="@+id/badgeAutorizacoes"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginEnd="4dp"
+                        android:background="@drawable/bg_avatar_circle"
+                        android:backgroundTint="@color/colorAlerta"
+                        android:gravity="center"
+                        android:minWidth="22dp"
+                        android:minHeight="22dp"
+                        android:paddingStart="6dp"
+                        android:paddingEnd="6dp"
+                        android:textColor="#FFFFFFFF"
+                        android:textSize="11.5sp"
+                        android:textStyle="bold"
+                        android:visibility="gone"
+                        tools:text="3" />
+                </LinearLayout>
             </LinearLayout>
 
             <TextView

@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:paddingStart="24dp"
+    android:paddingEnd="24dp"
+    android:paddingTop="8dp"
+    android:paddingBottom="8dp">
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/autorizacoes_dialogo_rejeitar_mensagem"
+        android:textColor="@color/textSecondary"
+        android:textSize="13.5sp" />
+
+    <EditText
+        android:id="@+id/edtMotivoRejeicao"
+        style="@style/CampoInput"
+        android:layout_marginTop="10dp"
+        android:inputType="textMultiLine"
+        android:minLines="2" />
+</LinearLayout>

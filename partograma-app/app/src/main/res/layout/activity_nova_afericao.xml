@@ -9,6 +9,7 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:background="@drawable/bg_header_gradient"
         android:gravity="center_vertical"
         android:orientation="horizontal"
         android:paddingStart="10dp"
@@ -140,7 +141,7 @@
                         <ImageView android:layout_width="16dp" android:layout_height="16dp" android:importantForAccessibility="no" android:src="@drawable/ic_vital_calendar" />
                         <TextView style="@style/CampoLabel" android:layout_marginBottom="0dp" android:layout_marginStart="6dp" android:text="@string/sinais_vitais_data_afericao" />
                     </LinearLayout>
-                    <EditText android:id="@+id/edtDataAfericao" style="@style/CampoInput" android:layout_marginBottom="0dp" android:hint="dd/mm/aaaa" android:inputType="number" />
+                    <EditText android:id="@+id/edtDataAfericao" style="@style/CampoInput" android:layout_marginTop="8dp" android:layout_marginBottom="0dp" android:hint="dd/mm/aaaa" android:inputType="number" />
                 </LinearLayout>
 
                 <LinearLayout
@@ -153,7 +154,7 @@
                         <ImageView android:layout_width="16dp" android:layout_height="16dp" android:importantForAccessibility="no" android:src="@drawable/ic_feature_clock" />
                         <TextView style="@style/CampoLabel" android:layout_marginBottom="0dp" android:layout_marginStart="6dp" android:text="@string/sinais_vitais_horario" />
                     </LinearLayout>
-                    <EditText android:id="@+id/edtHorarioAfericao" style="@style/CampoInput" android:layout_marginBottom="0dp" android:hint="HH:mm" android:inputType="number" />
+                    <EditText android:id="@+id/edtHorarioAfericao" style="@style/CampoInput" android:layout_marginTop="8dp" android:layout_marginBottom="0dp" android:hint="HH:mm" android:inputType="number" />
                 </LinearLayout>
             </LinearLayout>
 

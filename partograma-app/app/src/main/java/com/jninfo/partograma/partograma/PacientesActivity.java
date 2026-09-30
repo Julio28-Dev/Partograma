@@ -18,6 +18,7 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 import com.google.firebase.firestore.ListenerRegistration;
 import com.jninfo.partograma.partograma.data.FirestorePatientRepository;
 import com.jninfo.partograma.partograma.data.Paciente;
+import com.jninfo.partograma.partograma.data.SolicitacaoAcessoRepository;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -37,6 +38,9 @@ public class PacientesActivity extends BaseActivity {
 
     private FirestorePatientRepository repositorio;
     private ListenerRegistration listenerPacientes;
+    private SolicitacaoAcessoRepository solicitacaoAcessoRepositorio;
+    private ListenerRegistration listenerContagemPendentes;
+    private View badgeConfiguracoes;
 
     private PacientesAdapter adapter;
     private final List<Paciente> todosPacientes = new ArrayList<>();
@@ -52,6 +56,8 @@ public class PacientesActivity extends BaseActivity {
         setContentView(R.layout.activity_pacientes);
 
         repositorio = new FirestorePatientRepository();
+        solicitacaoAcessoRepositorio = new SolicitacaoAcessoRepository();
+        badgeConfiguracoes = findViewById(R.id.badgeConfiguracoes);
 
         txtTotalPacientes = findViewById(R.id.txtTotalPacientes);
         estadoVazio = findViewById(R.id.estadoVazio);
@@ -87,6 +93,29 @@ public class PacientesActivity extends BaseActivity {
                 startActivity(new Intent(PacientesActivity.this, ConfiguracoesActivity.class)));
 
         observarPacientes();
+        configurarBadgeAutorizacoes();
+    }
+
+    /**
+     * So instituicoes com papel admin (documento em admins/{uid}, ver firestore.rules)
+     * veem a contagem de solicitacoes pendentes -- para as demais, nem a checagem de
+     * admin muda nada visualmente, nem o listener de contagem chega a ser aberto (evita
+     * um "permission-denied" inutil a cada instituicao comum que abrir esta tela).
+     */
+    private void configurarBadgeAutorizacoes() {
+        solicitacaoAcessoRepositorio.verificarAdmin(ehAdmin -> {
+            if (!ehAdmin) {
+                return;
+            }
+            listenerContagemPendentes = solicitacaoAcessoRepositorio.observarContagemPendentes(quantidade -> {
+                if (quantidade > 0) {
+                    ((TextView) badgeConfiguracoes).setText(String.valueOf(quantidade));
+                    badgeConfiguracoes.setVisibility(View.VISIBLE);
+                } else {
+                    badgeConfiguracoes.setVisibility(View.GONE);
+                }
+            });
+        });
     }
 
     private void observarPacientes() {
@@ -178,6 +207,9 @@ public class PacientesActivity extends BaseActivity {
     protected void onDestroy() {
         if (listenerPacientes != null) {
             listenerPacientes.remove();
+        }
+        if (listenerContagemPendentes != null) {
+            listenerContagemPendentes.remove();
         }
         super.onDestroy();
     }

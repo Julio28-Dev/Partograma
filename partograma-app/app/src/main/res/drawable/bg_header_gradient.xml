@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Efeito de degrade suave no topo das telas (referencia da cliente: rosa/lilas/azul
+     suave se misturando). Usado apenas como fundo da FAIXA do cabecalho, nunca no
+     restante da tela, para nao alterar nenhum botao, card, campo ou navegacao. -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="rectangle">
+    <gradient
+        android:type="linear"
+        android:angle="0"
+        android:startColor="@color/blobPinkSoft"
+        android:centerColor="@color/softLilac"
+        android:endColor="@color/softTealLight" />
+</shape>
