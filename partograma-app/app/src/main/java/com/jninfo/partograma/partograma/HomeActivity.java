@@ -12,7 +12,7 @@ import android.widget.TextView;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.res.ResourcesCompat;
 
-import com.google.firebase.auth.FirebaseAuth;
+import com.jninfo.partograma.partograma.data.SessaoUtil;
 import com.jninfo.partograma.partograma.ui.BlobButton;
 import com.jninfo.partograma.partograma.ui.LightRaysView;
 
@@ -21,17 +21,13 @@ import com.jninfo.partograma.partograma.ui.LightRaysView;
  * referencia visual (ver /refe.jpg): logo, titulo, cartao de recursos, ilustracao e o
  * botao "INICIAR".
  *
- * Fluxo (revisado -- a cliente pediu para nao ter mais tutorial nem login geral
- * obrigatorio): INICIAR -> Pacientes diretamente. O tutorial antigo ({@code TelaInicial},
- * as 3 telas que a cliente pediu para tirar) foi removido do fluxo e do projeto.
- *
- * A autenticacao (necessaria para o Firestore, ver firestore.rules) continua acontecendo
- * nos bastidores: {@link PartogramaApplication} ja tenta login anonimo assim que o app
- * abre. Se por algum motivo isso ainda nao tiver terminado (ou o provedor anonimo estiver
- * desativado no projeto Firebase), tentamos de novo aqui na hora do toque; so se isso
- * tambem falhar e que caímos no login institucional ({@link LoginActivity}) como rede de
- * seguranca -- nunca removendo autenticacao, so evitando pedir login quando nao e
- * necessario.
+ * Fluxo atual (autenticacao institucional agora e OBRIGATORIA para acessar dados
+ * protegidos -- substitui a fase anterior, em que uma sessao anonima bastava): INICIAR
+ * verifica se ja existe sessao valida e recente (ver {@link SessaoUtil}); se sim, vai
+ * direto para Pacientes sem pedir nada de novo; se nao, manda para {@link LoginActivity}.
+ * Nao tenta mais autenticar anonimamente aqui -- login anonimo ficou reservado
+ * exclusivamente para quem ainda nao tem conta enviar uma solicitacao de acesso (ver
+ * {@link SolicitarAcessoActivity}), nunca para entrar em Pacientes.
  */
 public class HomeActivity extends AppCompatActivity {
 
@@ -70,23 +66,20 @@ public class HomeActivity extends AppCompatActivity {
     }
 
     /**
-     * "INICIAR" vai direto para Pacientes -- sem tutorial, sem login geral obrigatorio.
-     * Se ja existe qualquer sessao Firebase (anonima do bootstrap do app, ou institucional
-     * de um login anterior), segue na hora. Se nao existe nenhuma (bootstrap anonimo ainda
-     * nao terminou, ou o provedor anonimo esta desativado no projeto), tenta autenticar
-     * anonimamente mais uma vez antes de decidir; so cai no login institucional se isso
-     * tambem falhar.
+     * "INICIAR": sessao valida e recente -> Pacientes direto, sem pedir nada de novo.
+     * Qualquer outro caso (nunca logou, fez logout, sessao anonima, expirada ha mais de
+     * 30 dias) -> LoginActivity, que por sua vez decide entre mostrar o formulario ou
+     * oferecer "Solicitar acesso".
      */
     private void iniciar(View origem) {
         origem.setEnabled(false);
-        FirebaseAuth auth = FirebaseAuth.getInstance();
-        if (auth.getCurrentUser() != null) {
+        if (SessaoUtil.sessaoValidaLocalmente(this)) {
+            SessaoUtil.registrarAcessoValido(this);
             irParaPacientes();
-            return;
+        } else {
+            SessaoUtil.encerrarSessao(this);
+            irParaLogin();
         }
-        auth.signInAnonymously()
-                .addOnSuccessListener(resultado -> irParaPacientes())
-                .addOnFailureListener(erro -> irParaLogin());
     }
 
     private void irParaPacientes() {

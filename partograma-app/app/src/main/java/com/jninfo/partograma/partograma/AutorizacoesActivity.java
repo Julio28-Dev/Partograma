@@ -41,6 +41,17 @@ public class AutorizacoesActivity extends BaseActivity {
         repositorio = new SolicitacaoAcessoRepository();
         containerSolicitacoes = findViewById(R.id.containerSolicitacoes);
         findViewById(R.id.btnVoltar).setOnClickListener(v -> finish());
+
+        // Defesa em profundidade: quem protege de verdade e o firestore.rules (uma
+        // instituicao comum nao consegue ler institutionAccessRequests de jeito nenhum),
+        // mas tambem nao faz sentido deixar a tela vazia/quebrada pra quem chegar aqui
+        // sem ser admin -- fecha e avisa.
+        repositorio.verificarAdmin(ehAdmin -> {
+            if (!ehAdmin && !isFinishing()) {
+                Toast.makeText(this, R.string.autorizacoes_acesso_negado, Toast.LENGTH_LONG).show();
+                finish();
+            }
+        });
     }
 
     @Override

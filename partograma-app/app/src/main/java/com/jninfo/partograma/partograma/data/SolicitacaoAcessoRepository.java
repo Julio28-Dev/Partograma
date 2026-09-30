@@ -164,6 +164,7 @@ public class SolicitacaoAcessoRepository {
         instituicaoDados.put(CAMPO_MENSAGEM_PADRAO, "");
         instituicaoDados.put("nomeInstituicao", solicitacao.getNomeInstituicao());
         instituicaoDados.put("responsavel", solicitacao.getResponsavel());
+        instituicaoDados.put("ativo", true);
 
         db.collection(COLECAO_INSTITUICOES).document(novoUid).set(instituicaoDados)
                 .addOnSuccessListener(unused -> {

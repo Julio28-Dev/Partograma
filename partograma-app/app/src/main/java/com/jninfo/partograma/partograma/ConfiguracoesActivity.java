@@ -19,6 +19,7 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.ListenerRegistration;
 import com.jninfo.partograma.partograma.data.AppPreferences;
 import com.jninfo.partograma.partograma.data.InstituicaoRepository;
+import com.jninfo.partograma.partograma.data.SessaoUtil;
 import com.jninfo.partograma.partograma.data.SolicitacaoAcessoRepository;
 
 /**
@@ -168,6 +169,7 @@ public class ConfiguracoesActivity extends BaseActivity {
         FirebaseAuth.getInstance().signInWithEmailAndPassword(email, senha)
                 .addOnSuccessListener(resultado -> {
                     String institutionId = InstituicaoRepository.instituicaoIdAtual();
+                    SessaoUtil.registrarAcessoValido(this);
                     if (institutionId != null) {
                         instituicaoRepositorio.garantirInstituicao(institutionId, new InstituicaoRepository.OperacaoCallback() {
                             @Override
@@ -240,8 +242,8 @@ public class ConfiguracoesActivity extends BaseActivity {
     }
 
     private void sair() {
-        com.google.firebase.auth.FirebaseAuth.getInstance().signOut();
-        Intent intent = new Intent(this, HomeActivity.class);
+        SessaoUtil.encerrarSessao(this);
+        Intent intent = new Intent(this, LoginActivity.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         startActivity(intent);
         finish();

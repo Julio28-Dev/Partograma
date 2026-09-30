@@ -49,6 +49,15 @@ service cloud.firestore {
         && exists(/databases/$(database)/documents/admins/$(request.auth.uid));
     }
 
+    // Uma instituicao pode ser desativada pelo admin depois de ja ter feito login (campo
+    // "ativo" em instituicoes/{uid}). Documento ainda inexistente (primeiro login logo
+    // apos aprovacao) ou sem o campo "ativo" (contas antigas, de antes desse campo
+    // existir) contam como ativa -- so um "ativo == false" explicito bloqueia.
+    function instituicaoAtiva(institutionId) {
+      return !exists(/databases/$(database)/documents/instituicoes/$(institutionId))
+        || get(/databases/$(database)/documents/instituicoes/$(institutionId)).data.get('ativo', true) != false;
+    }
+
     // Validacao minima: exige que os campos centrais existam e nao estejam vazios,
     // sem travar campos opcionais (alergias, tipo sanguineo, etc. podem ficar de fora).
     function dadosDoPacienteValidos(dados) {
@@ -87,14 +96,19 @@ service cloud.firestore {
       // souAdmin() alem do dono: o admin precisa gravar o documento da instituicao no
       // momento em que aprova uma solicitacao de acesso (ver institutionAccessRequests
       // abaixo), antes de a propria instituicao ter feito login pela primeira vez.
-      allow read, write: if estaAutenticado() && (request.auth.uid == institutionId || souAdmin());
+      // instituicaoAtiva() bloqueia uma instituicao desativada pelo admin DEPOIS do
+      // login de acessar seus proprios dados, mesmo com o Firebase Auth ainda valido.
+      allow read, write: if estaAutenticado()
+        && (souAdmin() || (request.auth.uid == institutionId && instituicaoAtiva(institutionId)));
 
       match /destinatarios/{destinatarioId} {
-        allow read, write: if estaAutenticado() && (request.auth.uid == institutionId || souAdmin());
+        allow read, write: if estaAutenticado()
+          && (souAdmin() || (request.auth.uid == institutionId && instituicaoAtiva(institutionId)));
       }
 
       match /alertas/{alertaId} {
-        allow read, write: if estaAutenticado() && (request.auth.uid == institutionId || souAdmin());
+        allow read, write: if estaAutenticado()
+          && (souAdmin() || (request.auth.uid == institutionId && instituicaoAtiva(institutionId)));
       }
     }
 

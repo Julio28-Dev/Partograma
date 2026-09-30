@@ -15,9 +15,11 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.ListenerRegistration;
 import com.jninfo.partograma.partograma.data.FirestorePatientRepository;
 import com.jninfo.partograma.partograma.data.Paciente;
+import com.jninfo.partograma.partograma.data.SessaoUtil;
 import com.jninfo.partograma.partograma.data.SolicitacaoAcessoRepository;
 
 import java.util.ArrayList;
@@ -94,6 +96,32 @@ public class PacientesActivity extends BaseActivity {
 
         observarPacientes();
         configurarBadgeAutorizacoes();
+        revalidarAutorizacaoInstituicao();
+    }
+
+    /**
+     * Confere no Firestore se a instituicao logada continua autorizada (pega uma
+     * desativacao feita pelo admin DEPOIS do login -- SessaoUtil.sessaoValidaLocalmente()
+     * sozinho nao sabe disso, so olha o cache local do Firebase Auth + o timestamp de
+     * inatividade). Falha aberto se offline/erro (ver javadoc de
+     * SessaoUtil.verificarAutorizacaoInstituicao) -- so derruba a sessao numa negativa
+     * CONFIRMADA, nunca por falta de conexao.
+     */
+    private void revalidarAutorizacaoInstituicao() {
+        com.google.firebase.auth.FirebaseUser usuario = FirebaseAuth.getInstance().getCurrentUser();
+        if (usuario == null) {
+            return;
+        }
+        SessaoUtil.verificarAutorizacaoInstituicao(usuario.getUid(), autorizada -> {
+            if (!autorizada && !isFinishing()) {
+                SessaoUtil.encerrarSessao(PacientesActivity.this);
+                Toast.makeText(PacientesActivity.this, R.string.pacientes_acesso_revogado, Toast.LENGTH_LONG).show();
+                Intent intent = new Intent(PacientesActivity.this, LoginActivity.class);
+                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                startActivity(intent);
+                finish();
+            }
+        });
     }
 
     /**

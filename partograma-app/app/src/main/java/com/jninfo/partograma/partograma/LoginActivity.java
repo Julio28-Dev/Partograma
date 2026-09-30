@@ -7,18 +7,22 @@ import android.view.View;
 import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
 import com.jninfo.partograma.partograma.data.InstituicaoRepository;
+import com.jninfo.partograma.partograma.data.SessaoUtil;
 
 /**
- * Login institucional: cada instituicao tem uma conta de e-mail/senha criada previamente no
- * Firebase Console (Authentication -> Email/senha) -- este app nao tem tela de cadastro
- * publico, so login, conforme pedido explicitamente ("nao inventar cadastro publico").
+ * Login institucional: cada instituicao tem uma conta de e-mail/senha, criada manualmente
+ * no Firebase Console (o admin) ou pela aprovacao de uma solicitacao de acesso (ver
+ * AutorizacoesActivity) -- este app nao tem cadastro publico direto, so login + pedido de
+ * acesso sujeito a aprovacao.
  *
- * Se ja existir uma sessao valida (nao anonima) salva pelo SDK do Firebase, pula direto para
- * Pacientes sem mostrar o formulario -- e a "sessao preservada" entre aberturas do app.
+ * Tela EXCLUIDA do portao de sessao do BaseActivity (precisaSessaoValida() = false): e
+ * exatamente a tela que precisa continuar acessivel para quem NAO tem sessao valida. Se
+ * ja existir sessao valida e recente (ver SessaoUtil), pula direto para Pacientes sem
+ * mostrar o formulario.
  */
 public class LoginActivity extends BaseActivity {
 
@@ -30,14 +34,21 @@ public class LoginActivity extends BaseActivity {
     private InstituicaoRepository instituicaoRepositorio;
 
     @Override
+    protected boolean precisaSessaoValida() {
+        return false;
+    }
+
+    @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        FirebaseUser usuarioAtual = FirebaseAuth.getInstance().getCurrentUser();
-        if (usuarioAtual != null && !usuarioAtual.isAnonymous()) {
+        if (SessaoUtil.sessaoValidaLocalmente(this)) {
             irParaPacientes();
             return;
         }
+        // Sessao invalida/inexistente: garante estado limpo (ex.: sessao anonima de
+        // bootstrap, ou expirada por inatividade) antes de mostrar o formulario.
+        SessaoUtil.encerrarSessao(this);
 
         setContentView(R.layout.activity_login);
         instituicaoRepositorio = new InstituicaoRepository();
@@ -51,6 +62,30 @@ public class LoginActivity extends BaseActivity {
         btnEntrar.setOnClickListener(v -> tentarEntrar());
         findViewById(R.id.btnSolicitarAcesso).setOnClickListener(v ->
                 startActivity(new Intent(this, SolicitarAcessoActivity.class)));
+        findViewById(R.id.btnEsqueciSenha).setOnClickListener(v -> enviarEmailRedefinicao());
+    }
+
+    /**
+     * "Esqueci minha senha": usa o fluxo oficial do Firebase (e-mail com link de
+     * redefinicao) -- nunca mostra, guarda ou envia a senha atual/nova por fora do
+     * mecanismo do proprio Firebase Auth.
+     */
+    private void enviarEmailRedefinicao() {
+        String email = edtLogin.getText().toString().trim();
+        if (TextUtils.isEmpty(email)) {
+            mostrarErro(getString(R.string.login_esqueci_senha_informe_email));
+            return;
+        }
+        alternarCarregando(true);
+        FirebaseAuth.getInstance().sendPasswordResetEmail(email)
+                .addOnSuccessListener(unused -> {
+                    alternarCarregando(false);
+                    Toast.makeText(this, R.string.login_esqueci_senha_enviado, Toast.LENGTH_LONG).show();
+                })
+                .addOnFailureListener(erro -> {
+                    alternarCarregando(false);
+                    mostrarErro(getString(R.string.login_esqueci_senha_erro));
+                });
     }
 
     private void tentarEntrar() {
@@ -93,6 +128,7 @@ public class LoginActivity extends BaseActivity {
     }
 
     private void irParaPacientes() {
+        SessaoUtil.registrarAcessoValido(this);
         startActivity(new Intent(this, PacientesActivity.class));
         finish();
     }

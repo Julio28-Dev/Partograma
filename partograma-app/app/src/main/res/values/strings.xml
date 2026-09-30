@@ -33,6 +33,7 @@
     <string name="pacientes_adicionar">Nova paciente</string>
     <string name="pacientes_vazio">Nenhuma paciente cadastrada ainda.\nToque em \"Adicionar nova paciente\" para começar.</string>
     <string name="pacientes_erro_carregar">Não foi possível carregar as pacientes. Verifique sua conexão.</string>
+    <string name="pacientes_acesso_revogado">O acesso da sua instituição não está mais autorizado. Faça login novamente.</string>
     <string name="pacientes_status_avaliacao">Em avaliação</string>
     <string name="pacientes_status_fase_latente">Fase latente</string>
     <string name="pacientes_status_trabalho_ativo">Trabalho de parto ativo</string>
@@ -193,6 +194,10 @@
     <string name="login_erro_generico">Não foi possível entrar. Verifique sua conexão e tente novamente.</string>
     <string name="login_rodape">Acesso restrito às instituições cadastradas.</string>
     <string name="login_link_solicitar_acesso">Sua instituição ainda não tem acesso? Solicitar acesso</string>
+    <string name="login_esqueci_senha">Esqueci minha senha</string>
+    <string name="login_esqueci_senha_informe_email">Digite seu e-mail no campo acima para receber o link de redefinição.</string>
+    <string name="login_esqueci_senha_enviado">E-mail de redefinição enviado. Verifique sua caixa de entrada.</string>
+    <string name="login_esqueci_senha_erro">Não foi possível enviar o e-mail de redefinição. Verifique o e-mail informado e sua conexão.</string>
 
     <string name="solicitar_acesso_titulo">Solicitar acesso</string>
     <string name="solicitar_acesso_subtitulo">Preencha os dados abaixo para pedir acesso da sua instituição. Um administrador vai revisar o pedido.</string>
@@ -226,6 +231,7 @@
     <string name="autorizacoes_sucesso_rejeitar">Solicitação rejeitada</string>
     <string name="autorizacoes_erro_generico">Não foi possível concluir a ação. Verifique sua conexão e tente novamente.</string>
     <string name="autorizacoes_erro_email_em_uso">Já existe uma conta com esse e-mail.</string>
+    <string name="autorizacoes_acesso_negado">Esta área é exclusiva para administradores.</string>
 
     <string name="alertas_titulo">Alertas da instituição</string>
     <string name="alertas_mensagem_padrao_titulo">Mensagem padrão de alerta</string>

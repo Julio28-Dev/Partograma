@@ -23,6 +23,11 @@ import com.jninfo.partograma.partograma.data.SolicitacaoAcessoRepository;
  */
 public class SolicitarAcessoActivity extends BaseActivity {
 
+    @Override
+    protected boolean precisaSessaoValida() {
+        return false;
+    }
+
     private EditText edtNomeInstituicao;
     private EditText edtResponsavel;
     private EditText edtEmailSolicitacao;

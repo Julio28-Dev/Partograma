@@ -70,6 +70,7 @@ public class InstituicaoRepository {
                     Map<String, Object> dados = new HashMap<>();
                     dados.put("criadoEm", FieldValue.serverTimestamp());
                     dados.put(CAMPO_MENSAGEM_PADRAO, "");
+                    dados.put("ativo", true);
                     db.collection(COLECAO_INSTITUICOES).document(institutionId).set(dados)
                             .addOnSuccessListener(unused -> callback.onSucesso())
                             .addOnFailureListener(callback::onErro);
