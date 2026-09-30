@@ -57,7 +57,17 @@ public class AutorizacoesActivity extends BaseActivity {
     @Override
     protected void onStart() {
         super.onStart();
-        listenerSolicitacoes = repositorio.observarPendentes(this::preencherLista);
+        listenerSolicitacoes = repositorio.observarPendentes(new SolicitacaoAcessoRepository.ListaSolicitacoesCallback() {
+            @Override
+            public void onAtualizadas(List<SolicitacaoAcesso> solicitacoes) {
+                preencherLista(solicitacoes);
+            }
+
+            @Override
+            public void onErro(Exception erro) {
+                Toast.makeText(AutorizacoesActivity.this, R.string.autorizacoes_erro_generico, Toast.LENGTH_LONG).show();
+            }
+        });
     }
 
     @Override
@@ -105,41 +115,30 @@ public class AutorizacoesActivity extends BaseActivity {
         }
     }
 
+    /**
+     * A conta ja existe (criada no momento da solicitacao, com a senha que a propria
+     * instituicao escolheu) -- aprovar so libera o acesso, nao pede/define senha nenhuma
+     * aqui.
+     */
     private void mostrarDialogoAceitar(SolicitacaoAcesso solicitacao) {
-        View corpo = LayoutInflater.from(this).inflate(R.layout.dialog_senha_inicial, null);
-        EditText edtSenha = corpo.findViewById(R.id.edtSenhaInicial);
-        TextView txtMensagem = corpo.findViewById(R.id.txtMensagemSenhaInicial);
-        txtMensagem.setText(getString(R.string.autorizacoes_dialogo_aceitar_mensagem, solicitacao.getNomeInstituicao()));
-
-        AlertDialog dialog = new AlertDialog.Builder(this)
+        new AlertDialog.Builder(this)
                 .setTitle(R.string.autorizacoes_dialogo_aceitar_titulo)
-                .setView(corpo)
+                .setMessage(getString(R.string.autorizacoes_dialogo_aceitar_mensagem,
+                        solicitacao.getNomeInstituicao(), solicitacao.getEmail()))
                 .setNegativeButton(R.string.autorizacoes_cancelar, null)
-                .setPositiveButton(R.string.autorizacoes_confirmar, null)
-                .create();
-        dialog.setOnShowListener(d -> dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(v -> {
-            String senha = edtSenha.getText().toString();
-            if (senha.length() < 6) {
-                Toast.makeText(this, R.string.autorizacoes_erro_senha_curta, Toast.LENGTH_LONG).show();
-                return;
-            }
-            dialog.dismiss();
-            repositorio.aprovar(this, solicitacao, senha, new SolicitacaoAcessoRepository.OperacaoCallback() {
-                @Override
-                public void onSucesso() {
-                    Toast.makeText(AutorizacoesActivity.this, R.string.autorizacoes_sucesso_aceitar, Toast.LENGTH_LONG).show();
-                }
+                .setPositiveButton(R.string.autorizacoes_confirmar, (dialog, which) ->
+                        repositorio.aprovar(solicitacao, new SolicitacaoAcessoRepository.OperacaoCallback() {
+                            @Override
+                            public void onSucesso() {
+                                Toast.makeText(AutorizacoesActivity.this, R.string.autorizacoes_sucesso_aceitar, Toast.LENGTH_LONG).show();
+                            }
 
-                @Override
-                public void onErro(Exception erro) {
-                    boolean emailEmUso = erro instanceof com.google.firebase.auth.FirebaseAuthUserCollisionException;
-                    Toast.makeText(AutorizacoesActivity.this,
-                            emailEmUso ? R.string.autorizacoes_erro_email_em_uso : R.string.autorizacoes_erro_generico,
-                            Toast.LENGTH_LONG).show();
-                }
-            });
-        }));
-        dialog.show();
+                            @Override
+                            public void onErro(Exception erro) {
+                                Toast.makeText(AutorizacoesActivity.this, R.string.autorizacoes_erro_generico, Toast.LENGTH_LONG).show();
+                            }
+                        }))
+                .show();
     }
 
     private void mostrarDialogoRejeitar(SolicitacaoAcesso solicitacao) {

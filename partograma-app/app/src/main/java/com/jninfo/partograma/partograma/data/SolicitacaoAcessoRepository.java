@@ -10,9 +10,11 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.ListenerRegistration;
-import com.google.firebase.firestore.Query;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -25,12 +27,14 @@ import java.util.Map;
  * {@code instituicoes/{uid}} que {@link InstituicaoRepository#garantirInstituicao} cria no
  * primeiro login, so que antecipado pelo admin.
  *
- * Nenhuma senha e persistida em nenhum momento: a senha inicial digitada pelo admin ao
- * aprovar e usada uma unica vez, na chamada ao Firebase Auth, e descartada da memoria logo
- * em seguida. Como o app nao tem backend/Cloud Functions, criar a conta da instituicao sem
- * derrubar a sessao do admin exige um FirebaseApp SECUNDARIO (mesmo projeto, instancia
- * paralela): {@code createUserWithEmailAndPassword} roda nessa instancia paralela, entao
- * quem "loga" nela e a instituicao nova, nunca o admin logado na instancia principal.
+ * A conta Firebase Auth da instituicao e criada JA NO MOMENTO DA SOLICITACAO, com a senha
+ * que a propria instituicao escolhe (ver {@link #solicitarAcesso}) -- assim, depois de
+ * aprovada, ela entra com o mesmo e-mail/senha que definiu ao pedir acesso, sem o admin
+ * precisar inventar nenhuma senha. Isso NAO significa acesso automatico: enquanto a
+ * solicitacao nao for aprovada, {@code instituicoes/{uid}} nao existe, e o login
+ * (LoginActivity) so libera o resto do app quando esse documento existe (ou quando e
+ * admin) -- ver LoginActivity.verificarAprovacaoEEntrar(). Nenhuma senha e persistida no
+ * Firestore em nenhum momento; ela vive exclusivamente no Firebase Auth.
  */
 public class SolicitacaoAcessoRepository {
 
@@ -61,20 +65,58 @@ public class SolicitacaoAcessoRepository {
 
     public interface ListaSolicitacoesCallback {
         void onAtualizadas(List<SolicitacaoAcesso> solicitacoes);
+        void onErro(Exception erro);
     }
 
-    /** Envia um novo pedido de acesso. Exige alguma sessao Firebase (anonima ja serve). */
-    public void solicitarAcesso(String nomeInstituicao, String responsavel, String email,
-                                 @Nullable String telefone, OperacaoCallback callback) {
-        Map<String, Object> dados = new HashMap<>();
-        dados.put("nomeInstituicao", nomeInstituicao);
-        dados.put("responsavel", responsavel);
-        dados.put("email", email);
-        dados.put("telefone", telefone == null ? "" : telefone);
-        dados.put("status", SolicitacaoAcesso.STATUS_PENDENTE);
-        dados.put("criadoEm", FieldValue.serverTimestamp());
-        db.collection(COLECAO_SOLICITACOES).add(dados)
-                .addOnSuccessListener(docRef -> callback.onSucesso())
+    /**
+     * Cria a conta Firebase Auth da instituicao (via app secundario, para nao afetar
+     * nenhuma sessao ja aberta neste aparelho) com o e-mail/senha escolhidos por ela, e
+     * so depois grava o pedido no Firestore com status pendente. Se a gravacao no
+     * Firestore falhar por qualquer motivo, desfaz a criacao da conta (rollback) para nao
+     * deixar uma conta orfa sem pedido correspondente.
+     */
+    public void solicitarAcesso(Context contexto, String nomeInstituicao, String responsavel,
+                                 String email, @Nullable String telefone, String senha,
+                                 OperacaoCallback callback) {
+        FirebaseApp appProvisionamento;
+        try {
+            appProvisionamento = FirebaseApp.getInstance(NOME_APP_PROVISIONAMENTO);
+        } catch (IllegalStateException semInstancia) {
+            appProvisionamento = FirebaseApp.initializeApp(
+                    contexto.getApplicationContext(),
+                    FirebaseApp.getInstance().getOptions(),
+                    NOME_APP_PROVISIONAMENTO);
+        }
+        FirebaseAuth authProvisionamento = FirebaseAuth.getInstance(appProvisionamento);
+
+        authProvisionamento.createUserWithEmailAndPassword(email, senha)
+                .addOnSuccessListener(resultado -> {
+                    String novoUid = resultado.getUser().getUid();
+                    Map<String, Object> dados = new HashMap<>();
+                    dados.put("nomeInstituicao", nomeInstituicao);
+                    dados.put("responsavel", responsavel);
+                    dados.put("email", email);
+                    dados.put("telefone", telefone == null ? "" : telefone);
+                    dados.put("status", SolicitacaoAcesso.STATUS_PENDENTE);
+                    dados.put("criadoEm", FieldValue.serverTimestamp());
+                    dados.put("institutionUid", novoUid);
+                    // ID do documento = uid da conta (nao autogerado) de proposito: e o
+                    // que permite ao firestore.rules negar auto-aprovacao (ver
+                    // temSolicitacaoNaoAprovada() e o comentario em instituicoes/{uid}).
+                    db.collection(COLECAO_SOLICITACOES).document(novoUid).set(dados)
+                            .addOnSuccessListener(docRef -> {
+                                authProvisionamento.signOut();
+                                callback.onSucesso();
+                            })
+                            .addOnFailureListener(erro -> {
+                                // Rollback: sem isso, ficaria uma conta Firebase Auth
+                                // criada sem nenhum pedido de acesso correspondente.
+                                if (authProvisionamento.getCurrentUser() != null) {
+                                    authProvisionamento.getCurrentUser().delete();
+                                }
+                                callback.onErro(erro);
+                            });
+                })
                 .addOnFailureListener(callback::onErro);
     }
 
@@ -103,12 +145,25 @@ public class SolicitacaoAcessoRepository {
                 });
     }
 
-    /** Lista em tempo real as solicitacoes pendentes, mais antigas primeiro. */
+    /**
+     * Lista em tempo real as solicitacoes pendentes, mais antigas primeiro. A ordenacao e
+     * feita EM MEMORIA (nao via orderBy() do Firestore) de proposito: um where() de
+     * igualdade combinado com orderBy() em outro campo exige um indice composto que nao
+     * existe neste projeto e precisaria ser criado manualmente no Console -- sem isso a
+     * consulta falhava silenciosamente (o listener recebia so o erro, nunca os
+     * documentos), e a tela de Autorizacoes aparecia sempre vazia mesmo com pedidos
+     * pendentes de verdade (o badge, que so usa where() sem orderBy(), continuava
+     * funcionando, por isso os dois nao batiam). Evitar o indice composto e mais simples
+     * e nao depende de nenhuma configuracao adicional no Firebase.
+     */
     public ListenerRegistration observarPendentes(ListaSolicitacoesCallback callback) {
         return db.collection(COLECAO_SOLICITACOES)
                 .whereEqualTo("status", SolicitacaoAcesso.STATUS_PENDENTE)
-                .orderBy("criadoEm", Query.Direction.ASCENDING)
                 .addSnapshotListener((snapshot, erro) -> {
+                    if (erro != null) {
+                        callback.onErro(erro);
+                        return;
+                    }
                     List<SolicitacaoAcesso> lista = new ArrayList<>();
                     if (snapshot != null) {
                         for (com.google.firebase.firestore.DocumentSnapshot doc : snapshot.getDocuments()) {
@@ -119,45 +174,31 @@ public class SolicitacaoAcessoRepository {
                             }
                         }
                     }
+                    Collections.sort(lista, Comparator.comparing(
+                            SolicitacaoAcesso::getCriadoEm, Comparator.nullsLast(Comparator.naturalOrder())));
                     callback.onAtualizadas(lista);
                 });
     }
 
     /**
-     * Aprova a solicitacao: cria a conta Firebase Auth da instituicao (via app secundario,
-     * sem afetar a sessao do admin), cria o documento instituicoes/{uid} e marca a
-     * solicitacao como aprovada. A senha inicial e definida agora pelo admin e nunca
-     * chega ao Firestore -- a instituicao pode troca-la depois em Configuracoes.
+     * Aprova a solicitacao: a conta Firebase Auth ja existe desde a solicitacao (ver
+     * {@link #solicitarAcesso}) -- aprovar so cria o documento instituicoes/{uid}
+     * (o que efetivamente libera o login, ver LoginActivity) e marca o pedido como
+     * aprovado. Nao envolve senha nenhuma nesta etapa.
      */
-    public void aprovar(Context contexto, SolicitacaoAcesso solicitacao, String senhaInicial, OperacaoCallback callback) {
+    public void aprovar(SolicitacaoAcesso solicitacao, OperacaoCallback callback) {
         FirebaseUser admin = FirebaseAuth.getInstance().getCurrentUser();
         if (admin == null) {
             callback.onErro(new IllegalStateException("Admin nao autenticado"));
             return;
         }
-        String adminUid = admin.getUid();
-
-        FirebaseApp appProvisionamento;
-        try {
-            appProvisionamento = FirebaseApp.getInstance(NOME_APP_PROVISIONAMENTO);
-        } catch (IllegalStateException semInstancia) {
-            appProvisionamento = FirebaseApp.initializeApp(
-                    contexto.getApplicationContext(),
-                    FirebaseApp.getInstance().getOptions(),
-                    NOME_APP_PROVISIONAMENTO);
-        }
-        FirebaseAuth authProvisionamento = FirebaseAuth.getInstance(appProvisionamento);
-
-        authProvisionamento.createUserWithEmailAndPassword(solicitacao.getEmail(), senhaInicial)
-                .addOnSuccessListener(resultado -> {
-                    String novoUid = resultado.getUser().getUid();
-                    authProvisionamento.signOut();
-                    criarInstituicaoEAtualizarSolicitacao(solicitacao, novoUid, adminUid, callback);
-                })
-                .addOnFailureListener(callback::onErro);
+        // O ID do documento e o uid da conta (ver solicitarAcesso) -- fonte de verdade,
+        // mesmo que o campo institutionUid (redundante, so para facilitar leitura no
+        // Console) por algum motivo estivesse ausente.
+        criarInstituicaoEAtualizarSolicitacao(solicitacao, solicitacao.getId(), admin.getUid(), callback);
     }
 
-    private void criarInstituicaoEAtualizarSolicitacao(SolicitacaoAcesso solicitacao, String novoUid,
+    private void criarInstituicaoEAtualizarSolicitacao(SolicitacaoAcesso solicitacao, String institutionUid,
                                                          String adminUid, OperacaoCallback callback) {
         Map<String, Object> instituicaoDados = new HashMap<>();
         instituicaoDados.put("criadoEm", FieldValue.serverTimestamp());
@@ -166,11 +207,10 @@ public class SolicitacaoAcessoRepository {
         instituicaoDados.put("responsavel", solicitacao.getResponsavel());
         instituicaoDados.put("ativo", true);
 
-        db.collection(COLECAO_INSTITUICOES).document(novoUid).set(instituicaoDados)
+        db.collection(COLECAO_INSTITUICOES).document(institutionUid).set(instituicaoDados)
                 .addOnSuccessListener(unused -> {
                     Map<String, Object> atualizacao = new HashMap<>();
                     atualizacao.put("status", SolicitacaoAcesso.STATUS_APROVADA);
-                    atualizacao.put("institutionUid", novoUid);
                     atualizacao.put("revisadoPor", adminUid);
                     atualizacao.put("atualizadoEm", FieldValue.serverTimestamp());
                     db.collection(COLECAO_SOLICITACOES).document(solicitacao.getId())

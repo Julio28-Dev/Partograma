@@ -97,6 +97,20 @@
                     android:inputType="phone"
                     android:maxLines="1" />
 
+                <TextView style="@style/CampoLabel" android:text="@string/solicitar_acesso_senha" />
+                <EditText
+                    android:id="@+id/edtSenhaSolicitacao"
+                    style="@style/CampoInput"
+                    android:inputType="textPassword"
+                    android:maxLines="1" />
+
+                <TextView style="@style/CampoLabel" android:text="@string/solicitar_acesso_confirmar_senha" />
+                <EditText
+                    android:id="@+id/edtConfirmarSenhaSolicitacao"
+                    style="@style/CampoInput"
+                    android:inputType="textPassword"
+                    android:maxLines="1" />
+
                 <TextView
                     android:id="@+id/txtErroSolicitarAcesso"
                     android:layout_width="match_parent"

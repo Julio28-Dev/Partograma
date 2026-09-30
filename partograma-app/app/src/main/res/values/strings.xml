@@ -192,6 +192,7 @@
     <string name="login_erro_credenciais">E-mail ou senha inválidos. Verifique e tente novamente.</string>
     <string name="login_erro_campos_vazios">Preencha e-mail e senha.</string>
     <string name="login_erro_generico">Não foi possível entrar. Verifique sua conexão e tente novamente.</string>
+    <string name="login_erro_solicitacao_pendente">Sua solicitação de acesso ainda está em análise. Aguarde a aprovação do administrador.</string>
     <string name="login_rodape">Acesso restrito às instituições cadastradas.</string>
     <string name="login_link_solicitar_acesso">Sua instituição ainda não tem acesso? Solicitar acesso</string>
     <string name="login_esqueci_senha">Esqueci minha senha</string>
@@ -205,11 +206,17 @@
     <string name="solicitar_acesso_responsavel">Responsável</string>
     <string name="solicitar_acesso_email">E-mail para login</string>
     <string name="solicitar_acesso_telefone">Telefone (opcional)</string>
+    <string name="solicitar_acesso_senha">Crie uma senha</string>
+    <string name="solicitar_acesso_confirmar_senha">Confirme a senha</string>
     <string name="solicitar_acesso_enviar">Solicitar acesso</string>
     <string name="solicitar_acesso_erro_campos_vazios">Preencha nome da instituição, responsável e e-mail.</string>
+    <string name="solicitar_acesso_erro_senha_curta">A senha precisa ter pelo menos 6 caracteres.</string>
+    <string name="solicitar_acesso_erro_senhas_diferentes">As senhas não conferem.</string>
+    <string name="solicitar_acesso_erro_email_em_uso">Já existe uma solicitação ou conta com esse e-mail.</string>
+    <string name="solicitar_acesso_erro_email_invalido">E-mail inválido. Verifique e tente novamente.</string>
     <string name="solicitar_acesso_erro_generico">Não foi possível enviar sua solicitação. Verifique sua conexão e tente novamente.</string>
     <string name="solicitar_acesso_sucesso_titulo">Solicitação enviada</string>
-    <string name="solicitar_acesso_sucesso_mensagem">Assim que um administrador aprovar o acesso, você poderá entrar com o e-mail informado.</string>
+    <string name="solicitar_acesso_sucesso_mensagem">Assim que um administrador aprovar o acesso, você poderá entrar com o e-mail e a senha que você acabou de definir.</string>
     <string name="solicitar_acesso_rodape">Nenhum dado clínico é solicitado nesta etapa.</string>
 
     <string name="config_autorizacoes">Autorizações</string>
@@ -220,8 +227,7 @@
     <string name="autorizacoes_aceitar">Aceitar</string>
     <string name="autorizacoes_rejeitar">Rejeitar</string>
     <string name="autorizacoes_dialogo_aceitar_titulo">Aprovar solicitação</string>
-    <string name="autorizacoes_dialogo_aceitar_mensagem">Defina uma senha inicial de acesso para %1$s. A instituição poderá trocá-la depois em Configurações.</string>
-    <string name="autorizacoes_senha_inicial_hint">Senha inicial (mín. 6 caracteres)</string>
+    <string name="autorizacoes_dialogo_aceitar_mensagem">Aprovar o acesso de %1$s? A instituição poderá entrar com o e-mail e a senha que ela mesma definiu ao solicitar (%2$s).</string>
     <string name="autorizacoes_confirmar">Confirmar</string>
     <string name="autorizacoes_cancelar">Cancelar</string>
     <string name="autorizacoes_dialogo_rejeitar_titulo">Rejeitar solicitação</string>

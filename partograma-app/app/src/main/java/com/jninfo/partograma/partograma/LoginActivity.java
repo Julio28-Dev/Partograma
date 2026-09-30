@@ -10,6 +10,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.FirebaseFirestore;
 import com.jninfo.partograma.partograma.data.InstituicaoRepository;
 import com.jninfo.partograma.partograma.data.SessaoUtil;
 
@@ -106,25 +107,70 @@ public class LoginActivity extends BaseActivity {
                         mostrarErro(getString(R.string.login_erro_generico));
                         return;
                     }
-                    instituicaoRepositorio.garantirInstituicao(institutionId, new InstituicaoRepository.OperacaoCallback() {
-                        @Override
-                        public void onSucesso() {
-                            irParaPacientes();
-                        }
-
-                        @Override
-                        public void onErro(Exception erro) {
-                            // A autenticacao ja foi bem-sucedida; nao bloquear o acesso so
-                            // porque a criacao do documento da instituicao falhou agora --
-                            // ela sera tentada de novo na proxima vez que algo precisar dela.
-                            irParaPacientes();
-                        }
-                    });
+                    verificarAprovacaoEEntrar(institutionId);
                 })
                 .addOnFailureListener(erro -> {
                     alternarCarregando(false);
                     mostrarErro(getString(R.string.login_erro_credenciais));
                 });
+    }
+
+    /**
+     * A autenticacao (e-mail/senha) por si so NAO significa acesso liberado: desde que a
+     * conta da instituicao passou a ser criada ja no momento da solicitacao (ver
+     * SolicitacaoAcessoRepository.solicitarAcesso), alguem com um pedido ainda pendente ou
+     * ja rejeitado tambem consegue autenticar com sucesso aqui -- so nao deve conseguir
+     * PASSAR daqui. Admin sempre passa (admins/{uid}); instituicao comum so passa quando
+     * instituicoes/{uid} ja existe, o que so acontece quando o admin aprova (ver
+     * AutorizacoesActivity). Pendente e rejeitada dao exatamente a mesma mensagem de
+     * proposito -- nao expor pra quem esta tentando entrar qual dos dois casos e.
+     */
+    private void verificarAprovacaoEEntrar(String uid) {
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        db.collection("admins").document(uid).get()
+                .addOnSuccessListener(adminDoc -> {
+                    if (adminDoc.exists()) {
+                        garantirInstituicaoEEntrar(uid);
+                        return;
+                    }
+                    db.collection("instituicoes").document(uid).get()
+                            .addOnSuccessListener(instDoc -> {
+                                if (instDoc.exists()) {
+                                    irParaPacientes();
+                                } else {
+                                    alternarCarregando(false);
+                                    FirebaseAuth.getInstance().signOut();
+                                    mostrarErro(getString(R.string.login_erro_solicitacao_pendente));
+                                }
+                            })
+                            .addOnFailureListener(erro -> {
+                                alternarCarregando(false);
+                                FirebaseAuth.getInstance().signOut();
+                                mostrarErro(getString(R.string.login_erro_generico));
+                            });
+                })
+                .addOnFailureListener(erro -> {
+                    alternarCarregando(false);
+                    FirebaseAuth.getInstance().signOut();
+                    mostrarErro(getString(R.string.login_erro_generico));
+                });
+    }
+
+    private void garantirInstituicaoEEntrar(String institutionId) {
+        instituicaoRepositorio.garantirInstituicao(institutionId, new InstituicaoRepository.OperacaoCallback() {
+            @Override
+            public void onSucesso() {
+                irParaPacientes();
+            }
+
+            @Override
+            public void onErro(Exception erro) {
+                // A autenticacao ja foi bem-sucedida; nao bloquear o acesso do admin so
+                // porque a criacao do documento da instituicao falhou agora -- ela sera
+                // tentada de novo na proxima vez que algo precisar dela.
+                irParaPacientes();
+            }
+        });
     }
 
     private void irParaPacientes() {

@@ -9,17 +9,18 @@ import android.widget.TextView;
 
 import androidx.appcompat.app.AlertDialog;
 
-import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException;
+import com.google.firebase.auth.FirebaseAuthUserCollisionException;
+import com.google.firebase.auth.FirebaseAuthWeakPasswordException;
 import com.jninfo.partograma.partograma.data.SolicitacaoAcessoRepository;
 
 /**
- * Tela publica (sem login previo) para uma instituicao pedir acesso ao app. Nao concede
- * acesso na hora -- so grava o pedido como "pendente" para o admin revisar em
- * Configuracoes -> Autorizacoes (ver SolicitacaoAcessoRepository).
- *
- * Exige alguma sessao Firebase para poder escrever no Firestore (ver firestore.rules);
- * usa a sessao anonima ja aberta pelo bootstrap do app (PartogramaApplication) ou tenta
- * abrir uma na hora, igual ao padrao ja usado em HomeActivity.
+ * Tela publica (sem login previo) para uma instituicao pedir acesso ao app. A conta
+ * Firebase Auth (e-mail + senha escolhidos aqui) e criada JA NESTA ETAPA -- ver
+ * {@link SolicitacaoAcessoRepository#solicitarAcesso} -- para que, depois de aprovada, a
+ * instituicao entre com a MESMA credencial que definiu aqui, sem o admin precisar inventar
+ * senha nenhuma. Isso nao concede acesso na hora: enquanto o pedido nao for aprovado, o
+ * login continua bloqueado (ver LoginActivity), mesmo a conta ja existindo.
  */
 public class SolicitarAcessoActivity extends BaseActivity {
 
@@ -32,6 +33,8 @@ public class SolicitarAcessoActivity extends BaseActivity {
     private EditText edtResponsavel;
     private EditText edtEmailSolicitacao;
     private EditText edtTelefoneSolicitacao;
+    private EditText edtSenhaSolicitacao;
+    private EditText edtConfirmarSenhaSolicitacao;
     private TextView txtErro;
     private View btnEnviar;
     private ProgressBar progress;
@@ -47,6 +50,8 @@ public class SolicitarAcessoActivity extends BaseActivity {
         edtResponsavel = findViewById(R.id.edtResponsavel);
         edtEmailSolicitacao = findViewById(R.id.edtEmailSolicitacao);
         edtTelefoneSolicitacao = findViewById(R.id.edtTelefoneSolicitacao);
+        edtSenhaSolicitacao = findViewById(R.id.edtSenhaSolicitacao);
+        edtConfirmarSenhaSolicitacao = findViewById(R.id.edtConfirmarSenhaSolicitacao);
         txtErro = findViewById(R.id.txtErroSolicitarAcesso);
         btnEnviar = findViewById(R.id.btnEnviarSolicitacao);
         progress = findViewById(R.id.progressSolicitarAcesso);
@@ -60,39 +65,50 @@ public class SolicitarAcessoActivity extends BaseActivity {
         String responsavel = edtResponsavel.getText().toString().trim();
         String email = edtEmailSolicitacao.getText().toString().trim();
         String telefone = edtTelefoneSolicitacao.getText().toString().trim();
+        String senha = edtSenhaSolicitacao.getText().toString();
+        String confirmarSenha = edtConfirmarSenhaSolicitacao.getText().toString();
 
         if (TextUtils.isEmpty(nomeInstituicao) || TextUtils.isEmpty(responsavel) || TextUtils.isEmpty(email)) {
             mostrarErro(getString(R.string.solicitar_acesso_erro_campos_vazios));
             return;
         }
+        if (senha.length() < 6) {
+            mostrarErro(getString(R.string.solicitar_acesso_erro_senha_curta));
+            return;
+        }
+        if (!senha.equals(confirmarSenha)) {
+            mostrarErro(getString(R.string.solicitar_acesso_erro_senhas_diferentes));
+            return;
+        }
 
         alternarCarregando(true);
-        if (FirebaseAuth.getInstance().getCurrentUser() != null) {
-            enviarSolicitacao(nomeInstituicao, responsavel, email, telefone);
-        } else {
-            FirebaseAuth.getInstance().signInAnonymously()
-                    .addOnSuccessListener(resultado -> enviarSolicitacao(nomeInstituicao, responsavel, email, telefone))
-                    .addOnFailureListener(erro -> {
+        repositorio.solicitarAcesso(this, nomeInstituicao, responsavel, email, telefone, senha,
+                new SolicitacaoAcessoRepository.OperacaoCallback() {
+                    @Override
+                    public void onSucesso() {
                         alternarCarregando(false);
-                        mostrarErro(getString(R.string.solicitar_acesso_erro_generico));
-                    });
-        }
+                        mostrarSucesso();
+                    }
+
+                    @Override
+                    public void onErro(Exception erro) {
+                        alternarCarregando(false);
+                        mostrarErro(getString(mensagemDeErro(erro)));
+                    }
+                });
     }
 
-    private void enviarSolicitacao(String nomeInstituicao, String responsavel, String email, String telefone) {
-        repositorio.solicitarAcesso(nomeInstituicao, responsavel, email, telefone, new SolicitacaoAcessoRepository.OperacaoCallback() {
-            @Override
-            public void onSucesso() {
-                alternarCarregando(false);
-                mostrarSucesso();
-            }
-
-            @Override
-            public void onErro(Exception erro) {
-                alternarCarregando(false);
-                mostrarErro(getString(R.string.solicitar_acesso_erro_generico));
-            }
-        });
+    private int mensagemDeErro(Exception erro) {
+        if (erro instanceof FirebaseAuthUserCollisionException) {
+            return R.string.solicitar_acesso_erro_email_em_uso;
+        }
+        if (erro instanceof FirebaseAuthWeakPasswordException) {
+            return R.string.solicitar_acesso_erro_senha_curta;
+        }
+        if (erro instanceof FirebaseAuthInvalidCredentialsException) {
+            return R.string.solicitar_acesso_erro_email_invalido;
+        }
+        return R.string.solicitar_acesso_erro_generico;
     }
 
     private void mostrarSucesso() {

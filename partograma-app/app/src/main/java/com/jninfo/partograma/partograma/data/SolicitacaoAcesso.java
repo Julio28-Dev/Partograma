@@ -28,6 +28,7 @@ public class SolicitacaoAcesso {
     private Date atualizadoEm;
     private String revisadoPor;
     private String motivoRejeicao;
+    private String institutionUid;
 
     public SolicitacaoAcesso() {
         // Construtor vazio exigido pelo Firestore.
@@ -113,5 +114,13 @@ public class SolicitacaoAcesso {
 
     public void setMotivoRejeicao(String motivoRejeicao) {
         this.motivoRejeicao = motivoRejeicao;
+    }
+
+    public String getInstitutionUid() {
+        return institutionUid;
+    }
+
+    public void setInstitutionUid(String institutionUid) {
+        this.institutionUid = institutionUid;
     }
 }

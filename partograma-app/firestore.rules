@@ -58,6 +58,20 @@ service cloud.firestore {
         || get(/databases/$(database)/documents/instituicoes/$(institutionId)).data.get('ativo', true) != false;
     }
 
+    // A conta Firebase Auth de uma instituicao que pediu acesso pelo app existe DESDE A
+    // SOLICITACAO (com a senha que ela mesma escolheu, ver SolicitacaoAcessoRepository),
+    // antes de qualquer aprovacao -- ela ja consegue autenticar mesmo pendente/rejeitada.
+    // Sem esta funcao, o dono (request.auth.uid == institutionId) poderia criar o proprio
+    // instituicoes/{uid} diretamente (contornando o app) e se autoaprovar. O ID do
+    // documento em institutionAccessRequests e sempre o mesmo uid da conta (ver
+    // solicitarAcesso), entao da pra checar por get() direto sem precisar de query.
+    // Contas criadas manualmente no Console (sem passar pelo fluxo de solicitacao, sem
+    // documento correspondente aqui) continuam podendo se auto-provisionar como antes.
+    function temSolicitacaoNaoAprovada(institutionId) {
+      return exists(/databases/$(database)/documents/institutionAccessRequests/$(institutionId))
+        && get(/databases/$(database)/documents/institutionAccessRequests/$(institutionId)).data.status != 'aprovada';
+    }
+
     // Validacao minima: exige que os campos centrais existam e nao estejam vazios,
     // sem travar campos opcionais (alergias, tipo sanguineo, etc. podem ficar de fora).
     function dadosDoPacienteValidos(dados) {
@@ -93,12 +107,18 @@ service cloud.firestore {
     // fez login (LoginActivity) -- por isso da para isolar de verdade aqui, diferente de
     // "pacientes" (ver comentario no topo do arquivo).
     match /instituicoes/{institutionId} {
-      // souAdmin() alem do dono: o admin precisa gravar o documento da instituicao no
-      // momento em que aprova uma solicitacao de acesso (ver institutionAccessRequests
-      // abaixo), antes de a propria instituicao ter feito login pela primeira vez.
+      // CREATE: o dono so pode auto-criar o proprio documento se NAO existir nenhuma
+      // solicitacao de acesso ainda-nao-aprovada com esse mesmo uid (ver
+      // temSolicitacaoNaoAprovada) -- e o que impede alguem com pedido pendente ou
+      // rejeitado de se autoaprovar direto no Firestore, contornando o admin.
+      allow create: if estaAutenticado()
+        && (souAdmin() || (request.auth.uid == institutionId && !temSolicitacaoNaoAprovada(institutionId)));
+
+      // READ/UPDATE/DELETE: souAdmin() alem do dono porque o admin tambem precisa
+      // conseguir gravar o documento ja aprovado (ver institutionAccessRequests abaixo).
       // instituicaoAtiva() bloqueia uma instituicao desativada pelo admin DEPOIS do
-      // login de acessar seus proprios dados, mesmo com o Firebase Auth ainda valido.
-      allow read, write: if estaAutenticado()
+      // login de acessar os proprios dados, mesmo com o Firebase Auth ainda valido.
+      allow read, update, delete: if estaAutenticado()
         && (souAdmin() || (request.auth.uid == institutionId && instituicaoAtiva(institutionId)));
 
       match /destinatarios/{destinatarioId} {
@@ -134,11 +154,18 @@ service cloud.firestore {
     // admin -- uma instituicao comum nao consegue listar, aprovar, rejeitar ou alterar
     // manualmente o proprio status.
     match /institutionAccessRequests/{requestId} {
+      // O ID do documento (requestId) e sempre o uid da conta Firebase Auth da
+      // instituicao, criada JA NA SOLICITACAO com a senha que ela mesma escolhe (ver
+      // SolicitacaoAcessoRepository.solicitarAcesso) -- nao e um ID autogerado. Para nao
+      // virar um jeito de "sequestrar" uma instituicao ja aprovada (reenviando uma
+      // "solicitacao" com o mesmo uid de alguem que ja existe), so aceita se ainda NAO
+      // existir instituicoes/{requestId} -- ou seja, so serve pra uma conta nova, nunca
+      // aprovada.
       allow create: if estaAutenticado()
         && request.resource.data.status == 'pendente'
         && request.resource.data.keys().hasAll(['nomeInstituicao', 'responsavel', 'email', 'criadoEm'])
         && !('revisadoPor' in request.resource.data)
-        && !('institutionUid' in request.resource.data);
+        && !exists(/databases/$(database)/documents/instituicoes/$(requestId));
       allow read: if souAdmin();
       allow update: if souAdmin();
       allow delete: if false;
