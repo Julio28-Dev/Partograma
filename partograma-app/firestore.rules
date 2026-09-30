@@ -33,6 +33,31 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
+    // Funcoes definidas AQUI DENTRO (nao no nivel de cima) de proposito: souAdmin() usa
+    // $(database) dentro de exists(), e essa variavel so resolve de forma confiavel
+    // quando a funcao esta no mesmo escopo do "match /databases/{database}/documents"
+    // que a capturou. Definida no nivel de cima (fora deste match), exists() nao
+    // enxergava o documento admins/{uid} direito -- souAdmin() sempre caia em falso
+    // mesmo com o documento existindo, o que bloqueava o proprio admin de ler
+    // institutionAccessRequests. Corrigido movendo as funcoes para ca.
+    function estaAutenticado() {
+      return request.auth != null;
+    }
+
+    function souAdmin() {
+      return request.auth != null
+        && exists(/databases/$(database)/documents/admins/$(request.auth.uid));
+    }
+
+    // Validacao minima: exige que os campos centrais existam e nao estejam vazios,
+    // sem travar campos opcionais (alergias, tipo sanguineo, etc. podem ficar de fora).
+    function dadosDoPacienteValidos(dados) {
+      return dados.keys().hasAll(['nome', 'prontuario', 'dataNascimento'])
+        && dados.nome is string && dados.nome.size() > 0
+        && dados.prontuario is string && dados.prontuario.size() > 0
+        && dados.dataNascimento is string && dados.dataNascimento.size() > 0;
+    }
+
     match /pacientes/{pacienteId} {
       allow read, delete: if estaAutenticado();
       allow create: if estaAutenticado() && dadosDoPacienteValidos(request.resource.data);
@@ -109,23 +134,5 @@ service cloud.firestore {
     match /{document=**} {
       allow read, write: if false;
     }
-  }
-
-  function estaAutenticado() {
-    return request.auth != null;
-  }
-
-  function souAdmin() {
-    return request.auth != null
-      && exists(/databases/$(database)/documents/admins/$(request.auth.uid));
-  }
-
-  // Validacao minima: exige que os campos centrais existam e nao estejam vazios,
-  // sem travar campos opcionais (alergias, tipo sanguineo, etc. podem ficar de fora).
-  function dadosDoPacienteValidos(dados) {
-    return dados.keys().hasAll(['nome', 'prontuario', 'dataNascimento'])
-      && dados.nome is string && dados.nome.size() > 0
-      && dados.prontuario is string && dados.prontuario.size() > 0
-      && dados.dataNascimento is string && dados.dataNascimento.size() > 0;
   }
 }
