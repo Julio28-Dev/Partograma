@@ -78,6 +78,26 @@ public class SolicitacaoAcessoRepository {
     public void solicitarAcesso(Context contexto, String nomeInstituicao, String responsavel,
                                  String email, @Nullable String telefone, String senha,
                                  OperacaoCallback callback) {
+        // A gravacao do pedido no Firestore (app PRIMARIO, mais abaixo) exige alguma
+        // sessao (estaAutenticado()) -- quem chega nesta tela vindo do Login nunca tem
+        // nenhuma, porque LoginActivity desloga qualquer sessao anonima ao mostrar o
+        // formulario (para "Sair" funcionar de verdade, ver SessaoUtil.encerrarSessao).
+        // Sem estabelecer uma sessao anonima aqui primeiro, a gravacao falhava sempre com
+        // permission-denied, disfarcado de "verifique sua conexao" no app.
+        FirebaseAuth authPrimario = FirebaseAuth.getInstance();
+        if (authPrimario.getCurrentUser() != null) {
+            prosseguirComSolicitacao(contexto, nomeInstituicao, responsavel, email, telefone, senha, callback);
+        } else {
+            authPrimario.signInAnonymously()
+                    .addOnSuccessListener(resultado ->
+                            prosseguirComSolicitacao(contexto, nomeInstituicao, responsavel, email, telefone, senha, callback))
+                    .addOnFailureListener(callback::onErro);
+        }
+    }
+
+    private void prosseguirComSolicitacao(Context contexto, String nomeInstituicao, String responsavel,
+                                           String email, @Nullable String telefone, String senha,
+                                           OperacaoCallback callback) {
         FirebaseApp appProvisionamento;
         try {
             appProvisionamento = FirebaseApp.getInstance(NOME_APP_PROVISIONAMENTO);
