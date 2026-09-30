@@ -52,6 +52,14 @@ public class PacientesActivity extends BaseActivity {
     private ProgressBar progressCarregando;
     private SwipeRefreshLayout swipeRefresh;
 
+    /**
+     * uid da instituicao logada (mostra so as proprias pacientes) ou null (admin, ve
+     * todas). Comeca como o proprio uid por seguranca -- so vira null depois que
+     * verificarAdmin() confirmar de verdade, nunca antes (fail-closed: por padrao, mostra
+     * so o que e seu, nunca tudo por engano).
+     */
+    private String institutionIdFiltro;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -94,9 +102,37 @@ public class PacientesActivity extends BaseActivity {
         findViewById(R.id.btnConfiguracoes).setOnClickListener(v ->
                 startActivity(new Intent(PacientesActivity.this, ConfiguracoesActivity.class)));
 
+        com.google.firebase.auth.FirebaseUser usuario = FirebaseAuth.getInstance().getCurrentUser();
+        institutionIdFiltro = usuario != null ? usuario.getUid() : null;
+
         observarPacientes();
-        configurarBadgeAutorizacoes();
+        configurarAdmin();
         revalidarAutorizacaoInstituicao();
+    }
+
+    /**
+     * Uma unica checagem de admin usada pra duas coisas: (1) badge de solicitacoes
+     * pendentes na engrenagem, (2) tirar o filtro por instituicao da lista de pacientes
+     * (so admin ve todas). Comeca filtrado pela propria instituicao (ver
+     * institutionIdFiltro) e so amplia para "ver tudo" depois de confirmar admin de
+     * verdade -- instituicao comum nunca chega a re-observar sem filtro.
+     */
+    private void configurarAdmin() {
+        solicitacaoAcessoRepositorio.verificarAdmin(ehAdmin -> {
+            if (!ehAdmin) {
+                return;
+            }
+            institutionIdFiltro = null;
+            observarPacientes();
+            listenerContagemPendentes = solicitacaoAcessoRepositorio.observarContagemPendentes(quantidade -> {
+                if (quantidade > 0) {
+                    ((TextView) badgeConfiguracoes).setText(String.valueOf(quantidade));
+                    badgeConfiguracoes.setVisibility(View.VISIBLE);
+                } else {
+                    badgeConfiguracoes.setVisibility(View.GONE);
+                }
+            });
+        });
     }
 
     /**
@@ -124,35 +160,13 @@ public class PacientesActivity extends BaseActivity {
         });
     }
 
-    /**
-     * So instituicoes com papel admin (documento em admins/{uid}, ver firestore.rules)
-     * veem a contagem de solicitacoes pendentes -- para as demais, nem a checagem de
-     * admin muda nada visualmente, nem o listener de contagem chega a ser aberto (evita
-     * um "permission-denied" inutil a cada instituicao comum que abrir esta tela).
-     */
-    private void configurarBadgeAutorizacoes() {
-        solicitacaoAcessoRepositorio.verificarAdmin(ehAdmin -> {
-            if (!ehAdmin) {
-                return;
-            }
-            listenerContagemPendentes = solicitacaoAcessoRepositorio.observarContagemPendentes(quantidade -> {
-                if (quantidade > 0) {
-                    ((TextView) badgeConfiguracoes).setText(String.valueOf(quantidade));
-                    badgeConfiguracoes.setVisibility(View.VISIBLE);
-                } else {
-                    badgeConfiguracoes.setVisibility(View.GONE);
-                }
-            });
-        });
-    }
-
     private void observarPacientes() {
         if (listenerPacientes != null) {
             listenerPacientes.remove();
         }
         progressCarregando.setVisibility(todosPacientes.isEmpty() ? View.VISIBLE : View.GONE);
 
-        listenerPacientes = repositorio.observarPacientes(new FirestorePatientRepository.ListaPacientesCallback() {
+        listenerPacientes = repositorio.observarPacientes(institutionIdFiltro, new FirestorePatientRepository.ListaPacientesCallback() {
             @Override
             public void onPacientesAtualizados(List<Paciente> pacientes) {
                 progressCarregando.setVisibility(View.GONE);

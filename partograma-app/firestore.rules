@@ -13,21 +13,21 @@
 // sem exigir nenhuma tela de login nova.
 //
 // Login institucional (LoginActivity, Firebase Auth email/senha): cada instituicao tem uma
-// conta propria (criada manualmente no Firebase Console, sem tela de cadastro publico).
-// Fazer login com e-mail/senha substitui a sessao anonima do aparelho -- "estaAutenticado()"
-// continua valendo para os dois casos, entao "pacientes" (colecao antiga, sem conceito de
-// instituicao) nao foi restringida por instituicao aqui: os poucos documentos ja existentes
-// nao tem o campo "institutionId" e uma regra que exigisse esse campo bateria de frente com
-// a limitacao do Firestore de nao conseguir filtrar consultas de lista parcialmente por
-// regra (ou a consulta inteira e permitida, ou inteira negada) -- ou seja, teria feito os
-// cadastros antigos desaparecerem da lista de Pacientes para todo mundo, o que o cliente
-// pediu explicitamente para nao acontecer. Fica documentado como pendente: para isolamento
-// completo entre instituicoes na colecao "pacientes", seria necessario decidir a quem
-// atribuir os cadastros antigos (ou aceitar que continuem compartilhados) e so entao trocar
-// a consulta do app para filtrar por institutionId com a regra correspondente.
+// conta propria (criada manualmente no Firebase Console, pela aprovacao de uma solicitacao
+// de acesso, ou -- so o admin -- via admins/{uid}). Fazer login com e-mail/senha substitui
+// a sessao anonima do aparelho.
 //
-// A colecao nova "instituicoes" (mensagem padrao de alerta, destinatarios, historico de
-// alertas) e isolada de verdade desde o primeiro dia, sem esse problema de dado legado.
+// "pacientes" e isolada por instituicao (campo institutionId, ver donoDaPacienteOuAdmin):
+// cada instituicao so ve/edita as proprias pacientes; admin ve/edita todas. Antes essa
+// colecao era compartilhada entre todo mundo -- ficou assim documentado como pendente por
+// um tempo porque a regra exigindo institutionId faria cadastros antigos sem esse campo
+// desaparecerem da lista de todo mundo (Firestore nao filtra lista parcialmente por regra:
+// ou a consulta inteira e permitida, ou inteira negada). Isolamento ligado quando o banco
+// tinha 1 unico paciente cadastrado, ja com institutionId preenchido -- sem esse problema
+// de dado legado na pratica.
+//
+// A colecao "instituicoes" (mensagem padrao de alerta, destinatarios, historico de alertas)
+// e isolada por instituicao desde o primeiro dia, com o mesmo padrao.
 rules_version = '2';
 
 service cloud.firestore {
@@ -81,24 +81,40 @@ service cloud.firestore {
         && dados.dataNascimento is string && dados.dataNascimento.size() > 0;
     }
 
+    // Dono da paciente (mesma instituicao que cadastrou) ou admin. Usado tambem pelas
+    // subcolecoes via get() no documento pai, ja que elas nao tem institutionId proprio.
+    function donoDaPacienteOuAdmin(institutionId) {
+      return souAdmin() || request.auth.uid == institutionId;
+    }
+
     match /pacientes/{pacienteId} {
-      allow read, delete: if estaAutenticado();
-      allow create: if estaAutenticado() && dadosDoPacienteValidos(request.resource.data);
-      allow update: if estaAutenticado() && dadosDoPacienteValidos(request.resource.data);
+      // Isolamento entre instituicoes (pedido explicito do cliente: uma instituicao nao
+      // pode ver/editar pacientes de outra). Admin continua vendo/editando todas. Nao
+      // existe mais dado legado sem institutionId (so 1 paciente no banco no momento
+      // desta mudanca, e ja tem o campo) -- por isso da pra exigir esse filtro sem
+      // nenhum cadastro antigo desaparecer, diferente do que acontecia antes.
+      allow read, delete: if estaAutenticado() && donoDaPacienteOuAdmin(resource.data.institutionId);
+      allow create: if estaAutenticado() && dadosDoPacienteValidos(request.resource.data)
+        && donoDaPacienteOuAdmin(request.resource.data.institutionId);
+      allow update: if estaAutenticado() && dadosDoPacienteValidos(request.resource.data)
+        && donoDaPacienteOuAdmin(resource.data.institutionId);
 
       // Registros horarios do partograma (equivalente a "pessoa{slot}{campo}{hora}").
       match /registros/{registroId} {
-        allow read, write: if estaAutenticado();
+        allow read, write: if estaAutenticado()
+          && donoDaPacienteOuAdmin(get(/databases/$(database)/documents/pacientes/$(pacienteId)).data.institutionId);
       }
 
       // Notas de evolucao da paciente (aba "Dados").
       match /evolucoes/{evolucaoId} {
-        allow read, write: if estaAutenticado();
+        allow read, write: if estaAutenticado()
+          && donoDaPacienteOuAdmin(get(/databases/$(database)/documents/pacientes/$(pacienteId)).data.institutionId);
       }
 
       // Afericoes de sinais vitais (aba "Sinais vitais", independente do partograma).
       match /sinaisVitais/{sinalVitalId} {
-        allow read, write: if estaAutenticado();
+        allow read, write: if estaAutenticado()
+          && donoDaPacienteOuAdmin(get(/databases/$(database)/documents/pacientes/$(pacienteId)).data.institutionId);
       }
     }
 

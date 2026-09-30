@@ -76,11 +76,24 @@ public class FirestorePatientRepository {
     }
 
     /**
-     * Observa a lista de pacientes em tempo real (ordenados por criacao, mais recente primeiro).
+     * Observa a lista de pacientes em tempo real, mais recente primeiro. {@code institutionIdFiltro}
+     * nulo ve TODAS as pacientes (uso exclusivo do admin); um uid filtra so as pacientes
+     * daquela instituicao (isolamento entre instituicoes -- ver firestore.rules, que exige
+     * esse where() para instituicao comum: sem ele o Firestore rejeitaria a consulta
+     * inteira, nao filtraria parcialmente).
+     *
+     * Com filtro, a ordenacao e feita EM MEMORIA (sem orderBy() no Firestore) de proposito:
+     * where("institutionId", ...) + orderBy("criadoEm", ...) em campos diferentes exige um
+     * indice composto que este projeto nao tem configurado (mesmo problema ja corrigido em
+     * SolicitacaoAcessoRepository.observarPendentes) -- evitar o orderBy() no servidor
+     * dispensa qualquer configuracao adicional no Firebase Console.
+     *
      * Retorna o {@link ListenerRegistration} para poder cancelar em onStop/onDestroy.
      */
-    public ListenerRegistration observarPacientes(ListaPacientesCallback callback) {
-        Query query = db.collection(COLECAO_PACIENTES).orderBy("criadoEm", Query.Direction.DESCENDING);
+    public ListenerRegistration observarPacientes(@Nullable String institutionIdFiltro, ListaPacientesCallback callback) {
+        Query query = institutionIdFiltro != null
+                ? db.collection(COLECAO_PACIENTES).whereEqualTo("institutionId", institutionIdFiltro)
+                : db.collection(COLECAO_PACIENTES).orderBy("criadoEm", Query.Direction.DESCENDING);
         return query.addSnapshotListener((QuerySnapshot snapshot, com.google.firebase.firestore.FirebaseFirestoreException erro) -> {
             if (erro != null) {
                 callback.onErro(erro);
@@ -95,6 +108,14 @@ public class FirestorePatientRepository {
                         pacientes.add(paciente);
                     }
                 }
+            }
+            if (institutionIdFiltro != null) {
+                java.util.Collections.sort(pacientes, (a, b) -> {
+                    if (a.getCriadoEm() == null || b.getCriadoEm() == null) {
+                        return 0;
+                    }
+                    return b.getCriadoEm().compareTo(a.getCriadoEm());
+                });
             }
             callback.onPacientesAtualizados(pacientes);
         });
