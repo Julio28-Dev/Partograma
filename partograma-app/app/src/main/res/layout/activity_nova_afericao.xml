@@ -139,7 +139,7 @@
 
                     <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center_vertical">
                         <ImageView android:layout_width="16dp" android:layout_height="16dp" android:importantForAccessibility="no" android:src="@drawable/ic_vital_calendar" />
-                        <TextView style="@style/CampoLabel" android:layout_marginBottom="0dp" android:layout_marginStart="6dp" android:text="@string/sinais_vitais_data_afericao" />
+                        <TextView style="@style/CampoLabel" android:layout_marginTop="0dp" android:layout_marginBottom="0dp" android:layout_marginStart="6dp" android:text="@string/sinais_vitais_data_afericao" />
                     </LinearLayout>
                     <EditText android:id="@+id/edtDataAfericao" style="@style/CampoInput" android:layout_marginTop="8dp" android:layout_marginBottom="0dp" android:hint="dd/mm/aaaa" android:inputType="number" />
                 </LinearLayout>
@@ -152,7 +152,7 @@
 
                     <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center_vertical">
                         <ImageView android:layout_width="16dp" android:layout_height="16dp" android:importantForAccessibility="no" android:src="@drawable/ic_feature_clock" />
-                        <TextView style="@style/CampoLabel" android:layout_marginBottom="0dp" android:layout_marginStart="6dp" android:text="@string/sinais_vitais_horario" />
+                        <TextView style="@style/CampoLabel" android:layout_marginTop="0dp" android:layout_marginBottom="0dp" android:layout_marginStart="6dp" android:text="@string/sinais_vitais_horario" />
                     </LinearLayout>
                     <EditText android:id="@+id/edtHorarioAfericao" style="@style/CampoInput" android:layout_marginTop="8dp" android:layout_marginBottom="0dp" android:hint="HH:mm" android:inputType="number" />
                 </LinearLayout>
@@ -171,7 +171,7 @@
                     <FrameLayout android:layout_width="30dp" android:layout_height="30dp" android:background="@drawable/bg_avatar_circle">
                         <ImageView android:layout_width="17dp" android:layout_height="17dp" android:layout_gravity="center" android:importantForAccessibility="no" android:src="@drawable/ic_vital_stethoscope" />
                     </FrameLayout>
-                    <TextView style="@style/CampoLabel" android:layout_marginBottom="0dp" android:layout_marginStart="10dp" android:text="@string/sinais_vitais_pa" />
+                    <TextView style="@style/CampoLabel" android:layout_marginTop="0dp" android:layout_marginBottom="0dp" android:layout_marginStart="10dp" android:text="@string/sinais_vitais_pa" />
                 </LinearLayout>
                 <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="8dp" android:layout_marginBottom="16dp" android:gravity="center_vertical" android:orientation="horizontal">
                     <EditText android:id="@+id/edtPaSistolica" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1"
@@ -186,7 +186,7 @@
                     <FrameLayout android:layout_width="30dp" android:layout_height="30dp" android:background="@drawable/bg_avatar_circle">
                         <ImageView android:layout_width="17dp" android:layout_height="17dp" android:layout_gravity="center" android:importantForAccessibility="no" android:src="@drawable/ic_feature_pulse" />
                     </FrameLayout>
-                    <TextView style="@style/CampoLabel" android:layout_marginBottom="0dp" android:layout_marginStart="10dp" android:text="@string/sinais_vitais_fc" />
+                    <TextView style="@style/CampoLabel" android:layout_marginTop="0dp" android:layout_marginBottom="0dp" android:layout_marginStart="10dp" android:text="@string/sinais_vitais_fc" />
                 </LinearLayout>
                 <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="8dp" android:layout_marginBottom="16dp" android:gravity="center_vertical" android:orientation="horizontal">
                     <EditText android:id="@+id/edtFrequenciaCardiaca" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1"
@@ -198,7 +198,7 @@
                     <FrameLayout android:layout_width="30dp" android:layout_height="30dp" android:background="@drawable/bg_avatar_circle">
                         <ImageView android:layout_width="17dp" android:layout_height="17dp" android:layout_gravity="center" android:importantForAccessibility="no" android:src="@drawable/ic_vital_lungs" />
                     </FrameLayout>
-                    <TextView style="@style/CampoLabel" android:layout_marginBottom="0dp" android:layout_marginStart="10dp" android:text="@string/sinais_vitais_fr" />
+                    <TextView style="@style/CampoLabel" android:layout_marginTop="0dp" android:layout_marginBottom="0dp" android:layout_marginStart="10dp" android:text="@string/sinais_vitais_fr" />
                 </LinearLayout>
                 <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="8dp" android:layout_marginBottom="16dp" android:gravity="center_vertical" android:orientation="horizontal">
                     <EditText android:id="@+id/edtFrequenciaRespiratoria" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1"
@@ -210,7 +210,7 @@
                     <FrameLayout android:layout_width="30dp" android:layout_height="30dp" android:background="@drawable/bg_avatar_circle">
                         <ImageView android:layout_width="17dp" android:layout_height="17dp" android:layout_gravity="center" android:importantForAccessibility="no" android:src="@drawable/ic_vital_thermometer" />
                     </FrameLayout>
-                    <TextView style="@style/CampoLabel" android:layout_marginBottom="0dp" android:layout_marginStart="10dp" android:text="@string/sinais_vitais_temperatura" />
+                    <TextView style="@style/CampoLabel" android:layout_marginTop="0dp" android:layout_marginBottom="0dp" android:layout_marginStart="10dp" android:text="@string/sinais_vitais_temperatura" />
                 </LinearLayout>
                 <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="8dp" android:layout_marginBottom="16dp" android:gravity="center_vertical" android:orientation="horizontal">
                     <EditText android:id="@+id/edtTemperatura" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1"
@@ -222,7 +222,7 @@
                     <FrameLayout android:layout_width="30dp" android:layout_height="30dp" android:background="@drawable/bg_avatar_circle">
                         <ImageView android:layout_width="15dp" android:layout_height="15dp" android:layout_gravity="center" android:importantForAccessibility="no" android:src="@drawable/ic_vital_drop" app:tint="@color/softTeal" />
                     </FrameLayout>
-                    <TextView style="@style/CampoLabel" android:layout_marginBottom="0dp" android:layout_marginStart="10dp" android:text="@string/sinais_vitais_spo2" />
+                    <TextView style="@style/CampoLabel" android:layout_marginTop="0dp" android:layout_marginBottom="0dp" android:layout_marginStart="10dp" android:text="@string/sinais_vitais_spo2" />
                 </LinearLayout>
                 <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="8dp" android:layout_marginBottom="16dp" android:gravity="center_vertical" android:orientation="horizontal">
                     <EditText android:id="@+id/edtSpo2" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1"
@@ -234,7 +234,7 @@
                     <FrameLayout android:layout_width="30dp" android:layout_height="30dp" android:background="@drawable/bg_avatar_circle">
                         <ImageView android:layout_width="15dp" android:layout_height="15dp" android:layout_gravity="center" android:importantForAccessibility="no" android:src="@drawable/ic_vital_drop" app:tint="@color/primaryPink" />
                     </FrameLayout>
-                    <TextView style="@style/CampoLabel" android:layout_marginBottom="0dp" android:layout_marginStart="10dp" android:text="@string/sinais_vitais_dor" />
+                    <TextView style="@style/CampoLabel" android:layout_marginTop="0dp" android:layout_marginBottom="0dp" android:layout_marginStart="10dp" android:text="@string/sinais_vitais_dor" />
                 </LinearLayout>
                 <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="8dp" android:layout_marginBottom="16dp" android:gravity="center_vertical" android:orientation="horizontal">
                     <EditText android:id="@+id/edtDor" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1"
@@ -246,7 +246,7 @@
                     <FrameLayout android:layout_width="30dp" android:layout_height="30dp" android:background="@drawable/bg_avatar_circle">
                         <ImageView android:layout_width="15dp" android:layout_height="15dp" android:layout_gravity="center" android:importantForAccessibility="no" android:src="@drawable/ic_vital_drop" app:tint="@color/softPurple" />
                     </FrameLayout>
-                    <TextView style="@style/CampoLabel" android:layout_marginBottom="0dp" android:layout_marginStart="10dp" android:text="@string/sinais_vitais_hgt" />
+                    <TextView style="@style/CampoLabel" android:layout_marginTop="0dp" android:layout_marginBottom="0dp" android:layout_marginStart="10dp" android:text="@string/sinais_vitais_hgt" />
                 </LinearLayout>
                 <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="8dp" android:gravity="center_vertical" android:orientation="horizontal">
                     <EditText android:id="@+id/edtHgt" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1"
@@ -266,7 +266,7 @@
 
                 <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center_vertical">
                     <ImageView android:layout_width="17dp" android:layout_height="17dp" android:importantForAccessibility="no" android:src="@drawable/ic_vital_notes" />
-                    <TextView style="@style/CampoLabel" android:layout_marginBottom="0dp" android:layout_marginStart="8dp" android:text="@string/sinais_vitais_observacoes" />
+                    <TextView style="@style/CampoLabel" android:layout_marginTop="0dp" android:layout_marginBottom="0dp" android:layout_marginStart="8dp" android:text="@string/sinais_vitais_observacoes" />
                 </LinearLayout>
                 <EditText android:id="@+id/edtObservacoesAfericao" style="@style/CampoInput" android:layout_marginTop="8dp" android:layout_marginBottom="0dp" android:inputType="textMultiLine" android:minLines="2" />
             </LinearLayout>
@@ -282,7 +282,7 @@
 
                 <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center_vertical">
                     <ImageView android:layout_width="17dp" android:layout_height="17dp" android:importantForAccessibility="no" android:src="@drawable/ic_patient" />
-                    <TextView style="@style/CampoLabel" android:layout_marginBottom="0dp" android:layout_marginStart="8dp" android:text="@string/sinais_vitais_examinador" />
+                    <TextView style="@style/CampoLabel" android:layout_marginTop="0dp" android:layout_marginBottom="0dp" android:layout_marginStart="8dp" android:text="@string/sinais_vitais_examinador" />
                 </LinearLayout>
                 <EditText android:id="@+id/edtExaminadorAfericao" style="@style/CampoInput" android:layout_marginTop="8dp" android:layout_marginBottom="0dp" android:inputType="textPersonName|textCapWords" />
             </LinearLayout>
